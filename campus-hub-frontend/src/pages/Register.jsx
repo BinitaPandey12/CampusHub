@@ -11,6 +11,7 @@ function Register() {
   const [error, setError] = useState("");
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handlePasswordChange = (e) => {
@@ -28,9 +29,9 @@ function Register() {
   };
 
   const getStrengthColor = () => {
-    if (passwordStrength < 40) return "#ef4444"; // red
-    if (passwordStrength < 70) return "#f59e0b"; // amber
-    return "#10b981"; // emerald
+    if (passwordStrength < 40) return "#ef4444";
+    if (passwordStrength < 70) return "#f59e0b";
+    return "#10b981";
   };
 
   const handleRegister = async (e) => {
@@ -45,15 +46,8 @@ function Register() {
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username,
-          fullName,
-          email,
-          password
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, fullName, email, password }),
       });
 
       if (!response.ok) {
@@ -61,14 +55,12 @@ function Register() {
         try {
           const errData = await response.json();
           message = errData.message || message;
-        } catch {
-          // Response body is not JSON or is empty
-        }
+        } catch {}
         throw new Error(message);
       }
 
       const data = await response.json();
-      localStorage.setItem("token", data.token); // Save JWT
+      localStorage.setItem("token", data.token);
       navigate("/login");
     } catch (err) {
       setError(err.message || "Something went wrong");
@@ -81,8 +73,6 @@ function Register() {
         <h1 className="register-title">Create Account</h1>
 
         {error && <div className="error-message">{error}</div>}
-
-      
 
         <input
           type="text"
@@ -109,26 +99,32 @@ function Register() {
             value={password}
             onChange={handlePasswordChange}
             className="register-input"
-
             required
           />
           <span
             className="password-toggle"
             onClick={() => setShowPassword((prev) => !prev)}
-            style={{ cursor: "pointer" }}
           >
             {showPassword ? "🙊" : "🙈"}
           </span>
         </div>
 
-        <input
-          type={showPassword ? "text" : "password"}
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className="register-input"
-          required
-        />
+        <div className="password-wrapper">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="register-input"
+            required
+          />
+          <span
+            className="password-toggle"
+            onClick={() => setShowConfirmPassword((prev) => !prev)}
+          >
+            {showConfirmPassword ? "🙊" : "🙈"}
+          </span>
+        </div>
 
         <button type="submit" className="register-button">
           Register
