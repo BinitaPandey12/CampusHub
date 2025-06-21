@@ -174,6 +174,18 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="dashboard-footer">
+        <div className="footer-content">
+          <span>&copy; {new Date().getFullYear()} Campus Hub. All rights reserved.</span>
+          <span>
+            <Link to="/about" className="footer-link">About</Link> |{" "}
+            <Link to="/contact" className="footer-link">Contact</Link> |{" "}
+            <Link to="/privacy" className="footer-link">Privacy Policy</Link>
+          </span>
+        </div>
+      </footer>
     </div>
   );
 };

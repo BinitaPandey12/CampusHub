@@ -11,20 +11,98 @@
 } */
 
 .login-container {
+  position: relative;
   min-height: 100vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-   background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  border-radius: 20px;
-  border-style: solid;
-  /* ... */
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e0f7fa 0%, #d0e6fd 100%);
+  animation: backgroundShift 15s ease-in-out infinite;
 }
+
+/* Animated Decorative Background Elements */
+.login-container::before,
+.login-container::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  width: 180px;
+  height: 180px;
+  opacity: 0.12;
+  filter: blur(1px) drop-shadow(0 8px 32px rgba(79,70,229,0.12));
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.login-container::before {
+  background-image: url('https://cdn-icons-png.flaticon.com/512/3075/3075977.png'); /* Book icon */
+  top: 8%;
+  left: 5%;
+  animation: floatIcon1 18s ease-in-out infinite alternate;
+}
+
+.login-container::after {
+  background-image: url('https://cdn-icons-png.flaticon.com/512/3135/3135768.png'); /* Graduation cap */
+  bottom: 8%;
+  right: 5%;
+  animation: floatIcon2 22s ease-in-out infinite alternate;
+}
+
+@keyframes floatIcon1 {
+  0% {
+    transform: translateY(0) scale(1) rotate(-8deg);
+    opacity: 0.10;
+  }
+  40% {
+    transform: translateY(-30px) scale(1.08) rotate(8deg);
+    opacity: 0.16;
+  }
+  60% {
+    transform: translateY(-40px) scale(1.12) rotate(-6deg);
+    opacity: 0.18;
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(-8deg);
+    opacity: 0.12;
+  }
+}
+
+@keyframes floatIcon2 {
+  0% {
+    transform: translateY(0) scale(1) rotate(10deg);
+    opacity: 0.10;
+  }
+  35% {
+    transform: translateY(-25px) scale(1.06) rotate(-10deg);
+    opacity: 0.15;
+  }
+  65% {
+    transform: translateY(-35px) scale(1.10) rotate(12deg);
+    opacity: 0.18;
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(10deg);
+    opacity: 0.12;
+  }
+}
+
+@keyframes backgroundShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 
 .login-form {
   width: 100%;

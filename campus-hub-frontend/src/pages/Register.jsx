@@ -82,14 +82,7 @@ function Register() {
 
         {error && <div className="error-message">{error}</div>}
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="register-input"
-          required
-        />
+      
 
         <input
           type="text"
@@ -116,6 +109,7 @@ function Register() {
             value={password}
             onChange={handlePasswordChange}
             className="register-input"
+
             required
           />
           <span
@@ -126,16 +120,6 @@ function Register() {
             {showPassword ? "🙊" : "🙈"}
           </span>
         </div>
-
-        <div
-          className="password-strength-bar"
-          style={{
-            backgroundColor: getStrengthColor(),
-            width: `${passwordStrength}%`,
-            height: "5px",
-            marginTop: "5px"
-          }}
-        />
 
         <input
           type={showPassword ? "text" : "password"}

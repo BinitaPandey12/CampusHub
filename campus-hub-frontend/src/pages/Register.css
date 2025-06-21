@@ -75,7 +75,13 @@ width: 90%;
   color: #a0aec0;
 }
 
-.password-wrapper .login-input {
+.password-wrapper{
+  position: relative;
+  width: 90%;
+  margin-bottom: 0px;
+}
+
+.password-wrapper .register-input {
   width: 100%;
   padding: 1rem;
   margin-bottom: 1.5rem;
