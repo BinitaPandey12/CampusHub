@@ -34,6 +34,7 @@
   color: #34495e;
   font-weight: 500;
   margin-bottom: 0.3rem;
+  display: block;
 }
 
 /* Input styling */
@@ -52,6 +53,26 @@
 .settings-input:focus {
   border-color: #3498db;
   outline: none;
+}
+
+/* Checkbox container */
+.settings-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.settings-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-right: 0.75rem;
+  cursor: pointer;
+}
+
+.settings-checkbox-label {
+  font-weight: 600;
+  color: #34495e;
+  cursor: pointer;
 }
 
 /* Button styling */

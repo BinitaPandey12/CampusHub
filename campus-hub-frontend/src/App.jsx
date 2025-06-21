@@ -7,6 +7,7 @@ import SystemAdmin from "./pages/SystemAdmin";
 import ClubAdmin from "./pages/ClubAdmin";
 import UserDashboard from "./pages/UserDashboard";
 import Settings from "./pages/Settings";
+import ForgotPassword from "./pages/ForgotPassword";
 // import Chatbot from "./components/Chatbot";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/system-admin" element={<SystemAdmin />} />
           <Route path="/club-admin" element={<ClubAdmin />} />
           <Route path="/user-dashboard" element={<UserDashboard />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </div>
     </Router>

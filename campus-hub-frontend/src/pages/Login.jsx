@@ -15,17 +15,19 @@ function Login() {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", {
-        email,
-        password
-      });
+      const response = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
-      const token = response.data.token; 
+      const token = response.data.token;
 
       // Save token to localStorage or sessionStorage
       localStorage.setItem("token", token);
       localStorage.setItem("email", response.data.email);
-
 
       // Redirect to dashboard
       navigate("/");
@@ -72,11 +74,21 @@ function Login() {
           </span>
         </div>
 
+        {/* Forgot Password Link */}
+        <div className="forgot-password-container">
+          <Link to="/forgot-password" className="forgot-password-link">
+            Forgot Password?
+          </Link>
+        </div>
+
         <button type="submit" className="login-button">
           Login
         </button>
         <div className="login-footer">
-          Don't have an account? <Link to="/register" className="login-link">Register</Link>
+          Don't have an account?{" "}
+          <Link to="/register" className="login-link">
+            Register
+          </Link>
         </div>
       </form>
     </div>
