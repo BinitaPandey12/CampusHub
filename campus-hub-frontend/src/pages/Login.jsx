@@ -20,10 +20,12 @@ function Login() {
         password
       });
 
-      const token = response.data.jwt; 
+      const token = response.data.token; 
 
       // Save token to localStorage or sessionStorage
       localStorage.setItem("token", token);
+      localStorage.setItem("email", response.data.email);
+
 
       // Redirect to dashboard
       navigate("/");
