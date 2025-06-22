@@ -42,16 +42,28 @@ function Register() {
       setError("Passwords do not match.");
       return;
     }
+     // Client-side email domain validation
+  if (!email.toLowerCase().endsWith("@ncit.edu.np")) {
+    setError("Registration allowed only with @ncit.edu.np email addresses.");
+    return;
+  }
+
 
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, fullName, email, password }),
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fullName,
+          email,
+          password
+        })
       });
 
       if (!response.ok) {
-        let message = "Registration failed";
+        let message = "You are not allowed to register as CLUBADMIN or SYSTEMADMIN";
         try {
           const errData = await response.json();
           message = errData.message || message;
