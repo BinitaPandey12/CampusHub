@@ -74,7 +74,6 @@ function Login() {
     navigate("/club-admin");
   } else {
     navigate("/user-dashboard");
-    mdfngkfdhdf
   }
 
 // } catch (err) {
