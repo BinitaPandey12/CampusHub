@@ -1,8 +1,34 @@
+
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import "./Login.css";
+import * as jwtDecode from "jwt-decode";
 
+import "./Login.css";
+// import jwtDecode from "jwt-decode";
+
+
+
+
+
+
+
+function decodeJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Manual decode error:", error);
+    return null;
+  }
+}
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,16 +55,49 @@ function Login() {
       localStorage.setItem("token", token);
       localStorage.setItem("email", response.data.email);
 
-      // Redirect to dashboard
-      navigate("/");
-    } catch (err) {
-      if (err.response && err.response.status === 401) {
-        setError("Invalid email or password.");
-      } else {
-        setError("Login failed. Please try again later.");
-      }
+      
+      const decoded = decodeJwt(token);
+    if (!decoded) {
+      setError("Failed to decode token.");
+      return;
     }
-  };
+
+    console.log("Manually decoded token:", decoded);
+    const role = decoded.role;
+
+
+  //     
+   // ✅ Redirect based on role
+   if (role === "SYSTEMADMIN") {
+    navigate("/system-admin-dashboard");
+  } else if (role === "CLUBADMIN") {
+    navigate("/club-admin");
+  } else {
+    navigate("/");
+  }
+
+// } catch (err) {
+//   console.error("Login error:", err);  // Add this line
+//   if (err.response && err.response.status === 401) {
+//     setError("Invalid email or password.");
+//   } else {
+//     setError("Login failed. Please try again later.");
+//   }
+// }
+
+} catch (err) {
+  console.error("Login error full object:", err);
+  if (err.response) {
+    console.log("Error response status:", err.response.status);
+    console.log("Error response data:", err.response.data);
+  }
+  if (err.response && err.response.status === 403) {
+    setError("Invalid email or password.");
+  } else {
+    setError("Login failed. Please try again later.");
+  }
+}
+};
 
   return (
     <div className="login-container">
