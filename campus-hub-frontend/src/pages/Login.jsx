@@ -73,7 +73,7 @@ function Login() {
   } else if (role === "CLUBADMIN") {
     navigate("/club-admin");
   } else {
-    navigate("/");
+    navigate("/user-dashboard");
   }
 
 // } catch (err) {
