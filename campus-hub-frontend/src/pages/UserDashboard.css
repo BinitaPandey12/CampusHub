@@ -1,177 +1,220 @@
-/* Background and page centering */
-.page-container {
+/* User Dashboard Specific Styles - Prefixed to avoid conflicts */
+.user-dashboard {
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 40px 20px 80px;
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  width: 100vw;
+  color: #1f2937;
+  background: linear-gradient(135deg, #e0f7fa, #c3e0f9);
+  padding-top: 80px;
   font-family: "Inter", sans-serif;
 }
 
-/* Main dashboard card */
-.dashboard-card {
-  background: #ffffffdd;
-  max-width: 900px;
-  width: 100%;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.07);
-  color: #1e293b;
-  box-sizing: border-box;
-}
-
-/* Navbar styles */
-.navbar {
-  width: 100%;
-  background: #3b82f6;
-  padding: 10px 40px;
-  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.6);
-  position: sticky;
+/* Navbar */
+.user-dashboard-nav {
+  position: fixed;
   top: 0;
-  z-index: 100;
-  font-family: "Inter", sans-serif;
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  padding: 1rem 2rem;
 }
 
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
+.user-nav-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.nav-logo {
-  font-size: 1.8rem;
+.user-nav-logo {
+  font-size: 1.5rem;
   font-weight: 700;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
 }
 
-.nav-links a {
-  color: white;
+.user-nav-logo-img {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+}
+
+.user-nav-links {
+  display: flex;
+  align-items: center;
+}
+
+.user-nav-welcome {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.user-nav-welcome span {
+  margin-right: 16px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.user-notification-btn {
+  color: black;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  margin-right: 8px;
+  padding: 0;
+}
+
+/* Profile Dropdown */
+.user-profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.user-profile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  min-width: 160px;
+  z-index: 100;
+}
+
+.user-dropdown-item {
+  display: block;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #1f2937;
   text-decoration: none;
-  margin-left: 30px;
-  font-weight: 600;
-  transition: color 0.3s ease;
+  transition: background 0.2s;
 }
 
-.nav-links a:hover {
-  color: #a5b4fc;
+.user-dropdown-item:hover {
+  background-color: #f3f4f6;
 }
 
-/* Dashboard heading */
-.dashboard-title {
-  font-size: 2.8rem;
+.user-dropdown-logout {
+  color: #ef4444;
+}
+
+/* Main Content */
+.user-dashboard-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.user-dashboard-heading {
+  font-size: 2.2rem;
   font-weight: 700;
-  margin-bottom: 30px;
-  color: #1e293b;
-}
-
-/* Stats section with grid */
-.stats-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 30px;
-  margin-bottom: 40px;
-}
-
-.stat-box {
-  background: #3b82f6;
-  color: white;
-  padding: 25px 20px;
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+  color: #1f2937;
+  margin-bottom: 2rem;
   text-align: center;
-  transition: background 0.3s ease;
-  cursor: default;
 }
 
-.stat-box:hover {
-  background: #2563eb;
-}
-
-.stat-box h3 {
-  font-weight: 600;
-  font-size: 1.2rem;
-  margin-bottom: 12px;
-}
-
-.stat-number {
-  font-size: 2.4rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-/* Charts Section */
-.charts-section {
+.user-dashboard-cards {
   display: flex;
   flex-wrap: wrap;
-  gap: 40px;
   justify-content: center;
-  margin-bottom: 40px;
+  gap: 2rem;
+  margin-bottom: 3rem;
 }
 
-.chart-card {
-  flex: 1 1 400px;
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+.user-dashboard-card {
+  background-color: #eef7ff;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  text-align: center;
+  width: 250px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
 }
 
-/* Recent Activities */
-.recent-activities {
-  background: #f0f9ff;
-  padding: 25px 30px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
-  color: #065f46;
-}
-
-.recent-activities h2 {
-  margin-bottom: 20px;
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-
-.recent-activities ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-.recent-activities ul li {
-  margin-bottom: 12px;
-  font-weight: 500;
+.user-dashboard-card h4 {
   font-size: 1rem;
+  color: #2563eb;
+  margin-bottom: 0.5rem;
+}
+
+.user-dashboard-card p {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Charts */
+.user-charts-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.user-chart-box {
+  background-color: #f9fafb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 500px;
+}
+
+.user-chart-box h4 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .charts-section {
+  .user-dashboard-cards,
+  .user-charts-section {
     flex-direction: column;
+    align-items: center;
   }
-}
-@media (max-width: 600px) {
-  .dashboard-title {
-    font-size: 2.2rem;
-  }
-
-  .stat-box {
-    padding: 20px;
-  }
-
-  .stat-number {
-    font-size: 1.8rem;
-  }
-
-  .nav-container {
+  
+  .user-nav-container {
     flex-direction: column;
     align-items: flex-start;
   }
-
-  .nav-links a {
-    margin-left: 0;
-    margin-top: 10px;
+  
+  .user-nav-links {
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: space-between;
   }
-}   
+}
+
+@media (max-width: 480px) {
+  .user-dashboard-nav {
+    padding: 1rem;
+  }
+  
+  .user-dashboard-heading {
+    font-size: 1.8rem;
+  }
+  
+  .user-dashboard-card {
+    width: 100%;
+  }
+}

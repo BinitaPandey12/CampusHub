@@ -65,7 +65,7 @@ function EventDetails() {
         {},
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
           },
         }
       );
