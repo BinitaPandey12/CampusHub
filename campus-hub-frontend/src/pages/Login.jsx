@@ -69,7 +69,7 @@ function Login() {
   //     
    // ✅ Redirect based on role
    if (role === "SYSTEMADMIN") {
-    navigate("/system-admin-dashboard");
+    navigate("/system-admin");
   } else if (role === "CLUBADMIN") {
     navigate("/club-admin");
   } else {
