@@ -1,8 +1,12 @@
 
-import { useState } from "react";
+// import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import * as jwtDecode from "jwt-decode";
+import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+
+
 
 import "./Login.css";
 // import jwtDecode from "jwt-decode";
@@ -33,8 +37,20 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState(""); // ✅ Message for success (e.g., email verified)
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+ // ✅ Show success message if redirected after email verification
+ useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  if (params.get("verified") === "true") {
+    setMessage("✅ Email verified! You can now log in.");
+  }
+}, [location.search]);
+
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -92,7 +108,9 @@ function Login() {
     console.log("Error response data:", err.response.data);
   }
   if (err.response && err.response.status === 403) {
-    setError("Invalid email or password.");
+    setError("Please verify your email before logging in.");
+  }else if (err.response.status === 401) {
+      setError("Invalid email or password.");
   } else {
     setError("Login failed. Please try again later.");
   }
@@ -113,6 +131,7 @@ function Login() {
           onChange={(e) => setEmail(e.target.value)}
           className="login-input"
           required
+          autoComplete="new-password"
         />
 
         <div className="password-wrapper">

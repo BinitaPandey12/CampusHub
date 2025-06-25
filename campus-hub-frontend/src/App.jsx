@@ -8,6 +8,7 @@ import ClubAdmin from "./pages/ClubAdmin";
 import UserDashboard from "./pages/UserDashboard";
 import Settings from "./pages/Settings";
 import ForgotPassword from "./pages/ForgotPassword";
+import VerifyEmail from "./pages/VerifyEmail"; 
 // import Chatbot from "./components/Chatbot";
 
 function App() {
@@ -25,6 +26,8 @@ function App() {
           <Route path="/club-admin" element={<ClubAdmin />} />
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
       </div>
     </Router>

@@ -64,6 +64,16 @@
   text-decoration-color: black;
   background-color: rgba(247, 250, 252, 0.7);
 }
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
 
 .register-input:focus {
   outline: none;
