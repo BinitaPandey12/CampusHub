@@ -9,6 +9,7 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -62,18 +63,31 @@ function Register() {
         })
       });
 
+      // if (!response.ok) {
+      //   let message = "You are not allowed to register as CLUBADMIN or SYSTEMADMIN";
+      //   try {
+      //     const errData = await response.json();
+      //     message = errData.message || message;
+      //   } catch {}
+      //   throw new Error(message);
+      // }
+  //       const data = await response.json();
+  //     localStorage.setItem("token", data.token);
+  //     navigate("/login");
+  //   } catch (err) {
+  //     setError(err.message || "Something went wrong");
+  //   }
+  // };
+
+  const data = await response.json();
+
       if (!response.ok) {
-        let message = "You are not allowed to register as CLUBADMIN or SYSTEMADMIN";
-        try {
-          const errData = await response.json();
-          message = errData.message || message;
-        } catch {}
+        const message = data.message || "You are not allowed to register as CLUBADMIN or SYSTEMADMIN";
         throw new Error(message);
       }
 
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
-      navigate("/login");
+      // Show success message (don’t auto-redirect)
+      setSuccessMessage(data.message || "Registration successful. Please check your email.");
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
@@ -83,6 +97,11 @@ function Register() {
     <div className="register-container">
       <form onSubmit={handleRegister} className="register-form">
         <h1 className="register-title">Create Account</h1>
+        {successMessage && (
+          <div className="success-message" style={{ color: "green", marginBottom: "10px" }}>
+            {successMessage}
+          </div>
+        )}
 
         {error && <div className="error-message">{error}</div>}
 

@@ -97,6 +97,7 @@ const Settings = ({ userRole }) => {
           Password
         </label>
         <input
+        
           type="password"
           id="password"
           className="settings-input"
