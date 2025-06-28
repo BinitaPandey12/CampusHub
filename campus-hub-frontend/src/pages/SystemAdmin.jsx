@@ -41,7 +41,8 @@ function SystemAdmin() {
       })
       .then(data => setUsers(data))
       .catch(() => navigate("/login"));
-  }, [navigate, token]);
+  }
+  , [navigate, token]);
 
   const handleAddAdmin = () => {
     navigate("/add-club-admin");
