@@ -8,13 +8,16 @@ import ClubAdmin from "./pages/ClubAdmin";
 import UserDashboard from "./pages/UserDashboard";
 import Settings from "./pages/Settings";
 import ForgotPassword from "./pages/ForgotPassword";
-// import Chatbot from "./components/Chatbot";
+import Profile from "./pages/Profile";
+// If you do not have these files, comment them or create them
+import MyEvents from "./pages/MyEvents";
+import JoinedClubs from "./pages/JoinedClubs";
+import ChatbotHelp from "./pages/ChatbotHelp";
 
 function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
-        {/* <Chatbot /> */}
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/event/:eventId" element={<EventDetails />} />
@@ -25,6 +28,11 @@ function App() {
           <Route path="/club-admin" element={<ClubAdmin />} />
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/profile" element={<Profile />} />
+          {/* Uncomment these only if you create the files */}
+          { <Route path="/myevents" element={<MyEvents />} /> }
+          {<Route path="/joined" element={<JoinedClubs />} /> }
+          { <Route path="/chatbot" element={<ChatbotHelp />} /> }
         </Routes>
       </div>
     </Router>

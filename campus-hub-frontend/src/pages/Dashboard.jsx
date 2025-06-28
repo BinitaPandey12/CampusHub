@@ -268,26 +268,9 @@ const Dashboard = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="dashboard-footer">
-        <div className="footer-content">
-          <span>
-            &copy; {new Date().getFullYear()} Campus Hub. All rights reserved.
-          </span>
-          <span>
-            <Link to="/about" className="footer-link">
-              About
-            </Link>{" "}
-            |{" "}
-            <Link to="/contact" className="footer-link">
-              Contact
-            </Link>{" "}
-            |{" "}
-            <Link to="/privacy" className="footer-link">
-              Privacy Policy
-            </Link>
-          </span>
-        </div>
+      {/* Simple Footer */}
+      <footer className="dashboard-footer" style={{ textAlign: "center", padding: "1rem 0" }}>
+        &copy; {new Date().getFullYear()} Campus Hub
       </footer>
     </div>
   );

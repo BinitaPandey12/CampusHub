@@ -1,172 +1,124 @@
-import React from "react";
-import { Bar, Doughnut } from "react-chartjs-2";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import "./UserDashboard.css"; // Ensure you have this CSS file for styling
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import "./UserDashboard.css";
 
-ChartJS.register(
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  ArcElement,
-  Tooltip,
-  Legend
-);
+const clubs = [
+  {
+    id: 1,
+    name: "Tech Club",
+    description: "A club for tech enthusiasts exploring the latest trends.",
+    newEvent: true,
+    joined: true,
+  },
+  {
+    id: 2,
+    name: "Literary Club",
+    description: "For writers, poets, and literature lovers.",
+    newEvent: false,
+    joined: false,
+  },
+];
+
+const upcomingEvents = [
+  {
+    title: "Hackathon 2025",
+    club: "Tech Club",
+    time: new Date(new Date().getTime() + 3 * 60 * 60 * 1000),
+  },
+  {
+    title: "Poetry Slam",
+    club: "Literary Club",
+    time: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+  },
+];
+
+function getCountdown(eventTime) {
+  const now = new Date();
+  const diff = Math.max(eventTime - now, 0);
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  return `⏰ Event in ${hours}h ${minutes}m`;
+}
 
 const UserDashboard = () => {
-  const userName = "User"; // dynamically replace this when auth is added
+  const userName = "User";
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef();
 
-  const barData = {
-    labels: ["Quiz", "Hackathon", "Workshop", "Seminar"],
-    datasets: [
-      {
-        label: "Performance (%)",
-        data: [70, 85, 60, 90],
-        backgroundColor: "#3b82f6",
-        borderRadius: 8,
-      },
-    ],
-  };
-
-  const doughnutData = {
-    labels: ["Upcoming", "Ongoing", "Completed"],
-    datasets: [
-      {
-        label: "Events",
-        data: [30, 20, 50],
-        backgroundColor: ["#10b981", "#3b82f6", "#f59e0b"],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const dropdownRef = React.useRef(null);
-  const profileIconRef = React.useRef(null);
-  const [showDropdown, setShowDropdown] = React.useState(false);
-
-  const toggleDropdown = () => setShowDropdown((prev) => !prev);
-
-  React.useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target) &&
-        profileIconRef.current &&
-        !profileIconRef.current.contains(event.target)
-      ) {
-        setShowDropdown(false);
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
       }
-    }
-    if (showDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showDropdown]);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   return (
-    <div className="user-dashboard">
-      <nav className="user-dashboard-nav">
-        <div className="user-nav-container">
-          <div className="user-nav-logo">
-            <img
-              src="/icon.png"
-              alt="Campus Hub Logo"
-              className="user-nav-logo-img"
-            />
-            Campus Hub
+    <div className="user-dashboard-layout">
+      <aside className="user-sidebar">
+        <div className="user-sidebar-title">Campus Hub</div>
+        <nav>
+          <Link to="/user-dashboard" className="user-sidebar-link">🏠 Dashboard</Link>
+          <Link to="/myevents" className="user-sidebar-link">📆 My Events</Link>
+          <Link to="/joined" className="user-sidebar-link">📝 Joined Clubs</Link>
+          <Link to="/chatbot" className="user-sidebar-link">💬 Chatbot Help</Link>
+        </nav>
+      </aside>
+      <div className="user-main">
+        <header className="user-header">
+          <div className="user-search">
+            <input placeholder="🔍 Search clubs, tags..." />
           </div>
-          <div className="user-nav-links">
-            <div className="user-nav-welcome">
-              <span>Welcome, {userName}</span>
-              <button
-                type="button"
-                aria-label="Notifications"
-                className="user-notification-btn"
-              >
-                👋
-              </button>
-            </div>
-            <div className="user-profile-dropdown" ref={dropdownRef}>
-              <button
-                ref={profileIconRef}
-                type="button"
-                aria-label="User Profile"
-                className="user-profile-icon"
-                aria-haspopup="true"
-                aria-expanded={showDropdown}
-                onClick={toggleDropdown}
-              >
-                👤
-              </button>
-              {showDropdown && (
-                <div className="user-dropdown-menu">
-                  <Link
-                    to="/"
-                    className="user-dropdown-item"
-                    onClick={() => setShowDropdown(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="event/:eventId"
-                    className="user-dropdown-item"
-                    onClick={() => setShowDropdown(false)}
-                  >
-                    Events
-                  </Link>
-                  <Link
-                    to="/"
-                    className="user-dropdown-item user-dropdown-logout"
-                    onClick={() => setShowDropdown(false)}
-                  >
-                    Logout
-                  </Link>
+          <div className="user-profile" ref={dropdownRef}>
+            <span className="user-welcome-text">Welcome, {userName}</span>
+            <button
+              className="user-profile-icon"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              👤
+            </button>
+            {dropdownOpen && (
+              <div className="user-dropdown-menu">
+                <Link to="/profile" className="user-dropdown-item">View Profile</Link>
+                <Link to="/settings" className="user-dropdown-item">Settings</Link>
+                <Link to="/" className="user-dropdown-item user-logout">Logout</Link>
+              </div>
+            )}
+          </div>
+        </header>
+        <section className="user-content">
+          <h2>Recommended Clubs</h2>
+          <div className="user-clubs-grid">
+            {clubs.map((club) => (
+              <div key={club.id} className="user-club-card">
+                <div className="user-club-name">
+                  {club.name}
+                  {club.newEvent && <span className="user-badge">🔴 New Event</span>}
                 </div>
-              )}
-            </div>
+                <p>{club.description}</p>
+                <button className="user-view-btn">
+                  {club.joined ? "View Club" : "Join Club"}
+                </button>
+              </div>
+            ))}
           </div>
-        </div>
-      </nav>
-
-      <main className="user-dashboard-main">
-        <h1 className="user-dashboard-heading">Welcome, {userName} 👋</h1>
-
-        <div className="user-dashboard-cards">
-          <div className="user-dashboard-card">
-            <h4>Events Attended</h4>
-            <p>10</p>
+          <h2>Upcoming Events</h2>
+          <div className="user-events-list">
+            {upcomingEvents.map((event, idx) => (
+              <div key={idx} className="user-event-card">
+                <div>
+                  <h4>{event.title}</h4>
+                  <p>Hosted by {event.club}</p>
+                  <span className="user-countdown">{getCountdown(event.time)}</span>
+                </div>
+                <button className="user-view-btn">View Details</button>
+              </div>
+            ))}
           </div>
-          <div className="user-dashboard-card">
-            <h4>Certificates Earned</h4>
-            <p>7</p>
-          </div>
-          <div className="user-dashboard-card">
-            <h4>Overall Rating</h4>
-            <p>4.6 / 5</p>
-          </div>
-        </div>
-
-        <div className="user-charts-section">
-          <div className="user-chart-box">
-            <h4>Event Enrollment</h4>
-            <Doughnut data={doughnutData} />
-          </div>
-          <div className="user-chart-box">
-            <h4>Performance Overview</h4>
-            <Bar data={barData} />
-          </div>
-        </div>
-      </main>
+        </section>
+      </div>
     </div>
   );
 };
