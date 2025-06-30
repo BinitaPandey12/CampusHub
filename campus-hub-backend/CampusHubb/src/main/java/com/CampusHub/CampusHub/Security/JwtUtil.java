@@ -19,7 +19,6 @@ import java.util.Map;
 
 @Component      //in class use @Component ,for methods inside configuration class use @Bean
 public class JwtUtil {
-    @Autowired
 
 
 
@@ -37,8 +36,9 @@ public class JwtUtil {
         return extractAllClaims(token).get("role", String.class);
     }
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
+        return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }

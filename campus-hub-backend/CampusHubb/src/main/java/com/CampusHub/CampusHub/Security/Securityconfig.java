@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +17,7 @@ import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class Securityconfig {
 
 
@@ -36,11 +38,13 @@ public class Securityconfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() //for public access without any authentication.
-//                        .requestMatchers("/api/account/**").authenticated()
-//                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")  //users with role=ADMIN can access it
-                        .anyRequest().authenticated()
+//
+                                .requestMatchers("/api/admins/**").hasAuthority("SYSTEMADMIN")
+                                .requestMatchers( "/api/users/**").hasAnyAuthority("SYSTEMADMIN","CLUBADMIN")
+                                 .anyRequest().authenticated()
 
                 )
+
                 .exceptionHandling(ex -> ex
                         .accessDeniedHandler(customAccessDeniedHandler)
                 )
