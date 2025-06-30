@@ -2,9 +2,11 @@ package com.CampusHub.CampusHub.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Table(name="users")
@@ -18,7 +20,28 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role=Role.USER;  //role column will have value "USER" or "ADMIN" reference=Role.java
+   @Column(name="verification_token")
+    private String verificationToken;   //store the unique token sent to the user's email.(email verification.)
+    @Column(name = "is_verified")
+    private boolean isVerified;       //will be used to block login until email is verified.
 
+    @Column(name = "reset_token")  //stores unique token used for password reset.
+    private String resetToken;
+
+//
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+    public void setVerified(boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+    public String getResetToken() {
+        return resetToken;
+    }
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
     public String getPassword() {
         return password;
     }
@@ -51,4 +74,11 @@ public class User {
         this.role=role;
     }
 
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken=verificationToken;
+    }
+    public String getVerificationToken() {
+        return verificationToken;
+    }
 }

@@ -10,9 +10,9 @@ import Settings from "./pages/Settings";
 import ForgotPassword from "./pages/ForgotPassword";
 import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
-import JoinedClubs from "./pages/JoinedClubs";
 import ChatbotHelp from "./pages/ChatbotHelp";
 import VerifyEmail from "./pages/VerifyEmail"; 
+// import Chatbot from "./components/Chatbot";
 
 function App() {
   return (
@@ -31,7 +31,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           {/* Uncomment these only if you create the files */}
           { <Route path="/myevents" element={<MyEvents />} /> }
-          {<Route path="/joined" element={<JoinedClubs />} /> }
           { <Route path="/chatbot" element={<ChatbotHelp />} /> }
 
           <Route path="/verify-email" element={<VerifyEmail />} />

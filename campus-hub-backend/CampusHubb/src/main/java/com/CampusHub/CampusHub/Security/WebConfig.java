@@ -15,9 +15,10 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5174")
+                        .allowedOrigins("http://localhost:5173")
                         .allowedHeaders("*") // Allow all headers
-                        .allowedMethods("*");
+                        .allowedMethods("*")
+                .allowCredentials(true);
 
             }
         };
