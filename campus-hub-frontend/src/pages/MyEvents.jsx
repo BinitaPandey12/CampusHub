@@ -41,7 +41,6 @@ const MyEvents = () => {
         <nav>
           <Link to="/user-dashboard" className="myevents-sidebar-link">🏠 Dashboard</Link>
           <Link to="/myevents" className="myevents-sidebar-link">📆 My Events</Link>
-          <Link to="/joined" className="myevents-sidebar-link">📝 Joined Clubs</Link>
           <Link to="/chatbot" className="myevents-sidebar-link">💬 Chatbot Help</Link>
         </nav>
       </aside>

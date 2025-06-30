@@ -62,7 +62,6 @@ const UserDashboard = () => {
         <nav>
           <Link to="/user-dashboard" className="user-sidebar-link">🏠 Dashboard</Link>
           <Link to="/myevents" className="user-sidebar-link">📆 My Events</Link>
-          <Link to="/joined" className="user-sidebar-link">📝 Joined Clubs</Link>
           <Link to="/chatbot" className="user-sidebar-link">💬 Chatbot Help</Link>
         </nav>
       </aside>
@@ -98,8 +97,8 @@ const UserDashboard = () => {
                   {club.newEvent && <span className="user-badge">🔴 New Event</span>}
                 </div>
                 <p>{club.description}</p>
-                <button className="user-view-btn">
-                  {club.joined ? "View Club" : "Join Club"}
+                <button className="user-view-btn">View Club
+                  {/* {club.joined ? "View Club" : "Join Club"} */}
                 </button>
               </div>
             ))}

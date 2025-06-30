@@ -25,7 +25,6 @@ function ChatbotHelp() {
         <nav>
           <Link to="/user-dashboard" className="chatbot-sidebar-link">🏠 Dashboard</Link>
           <Link to="/myevents" className="chatbot-sidebar-link">📆 My Events</Link>
-          <Link to="/joined" className="chatbot-sidebar-link">📝 Joined Clubs</Link>
           <Link to="/chatbot" className="chatbot-sidebar-link">💬 Chatbot Help</Link>
         </nav>
       </aside>
