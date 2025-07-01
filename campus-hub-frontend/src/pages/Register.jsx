@@ -43,24 +43,23 @@ function Register() {
       setError("Passwords do not match.");
       return;
     }
-     // Client-side email domain validation
-  if (!email.toLowerCase().endsWith("@ncit.edu.np")) {
-    setError("Registration allowed only with @ncit.edu.np email addresses.");
-    return;
-  }
-
+    // Client-side email domain validation
+    if (!email.toLowerCase().endsWith("@ncit.edu.np")) {
+      setError("Registration allowed only with @ncit.edu.np email addresses.");
+      return;
+    }
 
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           fullName,
           email,
-          password
-        })
+          password,
+        }),
       });
 
       // if (!response.ok) {
@@ -71,23 +70,27 @@ function Register() {
       //   } catch {}
       //   throw new Error(message);
       // }
-  //       const data = await response.json();
-  //     localStorage.setItem("token", data.token);
-  //     navigate("/login");
-  //   } catch (err) {
-  //     setError(err.message || "Something went wrong");
-  //   }
-  // };
+      //       const data = await response.json();
+      //     localStorage.setItem("token", data.token);
+      //     navigate("/login");
+      //   } catch (err) {
+      //     setError(err.message || "Something went wrong");
+      //   }
+      // };
 
-  const data = await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
-        const message = data.message || "You are not allowed to register as CLUBADMIN or SYSTEMADMIN";
+        const message =
+          data.message ||
+          "You are not allowed to register as CLUBADMIN or SYSTEMADMIN";
         throw new Error(message);
       }
 
       // Show success message (don’t auto-redirect)
-      setSuccessMessage(data.message || "Registration successful. Please check your email.");
+      setSuccessMessage(
+        data.message || "Registration successful. Please check your email."
+      );
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
@@ -98,7 +101,10 @@ function Register() {
       <form onSubmit={handleRegister} className="register-form">
         <h1 className="register-title">Create Account</h1>
         {successMessage && (
-          <div className="success-message" style={{ color: "green", marginBottom: "10px" }}>
+          <div
+            className="success-message"
+            style={{ color: "green", marginBottom: "10px" }}
+          >
             {successMessage}
           </div>
         )}

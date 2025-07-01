@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
 import ChatbotHelp from "./pages/ChatbotHelp";
 import VerifyEmail from "./pages/VerifyEmail"; 
+import EventForm from "./pages/EventForm";
 // import Chatbot from "./components/Chatbot";
 
 function App() {
@@ -32,7 +33,7 @@ function App() {
           {/* Uncomment these only if you create the files */}
           { <Route path="/myevents" element={<MyEvents />} /> }
           { <Route path="/chatbot" element={<ChatbotHelp />} /> }
-
+          <Route path="/events/new" element={<EventForm />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
       </div>

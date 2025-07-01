@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   overflow: hidden;
   background: linear-gradient(135deg, #e0f7fa 0%, #d0e6fd 100%);
   animation: backgroundShift 15s ease-in-out infinite;
@@ -16,13 +16,13 @@
 /* Animated Decorative Background Elements */
 .login-container::before,
 .login-container::after {
-  content: '';
+  content: "";
   position: absolute;
   z-index: 1;
   width: 180px;
   height: 180px;
   opacity: 0.12;
-  filter: blur(1px) drop-shadow(0 8px 32px rgba(79,70,229,0.12));
+  filter: blur(1px) drop-shadow(0 8px 32px rgba(79, 70, 229, 0.12));
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -30,14 +30,14 @@
 }
 
 .login-container::before {
-  background-image: url('https://cdn-icons-png.flaticon.com/512/3075/3075977.png'); /* Book icon */
+  background-image: url("https://cdn-icons-png.flaticon.com/512/3075/3075977.png"); /* Book icon */
   top: 8%;
   left: 5%;
   animation: floatIcon1 18s ease-in-out infinite alternate;
 }
 
 .login-container::after {
-  background-image: url('https://cdn-icons-png.flaticon.com/512/3135/3135768.png'); /* Graduation cap */
+  background-image: url("https://cdn-icons-png.flaticon.com/512/3135/3135768.png"); /* Graduation cap */
   bottom: 8%;
   right: 5%;
   animation: floatIcon2 22s ease-in-out infinite alternate;
@@ -46,7 +46,7 @@
 @keyframes floatIcon1 {
   0% {
     transform: translateY(0) scale(1) rotate(-8deg);
-    opacity: 0.10;
+    opacity: 0.1;
   }
   40% {
     transform: translateY(-30px) scale(1.08) rotate(8deg);
@@ -65,14 +65,14 @@
 @keyframes floatIcon2 {
   0% {
     transform: translateY(0) scale(1) rotate(10deg);
-    opacity: 0.10;
+    opacity: 0.1;
   }
   35% {
     transform: translateY(-25px) scale(1.06) rotate(-10deg);
     opacity: 0.15;
   }
   65% {
-    transform: translateY(-35px) scale(1.10) rotate(12deg);
+    transform: translateY(-35px) scale(1.1) rotate(12deg);
     opacity: 0.18;
   }
   100% {
@@ -93,10 +93,9 @@
   }
 }
 
-
 .login-form {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   padding: 2.5rem;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
@@ -123,7 +122,7 @@
 }
 
 .login-title:after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -10px;
   left: 50%;
@@ -135,7 +134,7 @@
 }
 
 .login-input {
-  width: 90%;
+  width: 100%;
   padding: 1rem;
   margin-bottom: 1.5rem;
   border: 1px solid #e2e8f0;
@@ -144,13 +143,13 @@
   color: #222222;
   transition: all 0.3s ease;
   text-decoration-color: black;
- background-color: rgba(247, 250, 252, 0.7);
+  background-color: rgba(247, 250, 252, 0.7);
 }
 
 /* Password Input Wrapper */
 .password-wrapper {
   position: relative;
-  width: 90%;
+  width: 100%;
   margin-bottom: 1.5rem;
 }
 
@@ -164,19 +163,19 @@
   color: #222222;
   transition: all 0.3s ease;
   text-decoration-color: black;
- background-color: rgba(247, 250, 252, 0.7);}
+  background-color: rgba(247, 250, 252, 0.7);
+}
 
 /* Toggle Icon */
 .password-toggle {
   position: absolute;
-  top: 32%;
-  right: -15px;
+  top: 35%;
+  right: 16px;
   transform: translateY(-50%);
   cursor: pointer;
   font-size: 1.2rem;
   user-select: none;
 }
-
 
 .login-input:focus {
   outline: none;
@@ -190,7 +189,7 @@
 }
 
 .login-button {
-  width: 97%;
+  width: 100%;
   padding: 1rem;
   background: linear-gradient(90deg, #4f46e5, #7c3aed);
   color: white;
@@ -264,7 +263,7 @@
     color: #e8eaed;
     border-color: #5f6368;
   }
-  
+
   .login-button.google-signin:hover {
     background-color: #3c4043;
     border-color: #8ab4f8;
@@ -313,7 +312,7 @@
     padding: 1.5rem;
     margin: 1rem;
   }
-  
+
   .login-title {
     font-size: 1.5rem;
   }

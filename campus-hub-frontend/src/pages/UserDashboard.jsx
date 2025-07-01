@@ -44,6 +44,7 @@ const UserDashboard = () => {
   const userName = "User";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handler = (e) => {
@@ -55,64 +56,119 @@ const UserDashboard = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="user-dashboard-layout">
-      <aside className="user-sidebar">
-        <div className="user-sidebar-title">Campus Hub</div>
-        <nav>
-          <Link to="/user-dashboard" className="user-sidebar-link">🏠 Dashboard</Link>
-          <Link to="/myevents" className="user-sidebar-link">📆 My Events</Link>
-          <Link to="/chatbot" className="user-sidebar-link">💬 Chatbot Help</Link>
+    <div className="user-dashboard">
+      <aside className="user-dashboard__sidebar">
+        <div className="user-dashboard__sidebar-title">
+          <span className="logo-icon">🎓</span>
+          <span className="logo-text">CampusHub</span>
+        </div>
+
+        <nav className="user-dashboard__nav">
+          <Link to="/user-dashboard" className="user-dashboard__nav-link">
+            <span className="user-dashboard__nav-icon">🏠</span>
+            <span className="user-dashboard__nav-text">Dashboard</span>
+          </Link>
+          <Link to="/myevents" className="user-dashboard__nav-link">
+            <span className="user-dashboard__nav-icon">📆</span>
+            <span className="user-dashboard__nav-text">My Events</span>
+          </Link>
+          <Link to="/chatbot" className="user-dashboard__nav-link">
+            <span className="user-dashboard__nav-icon">💬</span>
+            <span className="user-dashboard__nav-text">Chatbot Help</span>
+          </Link>
         </nav>
       </aside>
-      <div className="user-main">
-        <header className="user-header">
-          <div className="user-search">
-            <input placeholder="🔍 Search clubs, tags..." />
+
+      <div className="user-dashboard__main">
+        <header
+          className={`user-dashboard__header ${scrolled ? "scrolled" : ""}`}
+        >
+          <div className="user-dashboard__search">
+            <input
+              className="user-dashboard__search-input"
+              placeholder="🔍 Search clubs, tags..."
+            />
           </div>
-          <div className="user-profile" ref={dropdownRef}>
-            <span className="user-welcome-text">Welcome, {userName}</span>
+
+          <div className="user-dashboard__profile" ref={dropdownRef}>
+            <span className="user-dashboard__welcome">Welcome, {userName}</span>
             <button
-              className="user-profile-icon"
+              className="user-dashboard__profile-btn"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               👤
             </button>
+
             {dropdownOpen && (
-              <div className="user-dropdown-menu">
-                <Link to="/profile" className="user-dropdown-item">View Profile</Link>
-                <Link to="/settings" className="user-dropdown-item">Settings</Link>
-                <Link to="/" className="user-dropdown-item user-logout">Logout</Link>
+              <div className="user-dashboard__dropdown">
+                <Link to="/profile" className="user-dashboard__dropdown-item">
+                  View Profile
+                </Link>
+                <Link to="/settings" className="user-dashboard__dropdown-item">
+                  Settings
+                </Link>
+                <Link
+                  to="/"
+                  className="user-dashboard__dropdown-item user-dashboard__dropdown-item--logout"
+                >
+                  Logout
+                </Link>
               </div>
             )}
           </div>
         </header>
-        <section className="user-content">
-          <h2>Recommended Clubs</h2>
-          <div className="user-clubs-grid">
+
+        <section className="user-dashboard__content">
+          <h2 className="user-dashboard__section-title">Recommended Clubs</h2>
+          <div className="user-dashboard__clubs">
             {clubs.map((club) => (
-              <div key={club.id} className="user-club-card">
-                <div className="user-club-name">
-                  {club.name}
-                  {club.newEvent && <span className="user-badge">🔴 New Event</span>}
+              <div key={club.id} className="user-dashboard__club-card">
+                <div className="user-dashboard__club-header">
+                  <h3 className="user-dashboard__club-name">{club.name}</h3>
+                  {club.newEvent && (
+                    <span className="user-dashboard__club-badge">
+                      🔴 New Event
+                    </span>
+                  )}
                 </div>
-                <p>{club.description}</p>
-                <button className="user-view-btn">View Club
-                  {/* {club.joined ? "View Club" : "Join Club"} */}
+                <p className="user-dashboard__club-desc">{club.description}</p>
+                <button className="user-dashboard__club-btn">
+                  {club.joined ? "View Club" : "Join Club"}
                 </button>
               </div>
             ))}
           </div>
-          <h2>Upcoming Events</h2>
-          <div className="user-events-list">
+
+          <h2 className="user-dashboard__section-title">Upcoming Events</h2>
+          <div className="user-dashboard__events">
             {upcomingEvents.map((event, idx) => (
-              <div key={idx} className="user-event-card">
-                <div>
-                  <h4>{event.title}</h4>
-                  <p>Hosted by {event.club}</p>
-                  <span className="user-countdown">{getCountdown(event.time)}</span>
+              <div key={idx} className="user-dashboard__event-card">
+                <div className="user-dashboard__event-info">
+                  <h4 className="user-dashboard__event-title">{event.title}</h4>
+                  <p className="user-dashboard__event-host">
+                    Hosted by {event.club}
+                  </p>
+                  <span className="user-dashboard__event-time">
+                    {getCountdown(event.time)}
+                  </span>
                 </div>
-                <button className="user-view-btn">View Details</button>
+                <button className="user-dashboard__event-btn">
+                  View Details
+                </button>
               </div>
             ))}
           </div>
