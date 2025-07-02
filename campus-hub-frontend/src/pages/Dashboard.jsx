@@ -217,7 +217,7 @@ const Dashboard = () => {
           </p>
           <div className="hero-actions">
             <button className="primary-button">Explore Events</button>
-            <button className="secondary-button">Create Club</button>
+     
           </div>
         </div>
         <div className="hero-image"></div>

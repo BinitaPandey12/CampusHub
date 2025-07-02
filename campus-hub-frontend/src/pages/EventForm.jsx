@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FiCalendar, FiMapPin, FiDollarSign, FiClock, FiInfo, FiImage, FiX } from "react-icons/fi";
+import { FiCalendar, FiMapPin, FiDollarSign, FiClock, FiInfo, FiImage, FiX, FiUpload } from "react-icons/fi";
 import "./EventForm.css";
 
 const EventForm = () => {
@@ -112,16 +112,24 @@ const EventForm = () => {
   return (
     <div className="event-form-container">
       <div className="event-form-card">
-        <h2 className="event-form-title">Create New Event</h2>
+        <h2 className="event-form-title">
+          <span className="title-gradient">Create New Event</span>
+        </h2>
         
         {successMessage && (
           <div className="success-message">
+            <svg className="success-icon" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" />
+            </svg>
             {successMessage}
           </div>
         )}
         
         {errors.server && (
           <div className="error-message">
+            <svg className="error-icon" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M11 15H13V17H11V15ZM11 7H13V13H11V7M12 2C6.47 2 2 6.5 2 12C2 17.5 6.5 22 12 22S22 17.5 22 12 17.5 2 12 2M12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4S20 7.58 20 12C20 16.42 16.42 20 12 20Z" />
+            </svg>
             {errors.server}
           </div>
         )}
@@ -138,7 +146,7 @@ const EventForm = () => {
                 value={eventData.title}
                 onChange={handleChange}
                 placeholder="Enter event title"
-                className={errors.title ? "error" : ""}
+                className={`event-form-input ${errors.title ? "error" : ""}`}
               />
             </div>
             {errors.title && <span className="error-text">{errors.title}</span>}
@@ -152,8 +160,8 @@ const EventForm = () => {
               value={eventData.description}
               onChange={handleChange}
               placeholder="Enter event description"
-              rows="4"
-              className={errors.description ? "error" : ""}
+              rows="5"
+              className={`event-form-textarea ${errors.description ? "error" : ""}`}
             />
             {errors.description && <span className="error-text">{errors.description}</span>}
           </div>
@@ -169,7 +177,7 @@ const EventForm = () => {
                   name="date"
                   value={eventData.date}
                   onChange={handleChange}
-                  className={errors.date ? "error" : ""}
+                  className={`event-form-input ${errors.date ? "error" : ""}`}
                 />
               </div>
               {errors.date && <span className="error-text">{errors.date}</span>}
@@ -185,7 +193,7 @@ const EventForm = () => {
                   name="time"
                   value={eventData.time}
                   onChange={handleChange}
-                  className={errors.time ? "error" : ""}
+                  className={`event-form-input ${errors.time ? "error" : ""}`}
                 />
               </div>
               {errors.time && <span className="error-text">{errors.time}</span>}
@@ -203,70 +211,10 @@ const EventForm = () => {
                 value={eventData.location}
                 onChange={handleChange}
                 placeholder="Enter event location"
-                className={errors.location ? "error" : ""}
+                className={`event-form-input ${errors.location ? "error" : ""}`}
               />
             </div>
             {errors.location && <span className="error-text">{errors.location}</span>}
-          </div>
-          
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="price">Price ($)</label>
-              <div className="input-with-icon">
-                <FiDollarSign className="input-icon" />
-                <input
-                  type="text"
-                  id="price"
-                  name="price"
-                  value={eventData.price}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  className={errors.price ? "error" : ""}
-                />
-              </div>
-              {errors.price && <span className="error-text">{errors.price}</span>}
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="capacity">Capacity</label>
-              <input
-                type="text"
-                id="capacity"
-                name="capacity"
-                value={eventData.capacity}
-                onChange={handleChange}
-                placeholder="Max attendees"
-                className={errors.capacity ? "error" : ""}
-              />
-              {errors.capacity && <span className="error-text">{errors.capacity}</span>}
-            </div>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="image">Event Image</label>
-            <div className="image-upload-container">
-              {eventData.imagePreview ? (
-                <div className="image-preview">
-                  <img src={eventData.imagePreview} alt="Preview" />
-                  <button type="button" onClick={removeImage} className="remove-image-btn">
-                    <FiX />
-                  </button>
-                </div>
-              ) : (
-                <label htmlFor="image" className="image-upload-label">
-                  <FiImage className="upload-icon" />
-                  <span>Upload Image</span>
-                  <input
-                    type="file"
-                    id="image"
-                    name="image"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="image-upload-input"
-                  />
-                </label>
-              )}
-            </div>
           </div>
           
           <div className="form-actions">
@@ -283,7 +231,14 @@ const EventForm = () => {
               className="submit-btn"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creating..." : "Create Event"}
+              {isSubmitting ? (
+                <>
+                  <span className="spinner"></span>
+                  Creating...
+                </>
+              ) : (
+                "Create Event"
+              )}
             </button>
           </div>
         </form>
