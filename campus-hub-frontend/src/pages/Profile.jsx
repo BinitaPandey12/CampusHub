@@ -4,9 +4,9 @@ import "./Profile.css";
 function Profile() {
   // In real project, get these from context or API
   const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    role: "User",
+    name: "{user.name}",
+    email: "{user.email}",
+    role: "{user.role}",
     avatar: "https://i.pravatar.cc/150?img=8"
   };
 
