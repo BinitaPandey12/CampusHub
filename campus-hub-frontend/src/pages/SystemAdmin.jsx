@@ -53,10 +53,15 @@ function SystemAdmin() {
           throw new Error("Unauthorized");
         }
 
-        setAdmins(await adminsRes.json());
-        setUsers(await usersRes.json());
-        // setPendingEvents(await eventsRes.json());
+        const adminsData = await adminsRes.json();
+        const usersData = await usersRes.json();
+        const eventsData = await eventsRes.json();
+
+        setAdmins(adminsData);
+        setUsers(usersData);
+        setPendingEvents(eventsData);
       } catch (error) {
+        console.error("Fetch error:", error);
         handleLogout();
       }
     };
@@ -108,7 +113,7 @@ function SystemAdmin() {
 
   const handleEventDecision = async (eventId, decision) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/events/${eventId}/status`, {
+      const res = await fetch(`http://localhost:8080/api/events/${eventId}/approve`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -129,13 +134,15 @@ function SystemAdmin() {
   };
 
   const filteredAdmins = admins.filter(admin => 
-    admin.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    admin.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    (admin.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    admin.email?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    admin.id?.toString().includes(searchQuery)
   );
 
   const filteredUsers = users.filter(user => 
-    user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    (user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    user.id?.toString().includes(searchQuery)
   );
 
   return (
@@ -197,20 +204,20 @@ function SystemAdmin() {
               {pendingEvents.map(event => (
                 <div key={event.id} className="event-card">
                   <div className="event-card-header">
-                    <h3>{event.title}</h3>
+                    <h3>{event.title || "Untitled Event"}</h3>
                     <span className="event-creator">By: {event.creatorName || "Club Admin"}</span>
                   </div>
                   <p className="event-description">
-                    {event.description?.substring(0, 120)}...
+                    {event.description ? `${event.description.substring(0, 120)}...` : "No description provided"}
                   </p>
                   <div className="event-meta">
-                    <div>
+                    <div className="event-detail">
                       <span className="detail-label">Date:</span>
-                      <span>{new Date(event.date).toLocaleDateString()}</span>
+                      <span>{event.date ? new Date(event.date).toLocaleDateString() : "Not specified"}</span>
                     </div>
-                    <div>
+                    <div className="event-detail">
                       <span className="detail-label">Location:</span>
-                      <span>{event.location}</span>
+                      <span>{event.location || "Not specified"}</span>
                     </div>
                   </div>
                   <div className="event-actions">
@@ -254,29 +261,37 @@ function SystemAdmin() {
             <table className="sysadmin-table">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th className="id-header">ID</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredAdmins.map(admin => (
-                  <tr key={admin.id}>
-                    <td>{admin.id}</td>
-                    <td>{admin.name}</td>
-                    <td>{admin.email}</td>
-                    <td>
-                      <button
-                        className="sysadmin-btn danger"
-                        onClick={() => handleDelete("admin", admin.id)}
-                      >
-                        <FiTrash2 className="btn-icon" />
-                        Delete
-                      </button>
+                {filteredAdmins.length > 0 ? (
+                  filteredAdmins.map(admin => (
+                    <tr key={admin.id}>
+                      <td className="id-cell">{admin.id}</td>
+                      <td className="name-cell">{admin.name || 'Unnamed Admin'}</td>
+                      <td className="email-cell">{admin.email || 'No email'}</td>
+                      <td className="action-cell">
+                        <button
+                          className="sysadmin-btn danger"
+                          onClick={() => handleDelete("admin", admin.id)}
+                        >
+                          <FiTrash2 className="btn-icon" />
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="no-results">
+                      No admins found matching your search
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -292,29 +307,37 @@ function SystemAdmin() {
             <table className="sysadmin-table">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th className="id-header">ID</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map(user => (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td>
-                      <button
-                        className="sysadmin-btn danger"
-                        onClick={() => handleDelete("user", user.id)}
-                      >
-                        <FiTrash2 className="btn-icon" />
-                        Delete
-                      </button>
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map(user => (
+                    <tr key={user.id}>
+                      <td className="id-cell">{user.id}</td>
+                      <td className="name-cell">{user.name || 'Unnamed User'}</td>
+                      <td className="email-cell">{user.email || 'No email'}</td>
+                      <td className="action-cell">
+                        <button
+                          className="sysadmin-btn danger"
+                          onClick={() => handleDelete("user", user.id)}
+                        >
+                          <FiTrash2 className="btn-icon" />
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="no-results">
+                      No users found matching your search
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

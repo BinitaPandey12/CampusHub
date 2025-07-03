@@ -52,6 +52,12 @@ const UserDashboard = () => {
         setDropdownOpen(false);
       }
     };
+
+    const handleLogout = () => {
+      localStorage.removeItem("token");
+      navigate("/login");
+    };
+
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
@@ -123,7 +129,7 @@ const UserDashboard = () => {
                 </Link>
                 <Link
                   to="/"
-                  className="user-dashboard__dropdown-item user-dashboard__dropdown-item--logout"
+                  className="user-dashboard__dropdown-item user-dashboard__dropdown-item--logout" onClick={handleLogout}
                 >
                   Logout
                 </Link>

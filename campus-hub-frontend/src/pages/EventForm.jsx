@@ -14,10 +14,7 @@ const EventForm = () => {
     date: "",
     time: "",
     location: "",
-    price: "",
-    capacity: "",
-    image: null,
-    imagePreview: null
+  
   });
 
   const [errors, setErrors] = useState({});
@@ -81,11 +78,7 @@ const EventForm = () => {
       formData.append("date", eventData.date);
       formData.append("time", eventData.time);
       formData.append("location", eventData.location);
-      formData.append("price", eventData.price);
-      formData.append("capacity", eventData.capacity);
-      if (eventData.image) {
-        formData.append("image", eventData.image);
-      }
+      
       
       const response = await axios.post("http://localhost:8080/api/events", formData, {
         headers: {
