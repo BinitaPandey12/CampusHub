@@ -1,87 +1,367 @@
-.clubadmin-dashboard {
-  width: 100vw;
-  padding: 2rem;
-  font-family: 'Inter', sans-serif;
-  background-color: #f8fafc;
+/* Base Styles */
+.clubadmin-container {
   min-height: 100vh;
+  width: 100vw;
+  background-color: #f8fafc;
+  font-family: 'Inter', sans-serif;
 }
 
+/* Header Styles */
 .clubadmin-header {
-  margin-bottom: 2rem;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: all 0.3s ease;
 }
 
-.clubadmin-header h1 {
+.clubadmin-header.scrolled {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.clubadmin-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.clubadmin-search-icon {
+  position: absolute;
+  left: 1rem;
+  color: #64748b;
+}
+
+.clubadmin-search-input {
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  width: 300px;
+  border: 1px solid #e2e8f0;
+  border-radius: 2rem;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.clubadmin-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.clubadmin-profile {
+  display: flex;
+  align-items: center;
+  margin-left: 70rem;
+  gap: 1rem;
+  position: relative;
+}
+
+.clubadmin-welcome {
+  font-weight: 500;
+  color: #334155;
+}
+
+.clubadmin-profile-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clubadmin-profile-btn:hover {
+  background-color: #2563eb;
+}
+
+.clubadmin-profile-icon {
+  font-size: 1.2rem;
+}
+
+.clubadmin-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  overflow: hidden;
+  z-index: 110;
+}
+
+.clubadmin-dropdown-item {
+  display: block;
+  padding: 0.75rem 1.25rem;
+  color: #1f2937;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.clubadmin-dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+.clubadmin-dropdown-item--logout {
+  color: #ef4444;
+}
+
+/* Main Content Styles */
+.clubadmin-main-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.clubadmin-hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.clubadmin-title {
   font-size: 2.5rem;
   color: #1e3a8a;
   margin-bottom: 0.5rem;
 }
 
-.clubadmin-header p {
-  color: #475569;
+.clubadmin-subtitle {
+  color: #64748b;
   font-size: 1.1rem;
 }
 
 .clubadmin-actions {
   display: flex;
-  justify-content: center;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
 
-.action-btn {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
+.clubadmin-action-btn {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #334155;
 }
 
-.action-btn:hover {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
+.clubadmin-action-btn.primary {
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
 }
 
-.action-icon {
-  margin-right: 0.5rem;
-  font-size: 1.2rem;
+.clubadmin-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.clubadmin-users-section {
-  background-color: white;
-  border-radius: 12px;
+.clubadmin-action-icon {
+  font-size: 1.1rem;
+}
+
+/* Section Styles */
+.clubadmin-section {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.clubadmin-users-section h2 {
-  margin-bottom: 1rem;
+.clubadmin-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.clubadmin-section-icon {
+  font-size: 1.5rem;
+  color: #64748b;
+}
+
+.clubadmin-section-title {
+  font-size: 1.5rem;
   color: #1e3a8a;
+  margin: 0;
 }
 
-.user-table {
+.clubadmin-badge {
+  background-color: #f59e0b;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.clubadmin-badge.approved {
+  background-color: #10b981;
+}
+
+/* Events Grid */
+.clubadmin-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.clubadmin-event-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.clubadmin-event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.clubadmin-event-title {
+  font-size: 1.125rem;
+  color: #1e3a8a;
+  margin-bottom: 0.5rem;
+}
+
+.clubadmin-event-description {
+  color: #64748b;
+  font-size: 0.9375rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.clubadmin-event-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.clubadmin-view-btn {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.clubadmin-view-btn:hover {
+  background-color: #2563eb;
+}
+
+/* Users Table */
+.clubadmin-users-table {
   overflow-x: auto;
 }
 
-.user-table table {
+.clubadmin-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 1rem;
 }
 
-.user-table th,
-.user-table td {
+.clubadmin-table th,
+.clubadmin-table td {
+  padding: 0.75rem 1rem;
   text-align: left;
-  padding: 0.75rem;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.user-table th {
+.clubadmin-table th {
   background-color: #f1f5f9;
   color: #1e293b;
   font-weight: 600;
+}
+
+/* Empty States */
+.clubadmin-empty-state {
+  color: #64748b;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .clubadmin-header {
+    padding: 1rem;
+  }
+
+  .clubadmin-search-input {
+    width: 200px;
+  }
+
+  .clubadmin-main-content {
+    padding: 1rem;
+  }
+
+  .clubadmin-actions {
+    flex-direction: column;
+  }
+
+  .clubadmin-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .clubadmin-title {
+    font-size: 2rem;
+  }
+
+  .clubadmin-profile {
+    gap: 0.5rem;
+  }
+
+  .clubadmin-welcome {
+    display: none;
+  }
+}
+/* Add these styles to your existing CSS */
+
+.clubadmin-dropdown-icon {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+.clubadmin-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  color: #1f2937;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.clubadmin-dropdown-item--logout {
+  color: #ef4444;
+}
+
+.clubadmin-dropdown-item--logout:hover {
+  background-color: #fee2e2;
 }
