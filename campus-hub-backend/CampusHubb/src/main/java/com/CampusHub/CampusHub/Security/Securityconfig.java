@@ -4,6 +4,7 @@ import com.CampusHub.CampusHub.CustomAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -38,9 +39,16 @@ public class Securityconfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() //for public access without any authentication.
-//
-                                .requestMatchers("/api/admins/**").hasAuthority("SYSTEMADMIN")
-                                .requestMatchers( "/api/users/**").hasAnyAuthority("SYSTEMADMIN","CLUBADMIN")
+                        .requestMatchers("/api/events/approved").hasAnyAuthority("CLUBADMIN","USER")
+                        .requestMatchers(HttpMethod.GET,"/api/events/pending").hasAnyAuthority("SYSTEMADMIN","CLUBADMIN")
+                        .requestMatchers("/api/events").hasAuthority("CLUBADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/events/users").hasAnyAuthority("CLUBADMIN","SYSTEMADMIN","USER")
+
+                        .requestMatchers(HttpMethod.PATCH, "/api/events/*/approve").hasAuthority("SYSTEMADMIN")
+                        .requestMatchers("/api/events/**").hasAuthority("SYSTEMADMIN")
+                        .requestMatchers("/api/events").hasAnyAuthority("CLUBADMIN", "SYSTEMADMIN")
+                        .requestMatchers("/api/admins/**").hasAuthority("SYSTEMADMIN")
+                                .requestMatchers( HttpMethod.GET,"/api/users").hasAnyAuthority("SYSTEMADMIN","CLUBADMIN")
                                  .anyRequest().authenticated()
 
                 )

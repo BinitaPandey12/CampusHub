@@ -49,7 +49,7 @@ function SystemAdmin() {
           })
         ]);
 
-        if (adminsRes.status === 401 || usersRes.status === 401 || eventsRes.status === 401) {
+        if (adminsRes.status === 401 || usersRes.status === 401 || eventsRes.status === 401 ) {
           throw new Error("Unauthorized");
         }
 

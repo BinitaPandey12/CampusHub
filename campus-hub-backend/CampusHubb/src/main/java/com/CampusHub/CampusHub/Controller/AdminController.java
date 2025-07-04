@@ -25,7 +25,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasAuthority('SYSTEMADMIN')")
+    @PreAuthorize("hasAuthority('CLUBADMIN') or hasAuthority('SYSTEMADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userRepository.findByRole(Role.USER);
         return ResponseEntity.ok(users);

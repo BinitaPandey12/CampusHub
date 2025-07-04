@@ -11,6 +11,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
 import ChatbotHelp from "./pages/ChatbotHelp";
+import ExploreEvents from "./pages/ExploreEvents";
 import VerifyEmail from "./pages/VerifyEmail"; 
 import EventForm from "./pages/EventForm";
 // import Chatbot from "./components/Chatbot";
@@ -31,6 +32,8 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
           {/* Uncomment these only if you create the files */}
+            <Route path="/explore-events" element={<ExploreEvents />} />
+
           { <Route path="/myevents" element={<MyEvents />} /> }
           { <Route path="/chatbot" element={<ChatbotHelp />} /> }
           <Route path="/events/new" element={<EventForm />} />

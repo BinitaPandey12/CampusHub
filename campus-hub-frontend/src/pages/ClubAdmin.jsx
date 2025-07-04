@@ -8,12 +8,14 @@ import {
   FiClock, 
   FiCheckCircle,
   FiUser,
-  FiLogOut
+  FiLogOut,
+  FiRefreshCw
 } from "react-icons/fi";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const ClubAdmin = () => {
+  // State management
   const [users, setUsers] = useState([]);
   const [pendingEvents, setPendingEvents] = useState([]);
   const [approvedEvents, setApprovedEvents] = useState([]);
@@ -28,41 +30,46 @@ const ClubAdmin = () => {
     location: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userData = JSON.parse(localStorage.getItem("user"));
   const userName = userData?.name || "Club Admin";
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [usersResponse, eventsResponse] = await Promise.all([
-          axios.get("http://localhost:8080/api/users", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get("http://localhost:8080/api/events", {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        ]);
-        
-        setUsers(usersResponse.data.content || usersResponse.data);
-        
-        const pending = eventsResponse.data.filter(event => event.status === 'PENDING');
-        const approved = eventsResponse.data.filter(event => event.status === 'APPROVED');
-        
-        setPendingEvents(pending);
-        setApprovedEvents(approved);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        if (error.response?.status === 401) {
-          handleLogout();
-        } else {
-          toast.error("Failed to fetch data");
-        }
-      }
-    };
+  // Fetch all data
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [usersResponse, pendingResponse, approvedResponse] = await Promise.all([
+        axios.get("http://localhost:8080/api/events/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get("http://localhost:8080/api/events/pending", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get("http://localhost:8080/api/events/approved", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      ]);
 
+      setUsers(usersResponse.data);
+      setPendingEvents(pendingResponse.data);
+      setApprovedEvents(approvedResponse.data);
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      if (error.response?.status === 401) {
+        handleLogout();
+      } else {
+        toast.error(error.response?.data?.message || "Failed to fetch data");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (token) {
       fetchData();
     } else {
@@ -70,6 +77,7 @@ const ClubAdmin = () => {
     }
   }, [token, navigate]);
 
+  // Scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -78,6 +86,7 @@ const ClubAdmin = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Click outside dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -87,6 +96,8 @@ const ClubAdmin = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleRefresh = () => fetchData();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -99,59 +110,46 @@ const ClubAdmin = () => {
     setIsSubmitting(true);
     
     try {
-      // Validate all required fields
+      // Validation
       if (!newEvent.title?.trim()) {
         toast.error("Event title is required");
-        setIsSubmitting(false);
         return;
       }
       if (!newEvent.description?.trim()) {
         toast.error("Event description is required");
-        setIsSubmitting(false);
         return;
       }
       if (!newEvent.date) {
         toast.error("Event date is required");
-        setIsSubmitting(false);
         return;
       }
       if (!newEvent.time) {
         toast.error("Event time is required");
-        setIsSubmitting(false);
         return;
       }
       if (!newEvent.location?.trim()) {
         toast.error("Event location is required");
-        setIsSubmitting(false);
         return;
       }
 
-      // Combine date and time for validation
+      // Date validation
       const eventDateTime = new Date(`${newEvent.date}T${newEvent.time}`);
       if (eventDateTime < new Date()) {
         toast.error("Event date and time must be in the future");
-        setIsSubmitting(false);
         return;
       }
 
-      // Format time to HH:mm:ss
-      const formattedTime = newEvent.time.includes(':') ? 
-        (newEvent.time.split(':').length === 2 ? `${newEvent.time}:00` : newEvent.time) : 
-        `${newEvent.time}:00:00`;
-
-      // Prepare the event data without createdBy
-      const eventData = {
-        title: newEvent.title.trim(),
-        description: newEvent.description.trim(),
-        date: newEvent.date,
-        time: formattedTime,
-        location: newEvent.location.trim(),
-        status: "PENDING" // Status is still needed
-      };
-
+      // API call
       const response = await axios.post(
         "http://localhost:8080/api/events",
-        eventData,
+        {
+          title: newEvent.title.trim(),
+          description: newEvent.description.trim(),
+          date: newEvent.date,
+          time: newEvent.time,
+          location: newEvent.location.trim(),
+          status: "PENDING"
+        },
         {
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -160,12 +158,8 @@ const ClubAdmin = () => {
         }
       );
       
-      // Update events list based on status
-      if (response.data.status === 'PENDING') {
-        setPendingEvents(prev => [response.data, ...prev]);
-      } else {
-        setApprovedEvents(prev => [response.data, ...prev]);
-      }
+      // Update state
+      setPendingEvents(prev => [response.data, ...prev]);
       
       // Reset form
       setNewEvent({
@@ -180,15 +174,20 @@ const ClubAdmin = () => {
       
     } catch (error) {
       console.error("Error creating event:", error);
-      if (error.response?.data) {
-        toast.error(error.response.data.message || "Failed to create event");
-      } else {
-        toast.error("Network error - failed to connect to server");
-      }
+      toast.error(error.response?.data?.message || "Failed to create event");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="clubadmin-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="clubadmin-container">
@@ -238,6 +237,14 @@ const ClubAdmin = () => {
           >
             <FiPlusCircle className="clubadmin-action-icon" />
             {showEventForm ? "Cancel" : "Add New Event"}
+          </button>
+          <button 
+            className="clubadmin-action-btn"
+            onClick={handleRefresh}
+            disabled={isLoading}
+          >
+            <FiRefreshCw className="clubadmin-action-icon" />
+            Refresh Data
           </button>
         </div>
 
@@ -332,12 +339,12 @@ const ClubAdmin = () => {
                 <article key={`pending-${event.id}`} className="clubadmin-event-card">
                   <h3 className="clubadmin-event-title">{event.title}</h3>
                   <p className="clubadmin-event-description">
-                    {event.description.substring(0, 100)}...
+                    {event.description?.substring(0, 100)}...
                   </p>
                   <div className="clubadmin-event-meta">
-                    <span>{new Date(event.date).toLocaleDateString()}</span>
-                    <span>{event.time}</span>
-                    <span>{event.location}</span>
+                    <span>{event.date ? new Date(event.date).toLocaleDateString() : 'No date'}</span>
+                    <span>{event.time || 'No time'}</span>
+                    <span>{event.location || 'No location'}</span>
                   </div>
                 </article>
               ))}
@@ -356,25 +363,28 @@ const ClubAdmin = () => {
           
           {approvedEvents.length > 0 ? (
             <div className="clubadmin-events-grid">
-              {approvedEvents.map(event => (
-                <article key={`approved-${event.id}`} className="clubadmin-event-card">
-                  <h3 className="clubadmin-event-title">{event.title}</h3>
-                  <p className="clubadmin-event-description">
-                    {event.description.substring(0, 100)}...
-                  </p>
-                  <div className="clubadmin-event-meta">
-                    <span>{new Date(event.date).toLocaleDateString()}</span>
-                    <span>{event.time}</span>
-                    <span>{event.location}</span>
-                  </div>
-                  <button 
-                    className="clubadmin-view-btn"
-                    onClick={() => navigate(`/events/${event.id}`)}
-                  >
-                    View Details
-                  </button>
-                </article>
-              ))}
+              {approvedEvents.map(event => {
+                const eventDate = event.date ? new Date(event.date).toLocaleDateString() : "Date not set";
+                return (
+                  <article key={`approved-${event.id}`} className="clubadmin-event-card">
+                    <h3 className="clubadmin-event-title">{event.title || "Untitled Event"}</h3>
+                    <p className="clubadmin-event-description">
+                      {(event.description || "No description provided").substring(0, 100)}...
+                    </p>
+                    <div className="clubadmin-event-meta">
+                      <span>{eventDate}</span>
+                      <span>{event.time || "Time not set"}</span>
+                      <span>{event.location || "Location not specified"}</span>
+                    </div>
+                    <button 
+                      className="clubadmin-view-btn"
+                      onClick={() => navigate(`/events/${event.id}`)}
+                    >
+                      View Details
+                    </button>
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <p className="clubadmin-empty-state">No events have been approved yet.</p>
@@ -387,22 +397,22 @@ const ClubAdmin = () => {
             <table className="clubadmin-table">
               <thead>
                 <tr>
-                  <th>Name</th>
+                  <th>ID</th>
                   <th>Email</th>
-                  <th>Role</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, index) => (
-                  <tr key={user.id ? `user-${user.id}` : `user-${index}`}>
-                    <td>{user.name || "N/A"}</td>
+                {users.map((user) => (
+                  <tr key={user.id || user.email}>
+                    <td>{user.id}</td>
                     <td>{user.email}</td>
-                    <td>{user.role}</td>
                   </tr>
                 ))}
                 {users.length === 0 && (
                   <tr>
-                    <td colSpan="3" className="clubadmin-empty-state">No users found.</td>
+                    <td colSpan="2" className="clubadmin-empty-state">
+                      No users found.
+                    </td>
                   </tr>
                 )}
               </tbody>

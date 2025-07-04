@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "./Dashboard.css";
+import { FiSearch } from "react-icons/fi";
 
 const Dashboard = () => {
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("upcoming");
   const [filter, setFilter] = useState("all");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -144,6 +146,21 @@ const Dashboard = () => {
     });
   };
 
+  // Filter clubs and events based on search query
+  const filteredClubs = clubs.filter(club => {
+    if (!searchQuery) return true;
+    
+    const clubMatches = club.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                       club.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const eventMatches = club.events.some(event => 
+      event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.location.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    return clubMatches || eventMatches;
+  });
+
   return (
     <div className="dashboard">
       {/* Floating Notification */}
@@ -167,6 +184,8 @@ const Dashboard = () => {
                 type="text" 
                 placeholder="🔍 Search clubs, events..." 
                 className="search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             
@@ -216,8 +235,9 @@ const Dashboard = () => {
             Join clubs, attend events, and connect with your community
           </p>
           <div className="hero-actions">
-            <button className="primary-button">Explore Events</button>
-     
+            <Link to="/explore-events" className="primary-button">
+              Explore Events
+            </Link>
           </div>
         </div>
         <div className="hero-image"></div>
@@ -260,9 +280,9 @@ const Dashboard = () => {
 
         {/* Clubs & Events Grid */}
         <div className="clubs-grid">
-          {clubs.map((club) => {
+          {filteredClubs.map((club) => {
             const filteredEvents = filterEvents(club.events);
-            if (!filteredEvents.length) return null;
+            if (!filteredEvents.length && searchQuery) return null;
             
             return (
               <div key={club.id} className="club-card">
@@ -271,48 +291,60 @@ const Dashboard = () => {
                   <p className="club-description">{club.description}</p>
                 </div>
                 
-                <div className="events-container">
-                  <h3 className="events-title">
-                    {selectedTab === "upcoming" ? "Upcoming" : "Live"} Events
-                  </h3>
-                  
-                  <div className="events-list">
-                    {filteredEvents.map((event) => (
-                      <div 
-                        key={event.id} 
-                        className={`event-card ${event.status}`}
-                        style={{ backgroundImage: `url(${event.image})` }}
-                      >
-                        <div className="event-overlay"></div>
-                        <div className="event-content">
-                          {event.status === "running" && (
-                            <span className="live-badge">
-                              <span className="pulse"></span> LIVE NOW
-                            </span>
-                          )}
-                          <h4 className="event-name">{event.name}</h4>
-                          <div className="event-meta">
-                            <span className="event-date">
-                              📅 {new Date(event.date).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric',
-                                year: 'numeric'
-                              })}
-                            </span>
-                            <span className="event-location">📍 {event.location}</span>
+                {filteredEvents.length > 0 && (
+                  <div className="events-container">
+                    <h3 className="events-title">
+                      {selectedTab === "upcoming" ? "Upcoming" : "Live"} Events
+                    </h3>
+                    
+                    <div className="events-list">
+                      {filteredEvents.map((event) => (
+                        <div 
+                          key={event.id} 
+                          className={`event-card ${event.status}`}
+                          style={{ backgroundImage: `url(${event.image})` }}
+                        >
+                          <div className="event-overlay"></div>
+                          <div className="event-content">
+                            {event.status === "running" && (
+                              <span className="live-badge">
+                                <span className="pulse"></span> LIVE NOW
+                              </span>
+                            )}
+                            <h4 className="event-name">{event.name}</h4>
+                            <div className="event-meta">
+                              <span className="event-date">
+                                📅 {new Date(event.date).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric',
+                                  year: 'numeric'
+                                })}
+                              </span>
+                              <span className="event-location">📍 {event.location}</span>
+                            </div>
+                            <Link 
+                              to={`/event/${event.id}`} 
+                              className="event-button"
+                            >
+                              {event.status === "running" ? "Join Now" : "Learn More"}
+                            </Link>
                           </div>
-                          <button className="event-button">
-                            {event.status === "running" ? "Join Now" : "Learn More"}
-                          </button>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             );
           })}
         </div>
+
+        {/* No results message */}
+        {filteredClubs.length === 0 && (
+          <div className="no-results-message">
+            <p>No clubs or events found matching your search.</p>
+          </div>
+        )}
       </main>
 
       {/* Featured Clubs Section */}
@@ -325,28 +357,36 @@ const Dashboard = () => {
             <div className="club-icon">📸</div>
             <h3 className="club-title">Photography Club</h3>
             <p className="club-members">1.2k members</p>
-            <button className="join-button">Join Club</button>
+            <Link to="/club/photography" className="join-button">
+              Join Club
+            </Link>
           </div>
           
           <div className="featured-club">
             <div className="club-icon">💻</div>
             <h3 className="club-title">Coding Society</h3>
             <p className="club-members">850 members</p>
-            <button className="join-button">Join Club</button>
+            <Link to="/club/coding" className="join-button">
+              Join Club
+            </Link>
           </div>
           
           <div className="featured-club">
             <div className="club-icon">🎭</div>
             <h3 className="club-title">Drama Club</h3>
             <p className="club-members">620 members</p>
-            <button className="join-button">Join Club</button>
+            <Link to="/club/drama" className="join-button">
+              Join Club
+            </Link>
           </div>
           
           <div className="featured-club">
             <div className="club-icon">🌱</div>
             <h3 className="club-title">Environmental Club</h3>
             <p className="club-members">430 members</p>
-            <button className="join-button">Join Club</button>
+            <Link to="/club/environmental" className="join-button">
+              Join Club
+            </Link>
           </div>
         </div>
       </section>
@@ -360,8 +400,7 @@ const Dashboard = () => {
               Connecting students with campus activities and organizations.
             </p>
           </div>
-      
-          </div>
+        </div>
         
         <div className="footer-bottom">
           <p className="copyright">
