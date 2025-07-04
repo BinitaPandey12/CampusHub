@@ -30,8 +30,7 @@
 }
 
 .login-container::before {
-  background-image: url("https://cdn-icons-png.flaticon.com/512/3075/3075977.png"); /* Book icon */
-  top: 8%;
+  background: url('https://assets.codepen.io/1468070/Animated+Shape+Background.svg') center/cover; top: 8%;
   left: 5%;
   animation: floatIcon1 18s ease-in-out infinite alternate;
 }

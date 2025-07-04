@@ -365,3 +365,173 @@
 .clubadmin-dropdown-item--logout:hover {
   background-color: #fee2e2;
 }
+
+/* Modern Form Container */
+.clubadmin-section {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.clubadmin-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.clubadmin-section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Form Layout */
+.form-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Floating Label Inputs */
+.clubadmin-form-group {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.clubadmin-form-group.floating label {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  color: #718096;
+  background: white;
+  padding: 0 0.25rem;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.modern-input,
+.modern-textarea {
+  width: 100%;
+  padding: 1rem;
+  color: black;
+  font-size: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+}
+
+.modern-input:focus,
+.modern-textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  background-color: #ffffff;
+}
+
+.modern-input:focus + label,
+.modern-textarea:focus + label,
+.modern-input:not(:placeholder-shown) + label,
+.modern-textarea:not(:placeholder-shown) + label {
+  transform: translateY(-1.75rem) scale(0.85);
+  color: #6366f1;
+}
+
+.modern-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Date and Time Input Styling */
+input[type="date"],
+input[type="time"] {
+  appearance: none;
+  position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 0.5rem;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+/* Button Styles */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn.primary {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+}
+
+.btn.primary:hover {
+  background-color: #4f46e5;
+}
+
+.btn.primary:disabled {
+  background-color: #a5b4fc;
+  cursor: not-allowed;
+}
+
+.btn.secondary {
+  background-color: white;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+}
+
+.btn.secondary:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .clubadmin-card {
+    padding: 1.5rem;
+  }
+}

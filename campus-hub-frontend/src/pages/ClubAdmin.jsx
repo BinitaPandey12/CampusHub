@@ -180,14 +180,14 @@ const ClubAdmin = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="clubadmin-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading dashboard...</p>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="clubadmin-loading">
+  //       <div className="loading-spinner"></div>
+  //       <p>Loading dashboard...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="clubadmin-container">
@@ -250,65 +250,85 @@ const ClubAdmin = () => {
 
         {showEventForm && (
           <section className="clubadmin-section">
+          <div className="clubadmin-card">
             <h2 className="clubadmin-section-title">Create New Event</h2>
             <form onSubmit={handleCreateEvent} className="clubadmin-form">
-              <div className="clubadmin-form-group">
-                <label>Event Title *</label>
-                <input
-                  type="text"
-                  value={newEvent.title}
-                  onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
-                  placeholder="Enter event title"
-                  required
-                  disabled={isSubmitting}
-                />
+              <div className="form-grid">
+                <div className="clubadmin-form-group floating">
+                  <input
+                    type="text"
+                    id="event-title"
+                    value={newEvent.title}
+                    onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+                    placeholder=" "
+                    required
+                    disabled={isSubmitting}
+                    className="modern-input"
+                  />
+                  <label htmlFor="event-title">Event Title *</label>
+                </div>
+        
+                <div className="clubadmin-form-group floating">
+                  <textarea
+                    id="event-description"
+                    value={newEvent.description}
+                    onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
+                    placeholder=" "
+                    required
+                    disabled={isSubmitting}
+                    className="modern-textarea"
+                  />
+                  <label htmlFor="event-description">Description *</label>
+                </div>
+        
+                <div className="form-row">
+                  <div className="clubadmin-form-group floating">
+                    <input
+                      type="date"
+                      id="event-date"
+                      value={newEvent.date}
+                      onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
+                      min={new Date().toISOString().split('T')[0]}
+                      required
+                      disabled={isSubmitting}
+                      className="modern-input"
+                    />
+                    <label htmlFor="event-date">Date *</label>
+                  </div>
+        
+                  <div className="clubadmin-form-group floating">
+                    <input
+                      type="time"
+                      id="event-time"
+                      value={newEvent.time}
+                      onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                      required
+                      disabled={isSubmitting}
+                      className="modern-input"
+                    />
+                    <label htmlFor="event-time">Time *</label>
+                  </div>
+                </div>
+        
+                <div className="clubadmin-form-group floating">
+                  <input
+                    type="text"
+                    id="event-location"
+                    value={newEvent.location}
+                    onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
+                    placeholder=" "
+                    required
+                    disabled={isSubmitting}
+                    className="modern-input"
+                  />
+                  <label htmlFor="event-location">Location *</label>
+                </div>
               </div>
-              <div className="clubadmin-form-group">
-                <label>Description *</label>
-                <textarea
-                  value={newEvent.description}
-                  onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
-                  placeholder="Enter event description"
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="clubadmin-form-group">
-                <label>Date *</label>
-                <input
-                  type="date"
-                  value={newEvent.date}
-                  onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
-                  min={new Date().toISOString().split('T')[0]}
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="clubadmin-form-group">
-                <label>Time *</label>
-                <input
-                  type="time"
-                  value={newEvent.time}
-                  onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="clubadmin-form-group">
-                <label>Location *</label>
-                <input
-                  type="text"
-                  value={newEvent.location}
-                  onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
-                  placeholder="Enter event location"
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="clubadmin-form-actions">
+        
+              <div className="form-actions">
                 <button 
                   type="button"
-                  className="clubadmin-action-btn"
+                  className="btn secondary"
                   onClick={() => setShowEventForm(false)}
                   disabled={isSubmitting}
                 >
@@ -316,14 +336,20 @@ const ClubAdmin = () => {
                 </button>
                 <button 
                   type="submit"
-                  className="clubadmin-action-btn primary"
+                  className="btn primary"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Creating..." : "Create Event"}
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner"></span>
+                      Creating...
+                    </>
+                  ) : "Create Event"}
                 </button>
               </div>
             </form>
-          </section>
+          </div>
+        </section>
         )}
 
         <section className="clubadmin-section">
