@@ -2,23 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./UserDashboard.css";
 
-const clubs = [
-  {
-    id: 1,
-    name: "Tech Club",
-    description: "A club for tech enthusiasts exploring the latest trends.",
-    newEvent: true,
-    joined: true,
-  },
-  {
-    id: 2,
-    name: "Literary Club",
-    description: "For writers, poets, and literature lovers.",
-    newEvent: false,
-    joined: false,
-  },
-];
-
 function getCountdown(eventTime) {
   const now = new Date();
   const diff = Math.max(eventTime - now, 0);
@@ -46,25 +29,28 @@ const UserDashboard = () => {
     const fetchUpcomingEvents = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:8080/api/events/approved", {
-          headers: {
-            'Authorization': `Bearer ${token}`
+        const response = await fetch(
+          "http://localhost:8080/api/events/approved",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
-        
+        );
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        const formattedEvents = data.map(event => ({
+        const formattedEvents = data.map((event) => ({
           id: event.id,
           title: event.title,
           club: event.club?.name || "Unknown Club",
           time: new Date(event.dateTime),
-          description: event.description || "No description available"
+          description: event.description || "No description available",
         }));
-        
+
         setUpcomingEvents(formattedEvents);
       } catch (err) {
         setError(err.message);
@@ -182,26 +168,6 @@ const UserDashboard = () => {
         </header>
 
         <section className="user-dashboard__content">
-          <h2 className="user-dashboard__section-title">Recommended Clubs</h2>
-          <div className="user-dashboard__clubs">
-            {clubs.map((club) => (
-              <div key={club.id} className="user-dashboard__club-card">
-                <div className="user-dashboard__club-header">
-                  <h3 className="user-dashboard__club-name">{club.name}</h3>
-                  {club.newEvent && (
-                    <span className="user-dashboard__club-badge">
-                      🔴 New Event
-                    </span>
-                  )}
-                </div>
-                <p className="user-dashboard__club-desc">{club.description}</p>
-                <button className="user-dashboard__club-btn">
-                  {club.joined ? "View Club" : "Join Club"}
-                </button>
-              </div>
-            ))}
-          </div>
-
           <h2 className="user-dashboard__section-title">Upcoming Events</h2>
           <div className="user-dashboard__events">
             {loading ? (
@@ -213,7 +179,7 @@ const UserDashboard = () => {
               <div className="user-dashboard__error">
                 <span className="user-dashboard__error-icon">⚠️</span>
                 Error loading events: {error}
-                <button 
+                <button
                   className="user-dashboard__retry-btn"
                   onClick={() => window.location.reload()}
                 >
@@ -224,7 +190,9 @@ const UserDashboard = () => {
               upcomingEvents.map((event) => (
                 <div key={event.id} className="user-dashboard__event-card">
                   <div className="user-dashboard__event-info">
-                    <h4 className="user-dashboard__event-title">{event.title}</h4>
+                    <h4 className="user-dashboard__event-title">
+                      {event.title}
+                    </h4>
                     <p className="user-dashboard__event-host">
                       Hosted by {event.club}
                     </p>
@@ -235,7 +203,7 @@ const UserDashboard = () => {
                       {getCountdown(event.time)}
                     </span>
                   </div>
-                  <button 
+                  <button
                     className="user-dashboard__event-btn"
                     onClick={() => handleEventClick(event.id)}
                   >

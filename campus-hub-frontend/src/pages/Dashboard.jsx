@@ -1,98 +1,85 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FiSearch,
+  FiCalendar,
+  FiMapPin,
+  FiClock,
+  FiUsers,
+} from "react-icons/fi";
+import axios from "axios";
 import "./Dashboard.css";
-import { FiSearch } from "react-icons/fi";
 
 const Dashboard = () => {
+  // State management
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("upcoming");
   const [filter, setFilter] = useState("all");
-  const [showDropdown, setShowDropdown] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [notificationVisible, setNotificationVisible] = useState(true);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const dropdownRef = useRef(null);
-  const profileIconRef = useRef(null);
 
-  // Static club details with running and upcoming events (for demo/testing)
+  // Fetch events from backend
   useEffect(() => {
-    if (clubs.length === 0 && loading) {
-      setClubs([
-        {
-          id: 1,
-          name: "Tech Club",
-          description: "A club for tech enthusiasts exploring the latest trends in AI, blockchain, and web development.",
-          events: [
-            {
-              id: 101,
-              name: "AI Workshop with Google Engineers",
-              date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-              status: "upcoming",
-              location: "Computer Lab 3",
-              image: "https://source.unsplash.com/random/300x200/?tech"
-            },
-            {
-              id: 102,
-              name: "24-Hour Hackathon (Live)",
-              date: new Date().toISOString().split("T")[0],
-              status: "running",
-              location: "Main Auditorium",
-              image: "https://source.unsplash.com/random/300x200/?hackathon"
-            },
-          ],
-        },
-        {
-          id: 2,
-          name: "Music & Arts",
-          description: "For musicians, artists, and creative minds to collaborate and perform.",
-          events: [
-            {
-              id: 201,
-              name: "Open Mic Night",
-              date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-              status: "upcoming",
-              location: "Student Center",
-              image: "https://source.unsplash.com/random/300x200/?music"
-            },
-            {
-              id: 202,
-              name: "Live Band Performance",
-              date: new Date().toISOString().split("T")[0],
-              status: "running",
-              location: "Quadrangle",
-              image: "https://source.unsplash.com/random/300x200/?concert"
-            },
-          ],
-        },
-        {
-          id: 3,
-          name: "Sports & Fitness",
-          description: "Join us for competitive sports and fitness activities.",
-          events: [
-            {
-              id: 301,
-              name: "Inter-College Football (Live)",
-              date: new Date().toISOString().split("T")[0],
-              status: "running",
-              location: "Sports Complex",
-              image: "https://source.unsplash.com/random/300x200/?football"
-            },
-            {
-              id: 302,
-              name: "Yoga & Meditation Workshop",
-              date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-              status: "upcoming",
-              location: "Wellness Center",
-              image: "https://source.unsplash.com/random/300x200/?yoga"
-            },
-          ],
-        },
-      ]);
-      setLoading(false);
-    }
-  }, [clubs, loading]);
+  const fetchEvents = async () => {
+  try {
+    const response = await axios.get("/api/events");
+    
+    // Debug: Check the actual response structure
+    console.log("API Response:", response);
+    console.log("Response Data:", response.data);
 
-  const today = new Date().toISOString().split("T")[0];
+    // Ensure we're working with an array
+    const eventsData = Array.isArray(response.data) 
+      ? response.data 
+      : response.data?.events || []; // Fallback to empty array if not found
+
+    const approvedEvents = eventsData.filter(
+      (event) => event.status === "approved"
+    );
+
+        // Organize events by club
+        const clubsMap = approvedEvents.reduce((acc, event) => {
+          if (!acc[event.clubId]) {
+            acc[event.clubId] = {
+              id: event.clubId,
+              name: event.clubName,
+              description: event.clubDescription,
+              image: event.clubImage,
+              events: [],
+            };
+          }
+          acc[event.clubId].events.push({
+            ...event,
+            status:
+              new Date(event.endDate) > new Date()
+                ? new Date(event.startDate) <= new Date()
+                  ? "running"
+                  : "upcoming"
+                : "past",
+          });
+          return acc;
+        }, {});
+
+        setClubs(Object.values(clubsMap));
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+
+    // Refresh events every 30 seconds for real-time updates
+    const interval = setInterval(fetchEvents, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Handle scroll for header effect
   useEffect(() => {
@@ -102,145 +89,245 @@ const Dashboard = () => {
         setScrolled(isScrolled);
       }
     };
-    
-    document.addEventListener('scroll', handleScroll, { passive: true });
-    return () => document.removeEventListener('scroll', handleScroll);
-  }, [scrolled]);
 
-  // Profile dropdown toggle
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [scrolled]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        if (profileIconRef.current && !profileIconRef.current.contains(e.target)) {
-          setShowDropdown(false);
-        }
+        setUserMenuOpen(false);
       }
     };
-    
-    if (showDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showDropdown]);
 
-  // Filter events by status + date
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filter and helper functions
   const filterEvents = (events = []) => {
-    return events.filter((ev) => {
-      if (ev.status !== selectedTab) return false;
-      if (filter === "today") return ev.date === today;
+    const now = new Date();
+    return events.filter((event) => {
+      const startDate = new Date(event.startDate);
+      const endDate = new Date(event.endDate);
+
+      if (selectedTab === "upcoming" && (startDate <= now || endDate <= now))
+        return false;
+      if (selectedTab === "running" && (startDate > now || endDate <= now))
+        return false;
+
+      if (filter === "today") {
+        return startDate.toDateString() === now.toDateString();
+      }
       if (filter === "thisWeek") {
-        const ed = new Date(ev.date);
-        const now = new Date();
-        const weekLater = new Date();
-        weekLater.setDate(now.getDate() + 7);
-        return ed >= now && ed <= weekLater;
+        const weekEnd = new Date();
+        weekEnd.setDate(now.getDate() + 7);
+        return startDate >= now && startDate <= weekEnd;
       }
       return true;
     });
   };
 
-  // Filter clubs and events based on search query
-  const filteredClubs = clubs.filter(club => {
+  const filteredClubs = clubs.filter((club) => {
     if (!searchQuery) return true;
-    
-    const clubMatches = club.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                       club.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const eventMatches = club.events.some(event => 
-      event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchQuery.toLowerCase())
+    const query = searchQuery.toLowerCase();
+    return (
+      club.name.toLowerCase().includes(query) ||
+      club.description.toLowerCase().includes(query) ||
+      club.events.some(
+        (event) =>
+          event.name.toLowerCase().includes(query) ||
+          event.location.toLowerCase().includes(query)
+      )
     );
-    
-    return clubMatches || eventMatches;
   });
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const formatTime = (dateString) => {
+    return new Date(dateString).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatLiveTime = (startDate) => {
+    const start = new Date(startDate);
+    const now = new Date();
+    const diffMs = now - start;
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHrs = Math.floor(diffMins / 60);
+    return `${diffHrs}h ${diffMins % 60}m ago`;
+  };
+
+  const closeNotification = () => {
+    setNotificationVisible(false);
+  };
 
   return (
     <div className="dashboard">
-      {/* Floating Notification */}
-      <div className="floating-notification">
-        <span className="notification-badge">New</span>
-        <p>Check out the new photography club events!</p>
-        <button className="notification-close">×</button>
+      {/* Animated Background Elements */}
+      <div className="animated-background">
+        {[...Array(10)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="floating-shape"
+            initial={{ y: 0, x: Math.random() * 100 }}
+            animate={{
+              y: [0, -100, 0],
+              x: [Math.random() * 100, Math.random() * 100],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 15 + Math.random() * 15,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        ))}
       </div>
 
+      {/* Floating Notification */}
+      <AnimatePresence>
+        {notificationVisible && (
+          <motion.div
+            className="floating-notification"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 25 }}
+          >
+            <motion.span
+              className="notification-badge"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              New
+            </motion.span>
+            <p>New events added recently!</p>
+            <motion.button
+              className="notification-close"
+              onClick={closeNotification}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              ×
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
-      <header className={`dashboard-header ${scrolled ? 'scrolled' : ''}`}>
+      <motion.header
+        className={`dashboard-header ${scrolled ? "scrolled" : ""}`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="header-content">
           <Link to="/" className="dashboard-logo">
-            <span className="logo-icon">🎓</span>
-            <span className="logo-text">CampusHub</span>
+            <motion.span
+              className="logo-icon"
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
+            >
+              🎓
+            </motion.span>
+            <motion.span
+              className="logo-text"
+              whileHover={{ color: "#3a0ca3" }}
+            >
+              CampusHub
+            </motion.span>
           </Link>
-          
+
           <nav className="main-nav">
             <div className="search-container">
-              <input 
-                type="text" 
-                placeholder="🔍 Search clubs, events..." 
+              <motion.input
+                type="text"
+                placeholder="🔍 Search clubs, events..."
                 className="search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                whileFocus={{ boxShadow: "0 0 0 2px var(--primary)" }}
               />
             </div>
-            
+
             <div className="nav-links">
-              <Link to="/login" className="nav-link">
-                <span className="nav-icon">🔑</span> Login</Link>
-              <Link to="/register" className="nav-link">
-                <span className="nav-icon">📝</span> Register</Link> 
-              
-              <div className="profile-dropdown-container" ref={dropdownRef}>
-                <button 
-                  ref={profileIconRef}
-                  className="profile-button"
-                  onClick={toggleDropdown}
-                  aria-expanded={showDropdown}
-                >
-                  <div className="avatar">👤</div>
-                  <span className="username">John D.</span>
-                  <span className="dropdown-arrow">▾</span>
-                </button>
-                
-                {showDropdown && (
-                  <div className="dropdown-menu">
-                    <Link to="/profile" className="dropdown-item">
-                      <span className="dropdown-icon">👤</span> My Profile
-                    </Link>
-                    <Link to="/settings" className="dropdown-item">
-                      <span className="dropdown-icon">⚙️</span> Settings
-                    </Link>
-                    <div className="dropdown-divider"></div>
-                    <Link to="/" className="dropdown-item logout">
-                      <span className="dropdown-icon">🚪</span> Logout
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <motion.div whileHover={{ y: -2 }}>
+                <Link to="/login" className="nav-link">
+                  <span className="nav-icon">🔑</span> Login
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ y: -2 }}>
+                <Link to="/register" className="nav-link">
+                  <span className="nav-icon">📝</span> Register
+                </Link>
+              </motion.div>
             </div>
           </nav>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
-          <h1 className="hero-title">Discover Campus Life</h1>
-          <p className="hero-subtitle">
+          <motion.h1
+            className="hero-title"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            Discover <span className="highlight">Campus Life</span>
+          </motion.h1>
+          <motion.p
+            className="hero-subtitle"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
             Join clubs, attend events, and connect with your community
-          </p>
-          <div className="hero-actions">
-            <Link to="/explore-events" className="primary-button">
-              Explore Events
-            </Link>
-          </div>
+          </motion.p>
         </div>
-        <div className="hero-image"></div>
+        <div className="hero-image">
+          <motion.div
+            className="floating-elements"
+            animate={{
+              y: [0, -15, 0],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            {["Tech Talks", "Music Fest", "Sports Day"].map((text, i) => (
+              <motion.div
+                key={i}
+                className="floating-element"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{
+                  duration: 12,
+                  delay: i * 2,
+                  repeat: Infinity,
+                }}
+              >
+                {text}
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
       </section>
 
       {/* Main Content */}
@@ -248,146 +335,235 @@ const Dashboard = () => {
         {/* Tabs + Filter */}
         <div className="content-controls">
           <div className="tabs">
-            <button 
-              className={`tab ${selectedTab === "upcoming" ? 'active' : ''}`}
+            <motion.button
+              className={`tab ${selectedTab === "upcoming" ? "active" : ""}`}
               onClick={() => setSelectedTab("upcoming")}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               Upcoming Events
-            </button>
-            <button 
-              className={`tab ${selectedTab === "running" ? 'active' : ''}`}
+            </motion.button>
+            <motion.button
+              className={`tab ${selectedTab === "running" ? "active" : ""}`}
               onClick={() => setSelectedTab("running")}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               Happening Now
-            </button>
+            </motion.button>
           </div>
-          
+
           <div className="filter-container">
-            <label htmlFor="filter-select" className="filter-label">Filter:</label>
-            <select
+            <motion.select
               id="filter-select"
               className="filter-select"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
+              whileHover={{ y: -2 }}
             >
               <option value="all">All Events</option>
               <option value="today">Today</option>
               <option value="thisWeek">This Week</option>
               <option value="featured">Featured</option>
-            </select>
+            </motion.select>
           </div>
         </div>
 
         {/* Clubs & Events Grid */}
-        <div className="clubs-grid">
-          {filteredClubs.map((club) => {
-            const filteredEvents = filterEvents(club.events);
-            if (!filteredEvents.length && searchQuery) return null;
-            
-            return (
-              <div key={club.id} className="club-card">
-                <div className="club-header">
-                  <h2 className="club-name">{club.name}</h2>
-                  <p className="club-description">{club.description}</p>
-                </div>
-                
-                {filteredEvents.length > 0 && (
-                  <div className="events-container">
-                    <h3 className="events-title">
-                      {selectedTab === "upcoming" ? "Upcoming" : "Live"} Events
-                    </h3>
-                    
-                    <div className="events-list">
-                      {filteredEvents.map((event) => (
-                        <div 
-                          key={event.id} 
-                          className={`event-card ${event.status}`}
-                          style={{ backgroundImage: `url(${event.image})` }}
-                        >
-                          <div className="event-overlay"></div>
-                          <div className="event-content">
-                            {event.status === "running" && (
-                              <span className="live-badge">
-                                <span className="pulse"></span> LIVE NOW
-                              </span>
-                            )}
-                            <h4 className="event-name">{event.name}</h4>
-                            <div className="event-meta">
-                              <span className="event-date">
-                                📅 {new Date(event.date).toLocaleDateString('en-US', { 
-                                  month: 'short', 
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}
-                              </span>
-                              <span className="event-location">📍 {event.location}</span>
-                            </div>
-                            <Link 
-                              to={`/event/${event.id}`} 
-                              className="event-button"
-                            >
-                              {event.status === "running" ? "Join Now" : "Learn More"}
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* No results message */}
-        {filteredClubs.length === 0 && (
-          <div className="no-results-message">
-            <p>No clubs or events found matching your search.</p>
+        {loading ? (
+          <div className="loading-spinner">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="spinner"
+            />
+            <p>Loading events...</p>
           </div>
+        ) : (
+          <div className="clubs-grid">
+            {filteredClubs.map((club) => {
+              const filteredEvents = filterEvents(club.events);
+              if (!filteredEvents.length && searchQuery) return null;
+
+              return (
+                <motion.div
+                  key={club.id}
+                  className="club-card"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="club-header">
+                    {club.image && (
+                      <motion.div
+                        className="club-image"
+                        style={{ backgroundImage: `url(${club.image})` }}
+                        whileHover={{ scale: 1.05 }}
+                      />
+                    )}
+                    <h2 className="club-name">{club.name}</h2>
+                    <p className="club-description">{club.description}</p>
+                  </div>
+
+                  {filteredEvents.length > 0 && (
+                    <div className="events-container">
+                      <h3 className="events-title">
+                        {selectedTab === "upcoming" ? "Upcoming" : "Live"}{" "}
+                        Events
+                      </h3>
+
+                      <div className="events-list">
+                        {filteredEvents.map((event) => (
+                          <motion.div
+                            key={event.id}
+                            className={`event-card ${event.status}`}
+                            style={{ backgroundImage: `url(${event.image})` }}
+                            whileHover={{ scale: 1.02 }}
+                            onClick={() => navigate(`/event/${event.id}`)}
+                          >
+                            <div className="event-overlay"></div>
+                            <div className="event-content">
+                              {event.status === "running" && (
+                                <motion.span
+                                  className="live-badge"
+                                  animate={{ scale: [1, 1.05, 1] }}
+                                  transition={{ repeat: Infinity, duration: 2 }}
+                                >
+                                  <span className="pulse"></span> LIVE NOW
+                                  <span className="live-time">
+                                    {formatLiveTime(event.startDate)}
+                                  </span>
+                                </motion.span>
+                              )}
+                              <h4 className="event-name">{event.name}</h4>
+                              <div className="event-meta">
+                                <span className="event-date">
+                                  <FiCalendar /> {formatDate(event.startDate)}
+                                </span>
+                                <span className="event-location">
+                                  <FiMapPin /> {event.location}
+                                </span>
+                              </div>
+                              <div className="event-stats">
+                                <span className="event-time">
+                                  <FiClock /> {formatTime(event.startDate)}
+                                </span>
+                                <span className="event-attendees">
+                                  <FiUsers /> {event.attendees || 0} going
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+
+        {!loading && filteredClubs.length === 0 && (
+          <motion.div
+            className="no-results-message"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <p>No clubs or events found matching your search.</p>
+            <motion.button
+              className="primary-button"
+              onClick={() => {
+                setSearchQuery("");
+                setFilter("all");
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Reset Filters
+            </motion.button>
+          </motion.div>
         )}
       </main>
 
       {/* Featured Clubs Section */}
       <section className="featured-section">
-        <h2 className="section-title">Featured Clubs</h2>
-        <p className="section-subtitle">Discover popular clubs on campus</p>
-        
+        <motion.h2
+          className="section-title"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          Featured Clubs
+        </motion.h2>
+        <motion.p
+          className="section-subtitle"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+        >
+          Discover popular clubs on campus
+        </motion.p>
+
         <div className="featured-clubs">
-          <div className="featured-club">
-            <div className="club-icon">📸</div>
-            <h3 className="club-title">Photography Club</h3>
-            <p className="club-members">1.2k members</p>
-            <Link to="/club/photography" className="join-button">
-              Join Club
-            </Link>
-          </div>
-          
-          <div className="featured-club">
-            <div className="club-icon">💻</div>
-            <h3 className="club-title">Coding Society</h3>
-            <p className="club-members">850 members</p>
-            <Link to="/club/coding" className="join-button">
-              Join Club
-            </Link>
-          </div>
-          
-          <div className="featured-club">
-            <div className="club-icon">🎭</div>
-            <h3 className="club-title">Drama Club</h3>
-            <p className="club-members">620 members</p>
-            <Link to="/club/drama" className="join-button">
-              Join Club
-            </Link>
-          </div>
-          
-          <div className="featured-club">
-            <div className="club-icon">🌱</div>
-            <h3 className="club-title">Environmental Club</h3>
-            <p className="club-members">430 members</p>
-            <Link to="/club/environmental" className="join-button">
-              Join Club
-            </Link>
-          </div>
+          {[
+            {
+              icon: "📡",
+              name: "NTC",
+              members: "5.7k",
+              fullName: "Nepal Telecom Club",
+            },
+            {
+              icon: "🛰️",
+              name: "NOSK",
+              members: "3.2k",
+              fullName: "Nepal Optical Society",
+            },
+            {
+              icon: "⚡",
+              name: "IEEE",
+              members: "8.1k",
+              fullName: "Institute of Electrical and Electronics Engineers",
+            },
+          ].map((club, index) => (
+            <motion.div
+              key={index}
+              className="featured-club"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -5 }}
+            >
+              <motion.div
+                className="club-icon"
+                animate={{
+                  y: [0, -5, 0],
+                  rotate: [0, 5, -5, 0],
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                {club.icon}
+              </motion.div>
+              <h3 className="club-title">{club.name}</h3>
+              <p className="club-fullname">{club.fullName}</p>
+              <p className="club-members">{club.members} members</p>
+              <motion.div whileHover={{ scale: 1.05 }}>
+                <Link
+                  to={`/club/${club.name.toLowerCase()}`}
+                  className="join-button"
+                >
+                  Join Club
+                </Link>
+              </motion.div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -401,7 +577,7 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-        
+
         <div className="footer-bottom">
           <p className="copyright">
             © {new Date().getFullYear()} CampusHub. All rights reserved.
