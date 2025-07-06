@@ -297,7 +297,7 @@ function SystemAdmin() {
           <button
             className="sysadmin-profile-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-          >
+          > 👤
             <FiUser className="sysadmin-profile-icon" />
           </button>
 
