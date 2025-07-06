@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import EventDetails from "./pages/EventDetails";
 import SystemAdmin from "./pages/SystemAdmin";
+import EventEnrollForm from "./pages/EventEnrollForm";
 import ClubAdmin from "./pages/ClubAdmin";
 import UserDashboard from "./pages/UserDashboard";
 import Settings from "./pages/Settings";
@@ -13,7 +14,7 @@ import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
 import ChatbotHelp from "./pages/ChatbotHelp";
 import ExploreEvents from "./pages/ExploreEvents";
-import VerifyEmail from "./pages/VerifyEmail"; 
+import VerifyEmail from "./pages/VerifyEmail";
 // import Chatbot from "./components/Chatbot";
 
 function App() {
@@ -32,10 +33,11 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/profile" element={<Profile />} />
           {/* Uncomment these only if you create the files */}
-            <Route path="/explore-events" element={<ExploreEvents />} />
-            {/* <Route path="/club/:clubId" element={<ClubPage />} /> */}
-          { <Route path="/myevents" element={<MyEvents />} /> }
-          { <Route path="/chatbot" element={<ChatbotHelp />} /> }
+          <Route path="/explore-events" element={<ExploreEvents />} />
+          {/* <Route path="/club/:clubId" element={<ClubPage />} /> */}
+          <Route path="/event/:eventId/enroll" element={<EventEnrollForm />} />
+          {<Route path="/myevents" element={<MyEvents />} />}
+          {<Route path="/chatbot" element={<ChatbotHelp />} />}
           <Route path="/verify-email" element={<VerifyEmail />} />
         </Routes>
       </div>

@@ -7,6 +7,7 @@ import {
   FiMapPin,
   FiClock,
   FiUsers,
+  FiLogIn,
 } from "react-icons/fi";
 import axios from "axios";
 import "./Dashboard.css";
@@ -26,24 +27,18 @@ const Dashboard = () => {
 
   // Fetch events from backend
   useEffect(() => {
-  const fetchEvents = async () => {
-  try {
-    const response = await axios.get("/api/events");
-    
-    // Debug: Check the actual response structure
-    console.log("API Response:", response);
-    console.log("Response Data:", response.data);
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get("/api/events");
+        const eventsData = Array.isArray(response.data) 
+          ? response.data 
+          : response.data?.events || [];
 
-    // Ensure we're working with an array
-    const eventsData = Array.isArray(response.data) 
-      ? response.data 
-      : response.data?.events || []; // Fallback to empty array if not found
+        const approvedEvents = eventsData.filter(
+          (event) => event.status === "approved"
+        );
 
-    const approvedEvents = eventsData.filter(
-      (event) => event.status === "approved"
-    );
-
-        // Organize events by club
+        // Organize events by club with proper status calculation
         const clubsMap = approvedEvents.reduce((acc, event) => {
           if (!acc[event.clubId]) {
             acc[event.clubId] = {
@@ -54,14 +49,23 @@ const Dashboard = () => {
               events: [],
             };
           }
+          
+          const now = new Date();
+          const startDate = new Date(event.startDate);
+          const endDate = new Date(event.endDate);
+          
+          let status;
+          if (endDate < now) {
+            status = "past";
+          } else if (startDate <= now && endDate >= now) {
+            status = "running";
+          } else {
+            status = "upcoming";
+          }
+
           acc[event.clubId].events.push({
             ...event,
-            status:
-              new Date(event.endDate) > new Date()
-                ? new Date(event.startDate) <= new Date()
-                  ? "running"
-                  : "upcoming"
-                : "past",
+            status: status,
           });
           return acc;
         }, {});
@@ -75,8 +79,6 @@ const Dashboard = () => {
     };
 
     fetchEvents();
-
-    // Refresh events every 30 seconds for real-time updates
     const interval = setInterval(fetchEvents, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -106,18 +108,28 @@ const Dashboard = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter and helper functions
+  // Handle enrollment button click
+  const handleEnrollClick = (eventId) => {
+    const isLoggedIn = localStorage.getItem("authToken"); // Simple auth check
+    
+    if (isLoggedIn) {
+      navigate(`/event/${eventId}/enroll`);
+    } else {
+      // Redirect to login with return URL
+      navigate(`/login?returnUrl=/event/${eventId}/enroll`);
+    }
+  };
+
+  // Filter events based on selected tab and current time
   const filterEvents = (events = []) => {
     const now = new Date();
     return events.filter((event) => {
       const startDate = new Date(event.startDate);
       const endDate = new Date(event.endDate);
 
-      if (selectedTab === "upcoming" && (startDate <= now || endDate <= now))
-        return false;
-      if (selectedTab === "running" && (startDate > now || endDate <= now))
-        return false;
-
+      if (selectedTab === "upcoming") return event.status === "upcoming";
+      if (selectedTab === "running") return event.status === "running";
+      
       if (filter === "today") {
         return startDate.toDateString() === now.toDateString();
       }
@@ -130,20 +142,7 @@ const Dashboard = () => {
     });
   };
 
-  const filteredClubs = clubs.filter((club) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      club.name.toLowerCase().includes(query) ||
-      club.description.toLowerCase().includes(query) ||
-      club.events.some(
-        (event) =>
-          event.name.toLowerCase().includes(query) ||
-          event.location.toLowerCase().includes(query)
-      )
-    );
-  });
-
+  // Helper functions
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -173,6 +172,20 @@ const Dashboard = () => {
   const closeNotification = () => {
     setNotificationVisible(false);
   };
+
+  const filteredClubs = clubs.filter((club) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      club.name.toLowerCase().includes(query) ||
+      club.description.toLowerCase().includes(query) ||
+      club.events.some(
+        (event) =>
+          event.name.toLowerCase().includes(query) ||
+          event.location.toLowerCase().includes(query)
+      )
+    );
+  });
 
   return (
     <div className="dashboard">
@@ -299,35 +312,6 @@ const Dashboard = () => {
             Join clubs, attend events, and connect with your community
           </motion.p>
         </div>
-        {/* <div className="hero-image">
-          <motion.div
-            className="floating-elements"
-            animate={{
-              y: [0, -15, 0],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            {["Tech Talks", "Music Fest", "Sports Day"].map((text, i) => (
-              <motion.div
-                key={i}
-                className="floating-element"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{
-                  duration: 12,
-                  delay: i * 2,
-                  repeat: Infinity,
-                }}
-              >
-                {text}
-              </motion.div>
-            ))}
-          </motion.div>
-        </div> */}
       </section>
 
       {/* Main Content */}
@@ -409,8 +393,7 @@ const Dashboard = () => {
                   {filteredEvents.length > 0 && (
                     <div className="events-container">
                       <h3 className="events-title">
-                        {selectedTab === "upcoming" ? "Upcoming" : "Live"}{" "}
-                        Events
+                        {selectedTab === "upcoming" ? "Upcoming" : "Live"} Events
                       </h3>
 
                       <div className="events-list">
@@ -420,7 +403,6 @@ const Dashboard = () => {
                             className={`event-card ${event.status}`}
                             style={{ backgroundImage: `url(${event.image})` }}
                             whileHover={{ scale: 1.02 }}
-                            onClick={() => navigate(`/event/${event.id}`)}
                           >
                             <div className="event-overlay"></div>
                             <div className="event-content">
@@ -453,6 +435,16 @@ const Dashboard = () => {
                                   <FiUsers /> {event.attendees || 0} going
                                 </span>
                               </div>
+                              
+                              {/* Enrollment Button */}
+                              <motion.button
+                                className="enroll-button"
+                                onClick={() => handleEnrollClick(event.id)}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                <FiLogIn /> Enroll Now
+                              </motion.button>
                             </div>
                           </motion.div>
                         ))}
