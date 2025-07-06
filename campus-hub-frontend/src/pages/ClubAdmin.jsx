@@ -9,8 +9,9 @@ import {
   FiCheckCircle,
   FiUser,
   FiLogOut,
-  FiRefreshCw
+  FiRefreshCw,
 } from "react-icons/fi";
+import { FaUserShield, FaUserTie } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -189,7 +190,7 @@ const ClubAdmin = () => {
             className="clubadmin-profile-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            <FiUser className="clubadmin-profile-icon" />
+                👤
           </button>
 
           {dropdownOpen && (
@@ -312,7 +313,7 @@ const ClubAdmin = () => {
                     disabled={isSubmitting}
                     className="modern-input"
                   />
-                  <label htmlFor="event-location">Location *</label>
+                  <label htmlFor="event-location">Room No  *</label>
                 </div>
               </div>
         
@@ -408,7 +409,7 @@ const ClubAdmin = () => {
           )}
         </section>
 
-        <section className="clubadmin-section">
+        {/* <section className="clubadmin-section">
           <h2 className="clubadmin-section-title">Registered Users</h2>
           <div className="clubadmin-users-table">
             <table className="clubadmin-table">
@@ -435,7 +436,7 @@ const ClubAdmin = () => {
               </tbody>
             </table>
           </div>
-        </section>
+        </section> */}
       </main>
     </div>
   );
