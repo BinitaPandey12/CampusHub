@@ -45,6 +45,7 @@ public class Securityconfig {
                         .requestMatchers(HttpMethod.GET,"/api/events/users").hasAnyAuthority("CLUBADMIN","SYSTEMADMIN","USER")
 
                         .requestMatchers(HttpMethod.PATCH, "/api/events/*/approve").hasAuthority("SYSTEMADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/events/*/reject").hasAuthority("SYSTEMADMIN")
                         .requestMatchers("/api/events/**").hasAuthority("SYSTEMADMIN")
                         .requestMatchers("/api/events").hasAnyAuthority("CLUBADMIN", "SYSTEMADMIN")
                         .requestMatchers("/api/admins/**").hasAuthority("SYSTEMADMIN")
