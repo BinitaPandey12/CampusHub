@@ -69,13 +69,13 @@ const ClubAdmin = () => {
     }
   };
 
-  useEffect(() => {
-    if (token) {
-      fetchData();
-    } else {
-      navigate("/login");
-    }
-  }, [token, navigate]);
+  // useEffect(() => {
+  //   if (token) {
+  //     fetchData();
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // }, [token, navigate]);
 
   // Scroll effect
   useEffect(() => {
@@ -179,15 +179,6 @@ const ClubAdmin = () => {
       setIsSubmitting(false);
     }
   };
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="clubadmin-loading">
-  //       <div className="loading-spinner"></div>
-  //       <p>Loading dashboard...</p>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="clubadmin-container">
