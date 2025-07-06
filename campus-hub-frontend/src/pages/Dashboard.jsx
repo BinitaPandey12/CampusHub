@@ -299,7 +299,7 @@ const Dashboard = () => {
             Join clubs, attend events, and connect with your community
           </motion.p>
         </div>
-        <div className="hero-image">
+        {/* <div className="hero-image">
           <motion.div
             className="floating-elements"
             animate={{
@@ -327,7 +327,7 @@ const Dashboard = () => {
               </motion.div>
             ))}
           </motion.div>
-        </div>
+        </div> */}
       </section>
 
       {/* Main Content */}
