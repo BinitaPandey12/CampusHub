@@ -69,10 +69,10 @@ public class EventController {
         EventResponse response = eventService.approveEvent(eventId);
         return ResponseEntity.ok(response);
     }
-//    @PutMapping("/{eventId}/reject")
-//    @PreAuthorize("hasAuthority('SYSTEMADMIN')")
-//    public ResponseEntity<EventResponse> rejectEvent(@PathVariable Long eventId) {
-//        EventResponse response = eventService.rejectEvent(eventId);
-//        return ResponseEntity.ok(response);
-//    }
+    @PutMapping("/{eventId}/reject")
+    @PreAuthorize("hasAuthority('SYSTEMADMIN')")
+    public ResponseEntity<EventResponse> rejectEvent(@PathVariable Long eventId) {
+        EventResponse response = eventService.rejectEvent(eventId);
+        return ResponseEntity.ok(response);
+    }
 }

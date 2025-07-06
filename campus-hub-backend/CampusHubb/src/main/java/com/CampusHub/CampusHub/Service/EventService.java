@@ -68,12 +68,23 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+
     public EventResponse approveEvent(Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         // Only system admins can approve events (handled in controller)
         event.setStatus(EventStatus.APPROVED);
+        Event updatedEvent = eventRepository.save(event);
+
+        return mapToEventResponse(updatedEvent);
+    }
+    public EventResponse rejectEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+
+        // Only system admins can approve events (handled in controller)
+        event.setStatus(EventStatus.REJECT);
         Event updatedEvent = eventRepository.save(event);
 
         return mapToEventResponse(updatedEvent);
