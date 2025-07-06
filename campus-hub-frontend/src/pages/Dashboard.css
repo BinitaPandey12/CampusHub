@@ -30,7 +30,7 @@ body {
 }
 
 .dashboard {
- width: 100vw;
+ width: 98.9vw;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
