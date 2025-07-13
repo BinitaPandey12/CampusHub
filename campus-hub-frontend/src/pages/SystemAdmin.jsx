@@ -14,6 +14,8 @@ import {
   FiAlertTriangle
 } from "react-icons/fi";
 
+const API_BASE_URL = "http://localhost:8080/api";
+
 function SystemAdmin() {
   const navigate = useNavigate();
   const [admins, setAdmins] = useState([]);
@@ -26,6 +28,8 @@ function SystemAdmin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [modalData, setModalData] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const dropdownRef = useRef(null);
   const token = localStorage.getItem("token");
 
@@ -35,51 +39,61 @@ function SystemAdmin() {
   };
 
   useEffect(() => {
-    // if (!token) {
-    //   navigate("/login");
-    //   return;
-    // }
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      
       try {
-        const [adminsRes, usersRes, pendingRes, rejectedRes] = await Promise.all([
-          fetch("http://localhost:8080/api/admins", {
+        const [adminsRes, usersRes, pendingRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/admins`, {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch("http://localhost:8080/api/users", {
+          fetch(`${API_BASE_URL}/users`, {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch("http://localhost:8080/api/events/pending", {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          fetch("http://localhost:8080/api/events/rejected", {
+          fetch(`${API_BASE_URL}/events/pending`, {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);
 
-        // if (adminsRes.status === 401 || usersRes.status === 401 || 
-        //     pendingRes.status === 401 || rejectedRes.status === 401) {
-        //   throw new Error("Unauthorized");
-        // }
+        if (!adminsRes.ok || !usersRes.ok || !pendingRes.ok) {
+          throw new Error("Failed to fetch data");
+        }
 
-        const adminsData = await adminsRes.json();
-        const usersData = await usersRes.json();
-        const pendingData = await pendingRes.json();
-        const rejectedData = await rejectedRes.json();
+        const [adminsData, usersData, pendingData] = await Promise.all([
+          adminsRes.json(),
+          usersRes.json(),
+          pendingRes.json()
+        ]);
 
         setAdmins(adminsData);
         setUsers(usersData);
         setPendingEvents(pendingData);
-        setRejectedEvents(rejectedData);
+        
+        // Optionally fetch rejected events if you have a separate endpoint
+        // const rejectedRes = await fetch(`${API_BASE_URL}/events/rejected`, {...});
+        // setRejectedEvents(await rejectedRes.json());
+        
       } catch (error) {
         console.error("Fetch error:", error);
-        handleLogout();
+        setError(error.message);
+        if (error.message.includes("Unauthorized")) {
+          handleLogout();
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, [navigate, token]);
 
+  // Other useEffect hooks remain the same
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
@@ -132,59 +146,64 @@ function SystemAdmin() {
       }
     } catch (error) {
       console.error("Action failed:", error);
+      setError(error.message);
     }
   };
 
   const handleDelete = async (type, id) => {
     try {
       const endpoint = type === "admin" ? "admins" : "users";
-      const res = await fetch(`http://localhost:8080/api/${endpoint}/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/${endpoint}/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (res.ok) {
-        if (type === "admin") {
-          setAdmins(admins.filter(admin => admin.id !== id));
-        } else {
-          setUsers(users.filter(user => user.id !== id));
-        }
+      if (!res.ok) {
+        throw new Error("Failed to delete");
+      }
+
+      if (type === "admin") {
+        setAdmins(admins.filter(admin => admin.id !== id));
       } else {
-        alert("Failed to delete");
+        setUsers(users.filter(user => user.id !== id));
       }
     } catch (error) {
       console.error("Delete error:", error);
+      setError(error.message);
     }
   };
 
   const handleEventDecision = async (eventId, decision) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/events/${eventId}/status`, {
-        method: "PATCH",
+      const endpoint = decision === "approved" 
+        ? `${API_BASE_URL}/events/${eventId}/approve`
+        : `${API_BASE_URL}/events/${eventId}/reject`;
+
+      const method = decision === "approved" ? "PATCH" : "PUT";
+
+      const res = await fetch(endpoint, {
+        method: method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: decision })
+        }
       });
 
-      if (res.ok) {
-        // Move event from pending to appropriate list
-        const eventToMove = pendingEvents.find(event => event.id === eventId);
-        setPendingEvents(pendingEvents.filter(event => event.id !== eventId));
-        
-        if (decision === "approved") {
-          // Event will now appear in club admin's approved section
-          alert("Event approved successfully!");
-        } else {
-          setRejectedEvents([...rejectedEvents, eventToMove]);
-          alert("Event rejected successfully!");
-        }
-      } else {
-        alert("Failed to update event status");
+      if (!res.ok) {
+        throw new Error(`Failed to ${decision} event`);
+      }
+
+      const updatedEvent = await res.json();
+      const eventToMove = pendingEvents.find(event => event.id === eventId);
+      
+      setPendingEvents(pendingEvents.filter(event => event.id !== eventId));
+      
+      if (decision === "rejected") {
+        setRejectedEvents([...rejectedEvents, eventToMove]);
       }
     } catch (error) {
       console.error("Status update error:", error);
+      setError(error.message);
     }
   };
 
@@ -246,6 +265,25 @@ function SystemAdmin() {
     </div>
   );
 
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <FiAlertCircle className="error-icon" />
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    );
+  }
+
   return (
     <div className="sysadmin-container">
       {/* Confirmation Modal */}
@@ -297,7 +335,7 @@ function SystemAdmin() {
           <button
             className="sysadmin-profile-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-          > 👤
+          >
             <FiUser className="sysadmin-profile-icon" />
           </button>
 

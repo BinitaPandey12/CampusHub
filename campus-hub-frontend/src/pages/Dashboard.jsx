@@ -29,7 +29,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get("/api/events");
+        const response = await axios.get("/api/events/approved");
         const eventsData = Array.isArray(response.data) 
           ? response.data 
           : response.data?.events || [];

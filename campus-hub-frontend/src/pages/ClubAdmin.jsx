@@ -70,13 +70,13 @@ const ClubAdmin = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (token) {
-  //     fetchData();
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // }, [token, navigate]);
+  useEffect(() => {
+    if (token) {
+      fetchData();
+    } else {
+      navigate("/login");
+    }
+  }, [token, navigate]);
 
   // Scroll effect
   useEffect(() => {
