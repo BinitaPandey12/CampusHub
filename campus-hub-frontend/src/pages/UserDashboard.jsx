@@ -66,7 +66,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchUpcomingEvents = async () => {
       try {
-        const token = localStorage.getItem("token");
+        // const token = localStorage.getItem("token");
         if (!token) {
           navigate("/login");
           return;

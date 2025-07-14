@@ -6,10 +6,6 @@ const ChatbotHelp = () => {
   const userName = "User";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hello! How can I help you today?", sender: "bot" },
-  ]);
-  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     const handler = (e) => {
@@ -21,30 +17,45 @@ const ChatbotHelp = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (inputValue.trim() === "") return;
+  useEffect(() => {
+    // Load Dialogflow script only once
+    if (!window.dfMessengerScriptLoaded) {
+      const script = document.createElement("script");
+      script.src = "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
+      script.async = true;
+      document.body.appendChild(script);
+      window.dfMessengerScriptLoaded = true;
 
-    // Add user message
-    const newUserMessage = {
-      id: messages.length + 1,
-      text: inputValue,
-      sender: "user",
-    };
-
-    setMessages([...messages, newUserMessage]);
-    setInputValue("");
-
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse = {
-        id: messages.length + 2,
-        text: "Thanks for your message! Our team will get back to you soon.",
-        sender: "bot",
+      script.onload = () => {
+        addMessenger();
       };
-      setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
-  };
+    } else {
+      addMessenger();
+    }
+
+    function addMessenger() {
+      const container = document.getElementById("dialogflow-messenger-container");
+      if (!container) return;
+
+      // Prevent adding messenger multiple times
+      if (!container.querySelector("df-messenger")) {
+        const messenger = document.createElement("df-messenger");
+        messenger.setAttribute("chat-title", "CampusBot");
+        messenger.setAttribute("agent-id", "0861736d-dbac-4fad-aa93-b0ab54ccf2d6"); // Replace with your agent id
+        messenger.setAttribute("language-code", "en");
+
+        // Remove floating styles to embed inline
+        messenger.style.position = "relative";
+        messenger.style.marginTop = "70px";
+        messenger.style.width = "100%";
+        messenger.style.height = "600px"; // Adjust height as needed
+
+        container.appendChild(messenger);
+      }
+    }
+
+    // Do NOT remove the script or messenger on unmount
+  }, []);
 
   return (
     <div className="chatbot-help">
@@ -119,32 +130,8 @@ const ChatbotHelp = () => {
           </div>
 
           <div className="chatbot-help__chat-container">
-            <div className="chatbot-help__messages">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`chatbot-help__message chatbot-help__message--${message.sender}`}
-                >
-                  {message.text}
-                </div>
-              ))}
-            </div>
-
-            <form
-              className="chatbot-help__input-form"
-              onSubmit={handleSendMessage}
-            >
-              <input
-                type="text"
-                className="chatbot-help__message-input"
-                placeholder="Type your message here..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-              />
-              <button type="submit" className="chatbot-help__send-btn">
-                Send
-              </button>
-            </form>
+            {/* Dialogflow Messenger will be embedded here */}
+            <div id="dialogflow-messenger-container"></div>
           </div>
         </main>
       </div>
