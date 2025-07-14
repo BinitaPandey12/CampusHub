@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./UserDashboard.css";
 
-// Utility function to format date and time display
 function formatEventDateTime(dateStr, timeStr) {
   try {
-    // Clean time string by removing milliseconds if present
     const cleanTime = timeStr.includes('.') ? timeStr.split('.')[0] : timeStr;
-    const dateTime = new Date(`${dateStr}T${cleanTime}`);
+    const dateTime = new Date(dateStr + "T" + cleanTime);
     
     if (isNaN(dateTime.getTime())) {
       return "Invalid date/time";
@@ -27,11 +25,10 @@ function formatEventDateTime(dateStr, timeStr) {
   }
 }
 
-// Calculate time remaining until event
 function calculateTimeRemaining(dateStr, timeStr) {
   try {
     const cleanTime = timeStr.includes('.') ? timeStr.split('.')[0] : timeStr;
-    const eventTime = new Date(`${dateStr}T${cleanTime}`);
+    const eventTime = new Date(dateStr + "T" + cleanTime);
     const now = new Date();
 
     if (isNaN(eventTime.getTime())) {
@@ -52,6 +49,7 @@ function calculateTimeRemaining(dateStr, timeStr) {
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const userName = localStorage.getItem("username") || "User";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -59,16 +57,12 @@ const UserDashboard = () => {
   const [error, setError] = useState(null);
   const dropdownRef = useRef(null);
 
-  // Get username from localStorage or use default
-  const userName = localStorage.getItem("username") || "User";
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     navigate("/login");
   };
 
-  // Fetch approved events from API
   useEffect(() => {
     const fetchUpcomingEvents = async () => {
       try {
@@ -78,17 +72,22 @@ const UserDashboard = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:8080/api/events/approved", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await fetch(
+          "http://localhost:8080/api/events/approved",
+          {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          }
+        );
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch events: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
         const now = new Date();
-
         const processedEvents = data
           .map(event => ({
             id: event.id,
@@ -102,7 +101,7 @@ const UserDashboard = () => {
           .filter(event => {
             try {
               const cleanTime = event.time.includes('.') ? event.time.split('.')[0] : event.time;
-              const eventTime = new Date(`${event.date}T${cleanTime}`);
+              const eventTime = new Date(event.date + "T" + cleanTime);
               return !isNaN(eventTime.getTime()) && eventTime > now;
             } catch (e) {
               console.error("Error processing event:", e);
@@ -111,8 +110,8 @@ const UserDashboard = () => {
           })
           .sort((a, b) => {
             try {
-              const timeA = new Date(`${a.date}T${a.time.includes('.') ? a.time.split('.')[0] : a.time}`);
-              const timeB = new Date(`${b.date}T${b.time.includes('.') ? b.time.split('.')[0] : b.time}`);
+              const timeA = new Date(a.date + "T" + (a.time.includes('.') ? a.time.split('.')[0] : a.time));
+              const timeB = new Date(b.date + "T" + (b.time.includes('.') ? b.time.split('.')[0] : b.time));
               return timeA - timeB;
             } catch (e) {
               return 0;
@@ -131,7 +130,6 @@ const UserDashboard = () => {
     fetchUpcomingEvents();
   }, [navigate]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -143,7 +141,6 @@ const UserDashboard = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
@@ -154,7 +151,11 @@ const UserDashboard = () => {
     navigate(`/event/${eventId}`);
   };
 
-  // Render time remaining with appropriate message
+  const handleEnrollClick = (eventId, e) => {
+    e.stopPropagation();
+    navigate(`/enroll/${eventId}`);
+  };
+
   const renderCountdown = (date, time) => {
     const { days, hours, minutes, isPast, error } = calculateTimeRemaining(date, time);
     
@@ -169,61 +170,65 @@ const UserDashboard = () => {
 
   return (
     <div className="user-dashboard">
-      {/* Sidebar Navigation */}
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
+      <aside className="user-dashboard__sidebar">
+        <div className="user-dashboard__sidebar-title">
           <span className="logo-icon">🎓</span>
           <span className="logo-text">CampusHub</span>
         </div>
 
-        <nav className="sidebar-nav">
-          <Link to="/user-dashboard" className="nav-link active">
-            <span className="nav-icon">🏠</span>
-            <span className="nav-text">Dashboard</span>
+        <nav className="user-dashboard__nav">
+          <Link to="/user-dashboard" className="user-dashboard__nav-link active">
+            <span className="user-dashboard__nav-icon">🏠</span>
+            <span className="user-dashboard__nav-text">Dashboard</span>
           </Link>
-          <Link to="/myevents" className="nav-link">
-            <span className="nav-icon">📆</span>
-            <span className="nav-text">My Events</span>
+          <Link to="/myevents" className="user-dashboard__nav-link">
+            <span className="user-dashboard__nav-icon">📆</span>
+            <span className="user-dashboard__nav-text">My Events</span>
           </Link>
-          <Link to="/chatbot" className="nav-link">
-            <span className="nav-icon">💬</span>
-            <span className="nav-text">Chatbot Help</span>
+          <Link to="/chatbot" className="user-dashboard__nav-link">
+            <span className="user-dashboard__nav-icon">💬</span>
+            <span className="user-dashboard__nav-text">Chatbot Help</span>
           </Link>
         </nav>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="dashboard-main">
-        {/* Header with Search and Profile */}
-        <header className={`dashboard-header ${scrolled ? "scrolled" : ""}`}>
-          <div className="search-bar">
+      <div className="user-dashboard__main">
+        <header className={`user-dashboard__header ${scrolled ? "scrolled" : ""}`}>
+          <div className="user-dashboard__search">
             <input
-              type="text"
-              placeholder="🔍 Search events, clubs..."
-              className="search-input"
+              className="user-dashboard__search-input"
+              placeholder="🔍 Search clubs, tags..."
             />
           </div>
 
-          <div className="profile-section" ref={dropdownRef}>
-            <span className="welcome-message">Welcome, {userName}</span>
+          <div className="user-dashboard__profile" ref={dropdownRef}>
+            <span className="user-dashboard__welcome">Welcome, {userName}</span>
             <button
-              className="profile-button"
+              className="user-dashboard__profile-btn"
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              aria-label="User menu"
+              aria-label="User profile menu"
             >
               👤
             </button>
 
             {dropdownOpen && (
-              <div className="profile-dropdown">
-                <Link to="/profile" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+              <div className="user-dashboard__dropdown">
+                <Link
+                  to="/profile"
+                  className="user-dashboard__dropdown-item"
+                  onClick={() => setDropdownOpen(false)}
+                >
                   View Profile
                 </Link>
-                <Link to="/settings" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                <Link
+                  to="/settings"
+                  className="user-dashboard__dropdown-item"
+                  onClick={() => setDropdownOpen(false)}
+                >
                   Settings
                 </Link>
                 <button
-                  className="dropdown-item logout"
+                  className="user-dashboard__dropdown-item user-dashboard__dropdown-item--logout"
                   onClick={handleLogout}
                 >
                   Logout
@@ -233,55 +238,80 @@ const UserDashboard = () => {
           </div>
         </header>
 
-        {/* Events Section */}
-        <section className="dashboard-content">
-          <h2 className="section-title">Upcoming Events</h2>
-          
-          {loading ? (
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Loading events...</p>
-            </div>
-          ) : error ? (
-            <div className="error-state">
-              <span className="error-icon">⚠️</span>
-              <p>Error loading events: {error}</p>
-              <button
-                className="retry-button"
-                onClick={() => window.location.reload()}
-              >
-                Try Again
-              </button>
-            </div>
-          ) : upcomingEvents.length > 0 ? (
-            <div className="events-grid">
-              {upcomingEvents.map(event => (
-                <div key={event.id} className="event-card" onClick={() => handleEventClick(event.id)}>
-                 
-                  <div className="event-details">
-                    <h3 className="event-title">{event.title}</h3>
-                    <p className="event-host">Hosted by {event.club}</p>
-                    <p className="event-description">{event.description}</p>
-                    <div className="event-meta">
-                      <span className="event-location">📍 {event.location}</span>
-                      <span className="event-date">📅 {formatEventDateTime(event.date, event.time)}</span>
+        <section className="user-dashboard__content">
+          <h2 className="user-dashboard__section-title">Upcoming Events</h2>
+          <div className="user-dashboard__events">
+            {loading ? (
+              <div className="user-dashboard__loading">
+                <div className="user-dashboard__loading-spinner"></div>
+                Loading events...
+              </div>
+            ) : error ? (
+              <div className="user-dashboard__error">
+                <span className="user-dashboard__error-icon">⚠</span>
+                Error loading events: {error}
+                <button
+                  className="user-dashboard__retry-btn"
+                  onClick={() => window.location.reload()}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : upcomingEvents.length > 0 ? (
+              upcomingEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className="user-dashboard__event-card"
+                  onClick={() => handleEventClick(event.id)}
+                >
+                  <div className="user-dashboard__event-info">
+                    <h4 className="user-dashboard__event-title">
+                      {event.title}
+                    </h4>
+                    <p className="user-dashboard__event-host">
+                      Hosted by {event.club}
+                    </p>
+                    <p className="user-dashboard__event-desc">
+                      {event.description}
+                    </p>
+                    <div className="user-dashboard__event-meta">
+                      <span className="event-location">
+                        📍 {event.location}
+                      </span>
+                      <span className="event-date">
+                        📅 {formatEventDateTime(event.date, event.time)}
+                      </span>
                     </div>
                     <div className="event-countdown">
                       {renderCountdown(event.date, event.time)}
                     </div>
                   </div>
+                  <div className="user-dashboard__event-actions">
+                    <button
+                      className="user-dashboard__event-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEventClick(event.id);
+                      }}
+                    >
+                      View Details
+                    </button>
+                    <button
+                      className="user-dashboard__enroll-btn"
+                      onClick={(e) => handleEnrollClick(event.id, e)}
+                    >
+                      Enroll Now
+                    </button>
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span className="empty-icon">📅</span>
-              <p>No upcoming events found</p>
-              <Link to="/events" className="explore-button">
-                Explore All Events
-              </Link>
-            </div>
-          )}
+              ))
+            ) : (
+              <div className="user-dashboard__no-events">
+                <span className="user-dashboard__no-events-icon">📅</span>
+                No upcoming events found.
+              </div>
+            )}
+          </div>
         </section>
       </div>
     </div>
