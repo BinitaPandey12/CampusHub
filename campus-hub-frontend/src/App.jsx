@@ -21,7 +21,7 @@ function App() {
       <div className="min-h-screen bg-gray-100">
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/event/:eventId" element={<EventDetails />} />
+          <Route path="/events/:eventId" element={<EventDetails />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

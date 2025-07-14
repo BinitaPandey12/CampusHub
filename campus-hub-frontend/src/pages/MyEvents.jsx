@@ -3,40 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./MyEvents.css";
 
-function formatEventDateTime(dateStr, timeStr) {
-  try {
-    const cleanTime = timeStr.includes('.') ? timeStr.split('.')[0] : timeStr;
-    const dateTime = new Date(dateStr + "T" + cleanTime);
-    
-    if (isNaN(dateTime.getTime())) {
-      return "Invalid date/time";
-    }
-
-    return dateTime.toLocaleString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "Date not available";
-  }
-}
-
 const MyEvents = () => {
   const navigate = useNavigate();
   const email = localStorage.getItem("email");
   const userName = localStorage.getItem("username") || "User";
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [enrolledEvents, setEnrolledEvents] = useState([]);
+  const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const dropdownRef = useRef();
 
-  const fetchEnrolledEvents = async () => {
+  const fetchEnrollments = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -64,40 +41,30 @@ const MyEvents = () => {
       console.log("API Response:", response.data); // Debug log
 
       if (response.status === 200) {
-        // First ensure we have the data in the expected format
-        let eventsData = [];
-        
-        if (Array.isArray(response.data)) {
-          eventsData = response.data;
-        } else if (response.data && Array.isArray(response.data.data)) {
-          eventsData = response.data.data;
-        } else if (response.data) {
-          // Handle case where response.data is a single event object
-          eventsData = [response.data];
-        }
+        // Handle both array and single enrollment responses
+        const enrollmentsData = Array.isArray(response.data) 
+          ? response.data 
+          : [response.data];
 
-        if (eventsData.length === 0) {
-          setEnrolledEvents([]);
-          setError("No enrolled events found");
+        if (enrollmentsData.length === 0) {
+          setEnrollments([]);
+          setError("No enrollments found");
           return;
         }
 
-        // Transform each enrollment to standardized format
-        const formattedEvents = eventsData.map((enrollment) => {
-          // Safely extract event and club data
-          const event = enrollment.event || {};
-          const club = event.club || {};
-
-          // Format date if available
-          let formattedDate = "Date not specified";
+        // Format enrollment date
+        const formattedEnrollments = enrollmentsData.map(enrollment => {
+          let formattedEnrollmentDate = "Date not available";
           try {
-            if (event.date) {
-              const dateObj = new Date(event.date);
+            if (enrollment.enrollmentDate) {
+              const dateObj = new Date(enrollment.enrollmentDate);
               if (!isNaN(dateObj.getTime())) {
-                formattedDate = dateObj.toLocaleDateString(undefined, { 
+                formattedEnrollmentDate = dateObj.toLocaleDateString(undefined, { 
                   year: "numeric", 
                   month: "long", 
-                  day: "numeric" 
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit"
                 });
               }
             }
@@ -105,45 +72,22 @@ const MyEvents = () => {
             console.error("Date parsing error:", e);
           }
 
-          // Format time if available
-          let formattedTime = "Time not specified";
-          try {
-            if (event.time) {
-              const timeStr = event.time.includes(".") 
-                ? event.time.split(".")[0] 
-                : event.time;
-              const timeObj = new Date(`1970-01-01T${timeStr}`);
-              if (!isNaN(timeObj.getTime())) {
-                formattedTime = timeObj.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
-              }
-            }
-          } catch (e) {
-            console.error("Time parsing error:", e);
-          }
-
           return {
-            id: enrollment.id || event.id || Date.now(),
-            event: {
-              id: event.id || 0,
-              title: event.title || "Untitled Event",
-              club: {
-                id: club.id || 0,
-                name: club.name || "No club specified"
-              },
-              date: event.date || null,
-              formattedDate,
-              time: event.time || null,
-              formattedTime,
-              location: event.location || "Location not specified",
-              description: event.description || "No description available",
-            }
+            id: enrollment.id,
+            eventId: enrollment.eventId,
+            eventTitle: enrollment.eventTitle || "Event Title Not Available",
+            fullName: enrollment.fullName || "Name not provided",
+            email: enrollment.email,
+            department: enrollment.department || "Department not specified",
+            contactNo: enrollment.contactNo || "Contact not provided",
+            semester: enrollment.semester || "Semester not specified",
+            status: enrollment.status || "Status unknown",
+            enrollmentDate: enrollment.enrollmentDate,
+            formattedEnrollmentDate,
           };
         });
 
-        setEnrolledEvents(formattedEvents);
+        setEnrollments(formattedEnrollments);
       } else {
         throw new Error(`Unexpected status code: ${response.status}`);
       }
@@ -159,10 +103,10 @@ const MyEvents = () => {
         localStorage.removeItem("token");
         navigate("/login");
       } else if (err.response?.status === 404) {
-        setError("No enrolled events found");
-        setEnrolledEvents([]);
+        setError("No enrollments found");
+        setEnrollments([]);
       } else {
-        setError(err.response?.data?.message || err.message || "Failed to load events");
+        setError(err.response?.data?.message || err.message || "Failed to load enrollments");
       }
     } finally {
       setLoading(false);
@@ -170,8 +114,9 @@ const MyEvents = () => {
   };
 
   useEffect(() => {
-    fetchEnrolledEvents();
+    fetchEnrollments();
   }, [email, navigate]);
+
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -190,7 +135,20 @@ const MyEvents = () => {
   };
 
   const handleRetry = () => {
-    fetchEnrolledEvents();
+    fetchEnrollments();
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "APPLIED":
+        return "status-badge--applied";
+      case "APPROVED":
+        return "status-badge--approved";
+      case "REJECTED":
+        return "status-badge--rejected";
+      default:
+        return "status-badge--unknown";
+    }
   };
 
   return (
@@ -210,7 +168,7 @@ const MyEvents = () => {
             className="my-events__nav-link my-events__nav-link--active"
           >
             <span className="my-events__nav-icon">📆</span>
-            <span className="my-events__nav-text">My Events</span>
+            <span className="my-events__nav-text">My Enrollments</span>
           </Link>
           <Link to="/chatbot" className="my-events__nav-link">
             <span className="my-events__nav-icon">💬</span>
@@ -224,7 +182,7 @@ const MyEvents = () => {
           <div className="my-events__search">
             <input
               className="my-events__search-input"
-              placeholder="🔍 Search your events..."
+              placeholder="🔍 Search your enrollments..."
               disabled={loading}
             />
           </div>
@@ -268,12 +226,12 @@ const MyEvents = () => {
         </header>
 
         <main className="my-events__content">
-          <h1 className="my-events__page-title">My Events</h1>
+          <h1 className="my-events__page-title">My Enrollments</h1>
 
           {loading ? (
             <div className="my-events__loading">
               <div className="my-events__loading-spinner"></div>
-              Loading your events...
+              Loading your enrollments...
             </div>
           ) : error ? (
             <div className="my-events__error">
@@ -281,7 +239,7 @@ const MyEvents = () => {
                 <svg className="error-icon" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                 </svg>
-                <h3>Error Loading Events</h3>
+                <h3>Error Loading Enrollments</h3>
               </div>
               <p>{error}</p>
               <button
@@ -292,42 +250,47 @@ const MyEvents = () => {
                 Try Again
               </button>
             </div>
-          ) : enrolledEvents.length > 0 ? (
+          ) : enrollments.length > 0 ? (
             <div className="my-events__list">
-              {enrolledEvents.map((enrollment) => (
+              {enrollments.map((enrollment) => (
                 <div key={enrollment.id} className="my-events__card">
+                  <div className="my-events__card-header">
+                    <h3 className="my-events__event-title">{enrollment.eventTitle}</h3>
+                    <span className={`status-badge ${getStatusBadgeClass(enrollment.status)}`}>
+                      {enrollment.status}
+                    </span>
+                  </div>
+                  
                   <div className="my-events__card-content">
-                    <div className="my-events__event-header">
-                      <h3 className="my-events__event-title">
-                        {enrollment.event.title}
-                      </h3>
-                      <span className="my-events__event-club">
-                        Hosted by: {enrollment.event.club.name}
-                      </span>
-                    </div>
-                    <p className="my-events__event-desc">
-                      {enrollment.event.description}
-                    </p>
-                    <div className="my-events__event-meta">
-                      <div className="my-events__event-detail">
-                        <span className="my-events__detail-icon">📅</span>
-                        <span className="my-events__detail-value">
-                          {enrollment.event.formattedDateTime}
-                        </span>
+                    <div className="my-events__enrollment-details">
+                      <div className="my-events__detail-row">
+                        <span className="my-events__detail-label">Enrollment Date:</span>
+                        <span>{enrollment.formattedEnrollmentDate}</span>
                       </div>
-                      <div className="my-events__event-detail">
-                        <span className="my-events__detail-icon">📍</span>
-                        <span className="my-events__detail-value">
-                          {enrollment.event.location}
-                        </span>
+                      <div className="my-events__detail-row">
+                        <span className="my-events__detail-label">Student:</span>
+                        <span>{enrollment.fullName}</span>
+                      </div>
+                      <div className="my-events__detail-row">
+                        <span className="my-events__detail-label">Semester:</span>
+                        <span>{enrollment.semester}</span>
+                      </div>
+                      <div className="my-events__detail-row">
+                        <span className="my-events__detail-label">Department:</span>
+                        <span>{enrollment.department}</span>
+                      </div>
+                      <div className="my-events__detail-row">
+                        <span className="my-events__detail-label">Contact:</span>
+                        <span>{enrollment.contactNo}</span>
                       </div>
                     </div>
                   </div>
+                  
                   <button
                     className="my-events__action-btn"
-                    onClick={() => navigate(`/event/${enrollment.event.id}`)}
+                    onClick={() => navigate(`/event/${enrollment.eventId}`)}
                   >
-                    View Details
+                    View Event Details
                   </button>
                 </div>
               ))}
@@ -335,11 +298,11 @@ const MyEvents = () => {
           ) : (
             <div className="my-events__empty">
               <span className="my-events__empty-icon">📅</span>
-              <h3>No Enrolled Events</h3>
+              <h3>No Enrollments Found</h3>
               <p>You haven't enrolled in any events yet.</p>
               <button
                 className="my-events__browse-btn"
-                onClick={() => navigate("/user-dashboard")}
+                onClick={() => navigate("/events")}
               >
                 Browse Events
               </button>

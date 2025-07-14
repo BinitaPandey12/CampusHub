@@ -5,151 +5,253 @@ import "./EventDetails.css";
 import {
   FiCalendar,
   FiMapPin,
-  FiEdit2,
-  FiTrash2,
-  FiLogIn,
+  FiUser,
+  FiMail,
+  FiBook,
+  FiPhone,
+  FiClock,
+  FiArrowLeft
 } from "react-icons/fi";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function EventDetails() {
   const { eventId } = useParams();
   const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
-  const [userRole, setUserRole] = useState("");
+  const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('table');
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEventData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/events/${eventId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setEvent(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Failed to fetch event", err);
-        setLoading(false);
-      }
-    };
+        setLoading(true);
+        
+        // Fetch event details
+        const eventRes = await axios.get(
+          `http://localhost:8080/api/events/${eventId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-    const fetchUserRole = async () => {
-      try {
-        const res = await axios.get("http://localhost:8080/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUserRole(res.data.role); // e.g., 'admin' or 'student'
+        // Fetch enrollments
+        const enrollmentsRes = await axios.get(
+          `http://localhost:8080/api/enrollments/event/${eventId}/enrollments`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setEvent(eventRes.data);
+        setEnrollments(enrollmentsRes.data);
+        setLoading(false);
       } catch (err) {
-        console.error("Failed to get user role", err);
-        setUserRole("");
+        console.error("Failed to fetch data", err);
+        toast.error(err.response?.data?.message || "Failed to load event details");
+        setLoading(false);
+        if (err.response?.status === 401) {
+          navigate("/login");
+        }
       }
     };
 
     if (token) {
-      fetchEvent();
-      fetchUserRole();
+      fetchEventData();
     } else {
       navigate("/login");
     }
   }, [eventId, token, navigate]);
 
-  const handleEnroll = async () => {
-    try {
-      await axios.post(
-        `http://localhost:8080/api/events/${eventId}/enroll`,
-        {},
-        {
-          headers: {
-        Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      alert("Enrollment successful!");
-    } catch (err) {
-      console.error("Enrollment failed", err);
-      alert("Failed to enroll. Please try again.");
-    }
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not specified";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this event?")) return;
-
-    try {
-      await axios.delete(`http://localhost:8080/api/events/${eventId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      alert("Event deleted successfully");
-      navigate("/events");
-    } catch (err) {
-      console.error("Failed to delete event", err);
-      alert("Could not delete event");
-    }
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return "Not specified";
+    const date = new Date(dateTimeString);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
-  const handleUpdate = () => {
-    navigate(`/events/${eventId}/edit`);
-  };
+  if (loading) {
+    return (
+      <div className="clubevent-loading-container">
+        <div className="clubevent-loading-spinner"></div>
+        <p>Loading event details...</p>
+      </div>
+    );
+  }
 
-  if (loading) return <div className="loading-state">Loading event details...</div>;
-  if (!event) return <div className="error-state">Event not found</div>;
+  if (!event) {
+    return (
+      <div className="clubevent-error-container">
+        <h2>Event not found</h2>
+        <button onClick={() => navigate(-1)} className="clubevent-back-button">
+          <FiArrowLeft /> Go Back
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="event-details-container">
-      <div className="event-card">
-        <div className="event-hero">
-          <div className="event-hero-content">
-            <span className="event-badge">Event ID: {event.id}</span>
-            <h1 className="event-title">{event.title}</h1>
-            <p className="event-subtitle">Organized by Campus Hub</p>
+    <div className="clubevent-container">
+      <button onClick={() => navigate(-1)} className="clubevent-back-button">
+        <FiArrowLeft /> Back to Events
+      </button>
+
+      <div className="clubevent-card">
+        <div className="clubevent-header">
+          <div className="clubevent-meta">
+            <span className="clubevent-id">Event ID: {event.id}</span>
+            <span className={`clubevent-status clubevent-status-${event.status.toLowerCase()}`}>
+              {event.status}
+            </span>
+          </div>
+          <h1 className="clubevent-title">{event.title}</h1>
+          <p className="clubevent-organizer">Organized by Campus Hub</p>
+        </div>
+
+        <div className="clubevent-content">
+          <div className="clubevent-description">
+            <h3>Description</h3>
+            <p>{event.description}</p>
+          </div>
+
+          <div className="clubevent-details-grid">
+            <div className="clubevent-detail-item">
+              <FiCalendar className="clubevent-detail-icon" />
+              <div>
+                <h4>Date</h4>
+                <p>{formatDate(event.date)}</p>
+              </div>
+            </div>
+            
+            <div className="clubevent-detail-item">
+              <FiClock className="clubevent-detail-icon" />
+              <div>
+                <h4>Time</h4>
+                <p>{event.time || 'Not specified'}</p>
+              </div>
+            </div>
+            
+            <div className="clubevent-detail-item">
+              <FiMapPin className="clubevent-detail-icon" />
+              <div>
+                <h4>Location</h4>
+                <p>{event.location}</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="event-content">
-          <div className="event-header">
-            <h1 className="event-title">{event.title}</h1>
-          </div>
-
-          <p className="event-description">{event.description}</p>
-
-          <div className="event-meta">
-            <span className="meta-item">
-              <FiCalendar className="btn-icon" />
-              {event.date}
-            </span>
-            <span className="meta-item">
-              <FiMapPin className="btn-icon" />
-              {event.location}
-            </span>
-          </div>
-
-          <div className="action-buttons">
-            {userRole === "admin" && (
-              <>
-                <button className="btn btn-edit" onClick={handleUpdate}>
-                  <FiEdit2 className="btn-icon" />
-                  Edit Event
-                </button>
-                <button className="btn btn-delete" onClick={handleDelete}>
-                  <FiTrash2 className="btn-icon" />
-                  Delete Event
-                </button>
-              </>
-            )}
-
-            {userRole === "student" && (
-              <button className="btn btn-enroll" onClick={handleEnroll}>
-                <FiLogIn className="btn-icon" />
-                Enroll in Event
+        <div className="clubevent-enrollments-section">
+          <div className="clubevent-section-header">
+            <h3 className="clubevent-section-title">
+              Registered Users ({enrollments.length})
+            </h3>
+            <div className="clubevent-view-toggle">
+              <button 
+                className={`clubevent-toggle-btn ${viewMode === 'table' ? 'clubevent-active' : ''}`}
+                onClick={() => setViewMode('table')}
+              >
+                Table View
               </button>
-            )}
+              <button 
+                className={`clubevent-toggle-btn ${viewMode === 'cards' ? 'clubevent-active' : ''}`}
+                onClick={() => setViewMode('cards')}
+              >
+                Card View
+              </button>
+            </div>
           </div>
+          
+          {enrollments.length > 0 ? (
+            viewMode === 'table' ? (
+              <div className="clubevent-table-container">
+                <table className="clubevent-enrollments-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Department</th>
+                      <th>Contact</th>
+                      <th>Semester</th>
+                      <th>Registered On</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {enrollments.map((enrollment, index) => (
+                      <tr key={index}>
+                        <td>
+                          <div className="clubevent-user-cell">
+                            <FiUser className="clubevent-user-icon" />
+                            {enrollment.fullName}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="clubevent-email-cell">
+                            <FiMail className="clubevent-cell-icon" />
+                            {enrollment.email}
+                          </div>
+                        </td>
+                        <td>{enrollment.department}</td>
+                        <td>{enrollment.contactNo}</td>
+                        <td>{enrollment.semester}</td>
+                        <td>{formatDateTime(enrollment.enrollmentDate)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="clubevent-enrollments-grid">
+                {enrollments.map((enrollment, index) => (
+                  <div key={index} className="clubevent-enrollment-card">
+                    <div className="clubevent-enrollment-header">
+                      <FiUser className="clubevent-enrollment-icon" />
+                      <h4>{enrollment.fullName}</h4>
+                    </div>
+                    
+                    <div className="clubevent-enrollment-details">
+                      <div className="clubevent-enrollment-detail">
+                        <FiMail className="clubevent-detail-icon" />
+                        <span>{enrollment.email}</span>
+                      </div>
+                      <div className="clubevent-enrollment-detail">
+                        <FiBook className="clubevent-detail-icon" />
+                        <span>{enrollment.department}</span>
+                      </div>
+                      <div className="clubevent-enrollment-detail">
+                        <FiPhone className="clubevent-detail-icon" />
+                        <span>{enrollment.contactNo}</span>
+                      </div>
+                      <div className="clubevent-enrollment-detail">
+                        <span>Semester: {enrollment.semester}</span>
+                      </div>
+                      <div className="clubevent-enrollment-detail">
+                        <FiClock className="clubevent-detail-icon" />
+                        <span>Registered on: {formatDateTime(enrollment.enrollmentDate)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          ) : (
+            <p className="clubevent-empty-state">No users have registered for this event yet</p>
+          )}
         </div>
       </div>
     </div>

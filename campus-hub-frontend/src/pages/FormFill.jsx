@@ -85,7 +85,7 @@ const FormFill = () => {
       if (err.response) {
         switch (err.response.status) {
           case 400:
-            setError("Invalid request data. Please check your input.");
+            setError("Already enrolled in this event.");
             break;
           case 401:
             setError("Please login again");

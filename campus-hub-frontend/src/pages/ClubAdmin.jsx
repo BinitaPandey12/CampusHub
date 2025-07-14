@@ -11,7 +11,6 @@ import {
   FiLogOut,
   FiRefreshCw,
 } from "react-icons/fi";
-import { FaUserShield, FaUserTie } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -190,7 +189,7 @@ const ClubAdmin = () => {
             className="clubadmin-profile-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-                👤
+            👤
           </button>
 
           {dropdownOpen && (
@@ -242,106 +241,106 @@ const ClubAdmin = () => {
 
         {showEventForm && (
           <section className="clubadmin-section">
-          <div className="clubadmin-card">
-            <h2 className="clubadmin-section-title">Create New Event</h2>
-            <form onSubmit={handleCreateEvent} className="clubadmin-form">
-              <div className="form-grid">
-                <div className="clubadmin-form-group floating">
-                  <input
-                    type="text"
-                    id="event-title"
-                    value={newEvent.title}
-                    onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
-                    placeholder=" "
-                    required
-                    disabled={isSubmitting}
-                    className="modern-input"
-                  />
-                  <label htmlFor="event-title">Event Title *</label>
-                </div>
-        
-                <div className="clubadmin-form-group floating">
-                  <textarea
-                    id="event-description"
-                    value={newEvent.description}
-                    onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
-                    placeholder=" "
-                    required
-                    disabled={isSubmitting}
-                    className="modern-textarea"
-                  />
-                  <label htmlFor="event-description">Description *</label>
-                </div>
-        
-                <div className="form-row">
+            <div className="clubadmin-card">
+              <h2 className="clubadmin-section-title">Create New Event</h2>
+              <form onSubmit={handleCreateEvent} className="clubadmin-form">
+                <div className="form-grid">
                   <div className="clubadmin-form-group floating">
                     <input
-                      type="date"
-                      id="event-date"
-                      value={newEvent.date}
-                      onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
-                      min={new Date().toISOString().split('T')[0]}
+                      type="text"
+                      id="event-title"
+                      value={newEvent.title}
+                      onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+                      placeholder=" "
                       required
                       disabled={isSubmitting}
                       className="modern-input"
                     />
-                    <label htmlFor="event-date">Date *</label>
+                    <label htmlFor="event-title">Event Title *</label>
                   </div>
-        
+          
+                  <div className="clubadmin-form-group floating">
+                    <textarea
+                      id="event-description"
+                      value={newEvent.description}
+                      onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
+                      placeholder=" "
+                      required
+                      disabled={isSubmitting}
+                      className="modern-textarea"
+                    />
+                    <label htmlFor="event-description">Description *</label>
+                  </div>
+          
+                  <div className="form-row">
+                    <div className="clubadmin-form-group floating">
+                      <input
+                        type="date"
+                        id="event-date"
+                        value={newEvent.date}
+                        onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
+                        min={new Date().toISOString().split('T')[0]}
+                        required
+                        disabled={isSubmitting}
+                        className="modern-input"
+                      />
+                      <label htmlFor="event-date">Date *</label>
+                    </div>
+          
+                    <div className="clubadmin-form-group floating">
+                      <input
+                        type="time"
+                        id="event-time"
+                        value={newEvent.time}
+                        onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                        required
+                        disabled={isSubmitting}
+                        className="modern-input"
+                      />
+                      <label htmlFor="event-time">Time *</label>
+                    </div>
+                  </div>
+          
                   <div className="clubadmin-form-group floating">
                     <input
-                      type="time"
-                      id="event-time"
-                      value={newEvent.time}
-                      onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                      type="text"
+                      id="event-location"
+                      value={newEvent.location}
+                      onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
+                      placeholder=" "
                       required
                       disabled={isSubmitting}
                       className="modern-input"
                     />
-                    <label htmlFor="event-time">Time *</label>
+                    <label htmlFor="event-location">Room No *</label>
                   </div>
                 </div>
-        
-                <div className="clubadmin-form-group floating">
-                  <input
-                    type="text"
-                    id="event-location"
-                    value={newEvent.location}
-                    onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
-                    placeholder=" "
-                    required
+          
+                <div className="form-actions">
+                  <button 
+                    type="button"
+                    className="btn secondary"
+                    onClick={() => setShowEventForm(false)}
                     disabled={isSubmitting}
-                    className="modern-input"
-                  />
-                  <label htmlFor="event-location">Room No  *</label>
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="btn primary"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="spinner"></span>
+                        Creating...
+                      </>
+                    ) : "Create Event"}
+                  </button>
                 </div>
-              </div>
-        
-              <div className="form-actions">
-                <button 
-                  type="button"
-                  className="btn secondary"
-                  onClick={() => setShowEventForm(false)}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="btn primary"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="spinner"></span>
-                      Creating...
-                    </>
-                  ) : "Create Event"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </section>
+              </form>
+            </div>
+          </section>
         )}
 
         <section className="clubadmin-section">
@@ -394,12 +393,12 @@ const ClubAdmin = () => {
                       <span>{event.time || "Time not set"}</span>
                       <span>{event.location || "Location not specified"}</span>
                     </div>
-                    <button 
+                    <Link 
+                      to={`/events/${event.id}`}
                       className="clubadmin-view-btn"
-                      onClick={() => navigate(`/events/${event.id}`)}
                     >
                       View Details
-                    </button>
+                    </Link>
                   </article>
                 );
               })}
@@ -408,35 +407,6 @@ const ClubAdmin = () => {
             <p className="clubadmin-empty-state">No events have been approved yet.</p>
           )}
         </section>
-
-        {/* <section className="clubadmin-section">
-          <h2 className="clubadmin-section-title">Registered Users</h2>
-          <div className="clubadmin-users-table">
-            <table className="clubadmin-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Email</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id || user.email}>
-                    <td>{user.id}</td>
-                    <td>{user.email}</td>
-                  </tr>
-                ))}
-                {users.length === 0 && (
-                  <tr>
-                    <td colSpan="2" className="clubadmin-empty-state">
-                      No users found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section> */}
       </main>
     </div>
   );
