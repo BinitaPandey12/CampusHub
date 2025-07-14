@@ -28,7 +28,15 @@ public class User {
     @Column(name = "reset_token")  //stores unique token used for password reset.
     private String resetToken;
 
-//
+    private String fullName;
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
     public boolean isVerified() {
         return isVerified;

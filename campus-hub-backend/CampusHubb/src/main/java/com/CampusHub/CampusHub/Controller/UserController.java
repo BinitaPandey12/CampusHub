@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -46,6 +48,22 @@ public class UserController {
         Map<String, Object> result = userService.loginUser(trimmedEmail, loginRequest.getPassword());
         return ResponseEntity.ok(result);
     }
+    // UserController.java
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        // Return just the username (typically email)
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", userDetails.getUsername());
+
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
 
@@ -71,6 +89,15 @@ public class UserController {
         private String email;
         private String password;
         private String role;
+        private String fullName;
+
+        public String getFullName() {
+            return fullName;
+        }
+
+        public void setFullName(String fullName) {
+            this.fullName = fullName;
+        }
 
         public String getEmail() {
             return email;

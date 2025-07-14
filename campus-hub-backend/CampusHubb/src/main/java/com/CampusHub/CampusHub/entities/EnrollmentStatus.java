@@ -1,4 +1,4 @@
-package com.CampusHub.CampusHub.dto;
+package com.CampusHub.CampusHub.entities;
 
 
 public enum EnrollmentStatus {

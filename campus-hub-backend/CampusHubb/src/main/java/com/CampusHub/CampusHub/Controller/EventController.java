@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
@@ -48,6 +49,7 @@ public class EventController {
         List<EventResponse> responses = eventService.getPendingEvents();
         return ResponseEntity.ok(responses);
     }
+    //user info
     @GetMapping("/users")
     @PreAuthorize("hasAnyAuthority('CLUBADMIN', 'SYSTEMADMIN', 'USER')")
     public ResponseEntity<List<UserBasicDTO>> getAllRegularUsers() {
@@ -62,6 +64,18 @@ public class EventController {
         List<EventResponse> responses = eventService.getApprovedEvents();
         return ResponseEntity.ok(responses);
     }
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventResponse> getEventDetailsById(@PathVariable Long eventId) {
+        EventResponse response = eventService.getEventById(eventId);
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
 
     @PatchMapping("/{eventId}/approve")
     @PreAuthorize("hasAuthority('SYSTEMADMIN')")

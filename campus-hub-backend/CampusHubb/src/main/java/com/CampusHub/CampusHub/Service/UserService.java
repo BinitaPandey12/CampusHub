@@ -55,6 +55,7 @@ public class UserService {
         user.setEmail(userSignUpRequest.getEmail());
         user.setPassword(passwordEncoder.encode(userSignUpRequest.getPassword()));
         user.setRole(Role.USER);   // default USER role
+        user.setFullName(userSignUpRequest.getFullName());
 
         // Generate verification token and set verified false
         String verificationToken = UUID.randomUUID().toString();
