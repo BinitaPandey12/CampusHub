@@ -481,6 +481,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
+  color: black;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
@@ -537,4 +538,111 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   .clubadmin-card {
     padding: 1.5rem;
   }
+}
+/* Add these styles to your ClubAdmin.css */
+
+/* Time Picker Styles */
+.time-input-group {
+  position: relative;
+}
+
+.time-input-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.time-input {
+  cursor: pointer;
+  color: black;
+}
+
+.time-dropdown-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  color: black;
+  transform: translateY(-50%);
+ 
+}
+
+.time-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  padding: 12px;
+  margin-top: 4px;
+}
+
+.time-selectors {
+  display: flex;
+  gap: 12px;
+
+}
+
+.time-selector {
+  flex: 1;
+}
+
+.time-selector h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+}
+
+.time-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  color: black;
+}
+
+.time-option {
+  padding: 6px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  text-align: center;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.time-option:hover {
+  background: #f5f5f5;
+}
+
+.time-option.selected {
+  background: #4361ee;
+  color: white;
+  border-color: #4361ee;
+}
+
+/* Spinner animation */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Form button spinner */
+.btn .spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+  vertical-align: middle;
 }

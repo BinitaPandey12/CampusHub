@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   FiPlusCircle, 
-  FiSettings, 
+  // FiSettings, 
   FiClock, 
   FiCheckCircle,
   FiUser,
@@ -194,14 +194,14 @@ const ClubAdmin = () => {
 
           {dropdownOpen && (
             <div className="clubadmin-dropdown">
-              <Link to="/clubadmin/profile" className="clubadmin-dropdown-item">
+              {/* <Link to="/clubadmin/profile" className="clubadmin-dropdown-item">
                 <FiUser className="clubadmin-dropdown-icon" />
                 View Profile
               </Link>
               <Link to="/clubadmin/settings" className="clubadmin-dropdown-item">
                 <FiSettings className="clubadmin-dropdown-icon" />
                 Settings
-              </Link>
+              </Link> */}
               <button
                 onClick={handleLogout}
                 className="clubadmin-dropdown-item clubadmin-dropdown-item--logout"

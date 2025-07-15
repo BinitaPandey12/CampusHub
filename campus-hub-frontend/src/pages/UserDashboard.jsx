@@ -284,20 +284,20 @@ const UserDashboard = () => {
 
             {dropdownOpen && (
               <div className="user-dashboard__dropdown">
-                <Link
+                {/* <Link
                   to="/profile"
                   className="user-dashboard__dropdown-item"
                   onClick={() => setDropdownOpen(false)}
                 >
                   View Profile
-                </Link>
-                <Link
+                </Link> */}
+                {/* <Link
                   to="/settings"
                   className="user-dashboard__dropdown-item"
                   onClick={() => setDropdownOpen(false)}
                 >
                   Settings
-                </Link>
+                </Link> */}
                 <button
                   className="user-dashboard__dropdown-item user-dashboard__dropdown-item--logout"
                   onClick={handleLogout}
