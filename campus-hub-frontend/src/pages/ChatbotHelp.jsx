@@ -21,7 +21,8 @@ const ChatbotHelp = () => {
     // Load Dialogflow script only once
     if (!window.dfMessengerScriptLoaded) {
       const script = document.createElement("script");
-      script.src = "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
+      script.src =
+        "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
       script.async = true;
       document.body.appendChild(script);
       window.dfMessengerScriptLoaded = true;
@@ -34,15 +35,26 @@ const ChatbotHelp = () => {
     }
 
     function addMessenger() {
-      const container = document.getElementById("dialogflow-messenger-container");
+      const container = document.getElementById(
+        "dialogflow-messenger-container"
+      );
       if (!container) return;
 
       // Prevent adding messenger multiple times
       if (!container.querySelector("df-messenger")) {
         const messenger = document.createElement("df-messenger");
         messenger.setAttribute("chat-title", "CampusBot");
-        messenger.setAttribute("agent-id", "0861736d-dbac-4fad-aa93-b0ab54ccf2d6"); // Replace with your agent id
+        messenger.setAttribute(
+          "agent-id",
+          "0861736d-dbac-4fad-aa93-b0ab54ccf2d6"
+        );
         messenger.setAttribute("language-code", "en");
+        messenger.setAttribute(
+          "chat-icon",
+          "https://cdn3d.iconscout.com/3d/premium/thumb/robot-say-hi-3d-icon-download-in-png-blend-fbx-gltf-file-formats--saying-hello-device-brain-activity-pack-science-technology-icons-7746773.png?f=webp"
+        );
+        messenger.setAttribute("intent","Welcome");
+
 
         // Remove floating styles to embed inline
         messenger.style.position = "relative";
