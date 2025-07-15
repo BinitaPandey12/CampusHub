@@ -4,10 +4,8 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { 
   FiPlusCircle, 
-  // FiSettings, 
   FiClock, 
   FiCheckCircle,
-  FiUser,
   FiLogOut,
   FiRefreshCw,
 } from "react-icons/fi";
@@ -181,32 +179,24 @@ const ClubAdmin = () => {
   };
 
   return (
-    <div className="clubadmin-container">
-      <header className={`clubadmin-header ${scrolled ? "scrolled" : ""}`}>
-        <div className="clubadmin-profile" ref={dropdownRef}>
-          <span className="clubadmin-welcome">Welcome, {userName}</span>
+    <div className="ca-container">
+      <header className={`ca-header ${scrolled ? "ca-scrolled" : ""}`}>
+        <div className="ca-profile" ref={dropdownRef}>
+          <span className="ca-welcome">Welcome, {userName}</span>
           <button
-            className="clubadmin-profile-btn"
+            className="ca-profile-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
             👤
           </button>
 
           {dropdownOpen && (
-            <div className="clubadmin-dropdown">
-              {/* <Link to="/clubadmin/profile" className="clubadmin-dropdown-item">
-                <FiUser className="clubadmin-dropdown-icon" />
-                View Profile
-              </Link>
-              <Link to="/clubadmin/settings" className="clubadmin-dropdown-item">
-                <FiSettings className="clubadmin-dropdown-icon" />
-                Settings
-              </Link> */}
+            <div className="ca-dropdown">
               <button
                 onClick={handleLogout}
-                className="clubadmin-dropdown-item clubadmin-dropdown-item--logout"
+                className="ca-dropdown-item ca-dropdown-item--logout"
               >
-                <FiLogOut className="clubadmin-dropdown-icon" />
+                <FiLogOut className="ca-dropdown-icon" />
                 Logout
               </button>
             </div>
@@ -214,38 +204,38 @@ const ClubAdmin = () => {
         </div>
       </header>
 
-      <main className="clubadmin-main-content">
-        <section className="clubadmin-hero">
-          <h1 className="clubadmin-title">Club Admin Dashboard</h1>
-          <p className="clubadmin-subtitle">Manage your club users and events</p>
+      <main className="ca-main-content">
+        <section className="ca-hero">
+          <h1 className="ca-title">Club Admin Dashboard</h1>
+          <p className="ca-subtitle">Manage your club users and events</p>
         </section>
 
-        <div className="clubadmin-actions">
+        <div className="ca-actions">
           <button 
-            className="clubadmin-action-btn primary"
+            className="ca-action-btn ca-primary"
             onClick={() => setShowEventForm(!showEventForm)}
             disabled={isSubmitting}
           >
-            <FiPlusCircle className="clubadmin-action-icon" />
+            <FiPlusCircle className="ca-action-icon" />
             {showEventForm ? "Cancel" : "Add New Event"}
           </button>
           <button 
-            className="clubadmin-action-btn"
+            className="ca-action-btn"
             onClick={handleRefresh}
             disabled={isLoading}
           >
-            <FiRefreshCw className="clubadmin-action-icon" />
+            <FiRefreshCw className="ca-action-icon" />
             Refresh Data
           </button>
         </div>
 
         {showEventForm && (
-          <section className="clubadmin-section">
-            <div className="clubadmin-card">
-              <h2 className="clubadmin-section-title">Create New Event</h2>
-              <form onSubmit={handleCreateEvent} className="clubadmin-form">
-                <div className="form-grid">
-                  <div className="clubadmin-form-group floating">
+          <section className="ca-section">
+            <div className="ca-card">
+              <h2 className="ca-section-title">Create New Event</h2>
+              <form onSubmit={handleCreateEvent} className="ca-form">
+                <div className="ca-form-grid">
+                  <div className="ca-form-group ca-floating">
                     <input
                       type="text"
                       id="event-title"
@@ -254,12 +244,12 @@ const ClubAdmin = () => {
                       placeholder=" "
                       required
                       disabled={isSubmitting}
-                      className="modern-input"
+                      className="ca-input"
                     />
                     <label htmlFor="event-title">Event Title *</label>
                   </div>
           
-                  <div className="clubadmin-form-group floating">
+                  <div className="ca-form-group ca-floating">
                     <textarea
                       id="event-description"
                       value={newEvent.description}
@@ -267,13 +257,13 @@ const ClubAdmin = () => {
                       placeholder=" "
                       required
                       disabled={isSubmitting}
-                      className="modern-textarea"
+                      className="ca-textarea"
                     />
                     <label htmlFor="event-description">Description *</label>
                   </div>
           
-                  <div className="form-row">
-                    <div className="clubadmin-form-group floating">
+                  <div className="ca-form-row">
+                    <div className="ca-form-group ca-floating">
                       <input
                         type="date"
                         id="event-date"
@@ -282,12 +272,12 @@ const ClubAdmin = () => {
                         min={new Date().toISOString().split('T')[0]}
                         required
                         disabled={isSubmitting}
-                        className="modern-input"
+                        className="ca-input"
                       />
                       <label htmlFor="event-date">Date *</label>
                     </div>
           
-                    <div className="clubadmin-form-group floating">
+                    <div className="ca-form-group ca-floating">
                       <input
                         type="time"
                         id="event-time"
@@ -295,13 +285,13 @@ const ClubAdmin = () => {
                         onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
                         required
                         disabled={isSubmitting}
-                        className="modern-input"
+                        className="ca-input"
                       />
                       <label htmlFor="event-time">Time *</label>
                     </div>
                   </div>
           
-                  <div className="clubadmin-form-group floating">
+                  <div className="ca-form-group ca-floating">
                     <input
                       type="text"
                       id="event-location"
@@ -310,16 +300,16 @@ const ClubAdmin = () => {
                       placeholder=" "
                       required
                       disabled={isSubmitting}
-                      className="modern-input"
+                      className="ca-input"
                     />
                     <label htmlFor="event-location">Room No *</label>
                   </div>
                 </div>
           
-                <div className="form-actions">
+                <div className="ca-form-actions">
                   <button 
                     type="button"
-                    className="btn secondary"
+                    className="ca-btn ca-secondary"
                     onClick={() => setShowEventForm(false)}
                     disabled={isSubmitting}
                   >
@@ -327,12 +317,12 @@ const ClubAdmin = () => {
                   </button>
                   <button 
                     type="submit"
-                    className="btn primary"
+                    className="ca-btn ca-primary"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
                       <>
-                        <span className="spinner"></span>
+                        <span className="ca-spinner"></span>
                         Creating...
                       </>
                     ) : "Create Event"}
@@ -343,22 +333,22 @@ const ClubAdmin = () => {
           </section>
         )}
 
-        <section className="clubadmin-section">
-          <div className="clubadmin-section-header">
-            <FiClock className="clubadmin-section-icon" />
-            <h2 className="clubadmin-section-title">Pending Approval</h2>
-            <span className="clubadmin-badge">{pendingEvents.length}</span>
+        <section className="ca-section">
+          <div className="ca-section-header">
+            <FiClock className="ca-section-icon" />
+            <h2 className="ca-section-title">Pending Approval</h2>
+            <span className="ca-badge">{pendingEvents.length}</span>
           </div>
           
           {pendingEvents.length > 0 ? (
-            <div className="clubadmin-events-grid">
+            <div className="ca-events-grid">
               {pendingEvents.map(event => (
-                <article key={`pending-${event.id}`} className="clubadmin-event-card">
-                  <h3 className="clubadmin-event-title">{event.title}</h3>
-                  <p className="clubadmin-event-description">
+                <article key={`pending-${event.id}`} className="ca-event-card">
+                  <h3 className="ca-event-title">{event.title}</h3>
+                  <p className="ca-event-description">
                     {event.description?.substring(0, 100)}...
                   </p>
-                  <div className="clubadmin-event-meta">
+                  <div className="ca-event-meta">
                     <span>{event.date ? new Date(event.date).toLocaleDateString() : 'No date'}</span>
                     <span>{event.time || 'No time'}</span>
                     <span>{event.location || 'No location'}</span>
@@ -367,35 +357,35 @@ const ClubAdmin = () => {
               ))}
             </div>
           ) : (
-            <p className="clubadmin-empty-state">No pending events awaiting approval.</p>
+            <p className="ca-empty-state">No pending events awaiting approval.</p>
           )}
         </section>
 
-        <section className="clubadmin-section">
-          <div className="clubadmin-section-header">
-            <FiCheckCircle className="clubadmin-section-icon" />
-            <h2 className="clubadmin-section-title">Approved Events</h2>
-            <span className="clubadmin-badge approved">{approvedEvents.length}</span>
+        <section className="ca-section">
+          <div className="ca-section-header">
+            <FiCheckCircle className="ca-section-icon" />
+            <h2 className="ca-section-title">Approved Events</h2>
+            <span className="ca-badge ca-approved">{approvedEvents.length}</span>
           </div>
           
           {approvedEvents.length > 0 ? (
-            <div className="clubadmin-events-grid">
+            <div className="ca-events-grid">
               {approvedEvents.map(event => {
                 const eventDate = event.date ? new Date(event.date).toLocaleDateString() : "Date not set";
                 return (
-                  <article key={`approved-${event.id}`} className="clubadmin-event-card">
-                    <h3 className="clubadmin-event-title">{event.title || "Untitled Event"}</h3>
-                    <p className="clubadmin-event-description">
+                  <article key={`approved-${event.id}`} className="ca-event-card">
+                    <h3 className="ca-event-title">{event.title || "Untitled Event"}</h3>
+                    <p className="ca-event-description">
                       {(event.description || "No description provided").substring(0, 100)}...
                     </p>
-                    <div className="clubadmin-event-meta">
+                    <div className="ca-event-meta">
                       <span>{eventDate}</span>
                       <span>{event.time || "Time not set"}</span>
                       <span>{event.location || "Location not specified"}</span>
                     </div>
                     <Link 
                       to={`/events/${event.id}`}
-                      className="clubadmin-view-btn"
+                      className="ca-view-btn"
                     >
                       View Details
                     </Link>
@@ -404,7 +394,7 @@ const ClubAdmin = () => {
               })}
             </div>
           ) : (
-            <p className="clubadmin-empty-state">No events have been approved yet.</p>
+            <p className="ca-empty-state">No events have been approved yet.</p>
           )}
         </section>
       </main>
