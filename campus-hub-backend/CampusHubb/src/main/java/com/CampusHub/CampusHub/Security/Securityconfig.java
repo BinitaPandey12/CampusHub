@@ -48,7 +48,7 @@ public class Securityconfig {
                         .requestMatchers("/api/enrollments/event/{eventId}/enrollments").hasAnyAuthority("CLUBADMIN","USER")
                         .requestMatchers(HttpMethod.PATCH, "/api/events/*/approve").hasAuthority("SYSTEMADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/events/*/reject").hasAuthority("SYSTEMADMIN")
-                        .requestMatchers("/api/events/**").hasAnyAuthority("SYSTEMADMIN","CLUBADMIN")
+                        .requestMatchers("/api/events/**").hasAnyAuthority("SYSTEMADMIN","CLUBADMIN","USER")
                         .requestMatchers("/api/events").hasAnyAuthority("CLUBADMIN", "SYSTEMADMIN")
                         .requestMatchers("/api/events/{email}").hasAuthority("CLUBADMIN")
                         .requestMatchers("/api/admins/**").hasAuthority("SYSTEMADMIN")

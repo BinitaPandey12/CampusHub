@@ -87,26 +87,13 @@
   z-index: 10;
 }
 
-.chatbot-help__search-input {
-  padding: 0.7rem 1.2rem;
-  color: black;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 2rem;
-  width: 300px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-}
 
-.chatbot-help__search-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-}
 
 .chatbot-help__profile {
   display: flex;
   align-items: center;
   gap: 1rem;
+  margin-left: 60rem;
   position: relative;
 }
 
@@ -189,15 +176,7 @@
 }
 
 /* Chat Container */
-.chatbot-help__chat-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-}
+
 
 /* Customize Dialogflow Messenger appearance */
 df-messenger {
@@ -261,9 +240,7 @@ df-messenger {
     padding: 1rem;
   }
 
-  .chatbot-help__search-input {
-    width: 180px;
-  }
+  
 
   .chatbot-help__content {
     padding: 1.5rem 1rem;
@@ -289,9 +266,7 @@ df-messenger {
     align-items: stretch;
   }
 
-  .chatbot-help__search-input {
-    width: 100%;
-  }
+
 
   .chatbot-help__profile {
     justify-content: space-between;

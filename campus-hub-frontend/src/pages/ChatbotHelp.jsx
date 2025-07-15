@@ -97,12 +97,7 @@ const ChatbotHelp = () => {
 
       <div className="chatbot-help__main">
         <header className="chatbot-help__header">
-          <div className="chatbot-help__search">
-            <input
-              className="chatbot-help__search-input"
-              placeholder="🔍 Search help topics..."
-            />
-          </div>
+         
 
           <div className="chatbot-help__profile" ref={dropdownRef}>
             <span className="chatbot-help__welcome">Welcome, {userName}</span>
@@ -142,7 +137,6 @@ const ChatbotHelp = () => {
           </div>
 
           <div className="chatbot-help__chat-container">
-            {/* Dialogflow Messenger will be embedded here */}
             <div id="dialogflow-messenger-container"></div>
           </div>
         </main>
