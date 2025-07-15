@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./UserDashboard.css";
+import { jwtDecode } from "jwt-decode";
+
+const decodeToken = (token) => {
+  try {
+    return jwtDecode(token);
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
 
 function formatEventDateTime(dateStr, timeStr) {
   try {
@@ -49,46 +59,68 @@ function calculateTimeRemaining(dateStr, timeStr) {
 
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const userName = localStorage.getItem("username") || "User";
+  const userEmail = localStorage.getItem("email") || "";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState("User");
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef(null);
+
+  const getFirstName = () => {
+    const fullName = localStorage.getItem("username") || "User";
+    return fullName.split(" ")[0];
+  };
+
+  const firstName = getFirstName();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("email");
     navigate("/login");
   };
 
   useEffect(() => {
-    const fetchUpcomingEvents = async () => {
+    const fetchData = async () => {
       try {
-        // const token = localStorage.getItem("token");
-        if (!token) {
+        const token = localStorage.getItem("token");
+        if (!token || !userEmail) {
           navigate("/login");
           return;
         }
 
-        const response = await fetch(
-          "http://localhost:8080/api/events/approved",
-          {
+        const [eventsResponse, enrollmentsResponse] = await Promise.all([
+          fetch("http://localhost:8080/api/events/approved", {
             headers: {
               "Authorization": `Bearer ${token}`,
               "Content-Type": "application/json"
             }
-          }
-        );
+          }),
+          fetch(`http://localhost:8080/api/enrollments/user/${userEmail}`, {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          })
+        ]);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (!eventsResponse.ok) {
+          throw new Error(`Failed to load events: ${eventsResponse.status}`);
         }
 
-        const data = await response.json();
+        const eventsData = await eventsResponse.json();
+        let enrolledEventsData = [];
+
+        if (enrollmentsResponse.ok) {
+          enrolledEventsData = await enrollmentsResponse.json();
+        }
+
         const now = new Date();
-        const processedEvents = data
+        const processedEvents = eventsData
           .map(event => ({
             id: event.id,
             title: event.title,
@@ -97,6 +129,9 @@ const UserDashboard = () => {
             time: event.time,
             description: event.description || "No description available",
             location: event.location || "Location not specified",
+            isEnrolled: enrolledEventsData.some(enrollment => enrollment.eventId === event.id),
+            formattedDate: formatEventDateTime(event.date, event.time),
+            timeRemaining: calculateTimeRemaining(event.date, event.time)
           }))
           .filter(event => {
             try {
@@ -119,16 +154,33 @@ const UserDashboard = () => {
           });
 
         setUpcomingEvents(processedEvents);
+        setFilteredEvents(processedEvents); // Initialize filtered events with all events
       } catch (err) {
         setError(err.message);
-        console.error("Error fetching events:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUpcomingEvents();
-  }, [navigate]);
+    fetchData();
+  }, [navigate, userEmail]);
+
+  useEffect(() => {
+    // Filter events based on search query
+    if (searchQuery.trim() === "") {
+      setFilteredEvents(upcomingEvents);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = upcomingEvents.filter(event => 
+        event.title.toLowerCase().includes(query) ||
+        event.club.toLowerCase().includes(query) ||
+        event.description.toLowerCase().includes(query) ||
+        event.location.toLowerCase().includes(query)
+      );
+      setFilteredEvents(filtered);
+    }
+  }, [searchQuery, upcomingEvents]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -154,6 +206,14 @@ const UserDashboard = () => {
   const handleEnrollClick = (eventId, e) => {
     e.stopPropagation();
     navigate(`/enroll/${eventId}`);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery("");
   };
 
   const renderCountdown = (date, time) => {
@@ -197,12 +257,23 @@ const UserDashboard = () => {
           <div className="user-dashboard__search">
             <input
               className="user-dashboard__search-input"
-              placeholder="🔍 Search clubs, tags..."
+              placeholder="🔍 Search clubs, events, locations..."
+              value={searchQuery}
+              onChange={handleSearchChange}
             />
+            {searchQuery && (
+              <button 
+                className="user-dashboard__search-clear"
+                onClick={handleSearchClear}
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            )}
           </div>
 
           <div className="user-dashboard__profile" ref={dropdownRef}>
-            <span className="user-dashboard__welcome">Welcome, {userName}</span>
+            <span className="user-dashboard__welcome">Welcome, {firstName}</span>
             <button
               className="user-dashboard__profile-btn"
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -239,7 +310,14 @@ const UserDashboard = () => {
         </header>
 
         <section className="user-dashboard__content">
-          <h2 className="user-dashboard__section-title">Upcoming Events</h2>
+          <h2 className="user-dashboard__section-title">
+            Upcoming Events
+            {searchQuery && filteredEvents.length > 0 && (
+              <span className="user-dashboard__search-results-count">
+                {filteredEvents.length} {filteredEvents.length === 1 ? 'result' : 'results'} found
+              </span>
+            )}
+          </h2>
           <div className="user-dashboard__events">
             {loading ? (
               <div className="user-dashboard__loading">
@@ -257,33 +335,35 @@ const UserDashboard = () => {
                   Retry
                 </button>
               </div>
-            ) : upcomingEvents.length > 0 ? (
-              upcomingEvents.map((event) => (
+            ) : filteredEvents.length > 0 ? (
+              filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="user-dashboard__event-card"
+                  className={`user-dashboard__event-card ${event.isEnrolled ? "enrolled" : ""}`}
                   onClick={() => handleEventClick(event.id)}
                 >
+                  {event.isEnrolled && (
+                    <div className="enrolled-status">
+                      <span className="enrolled-checkmark">✓</span>
+                      <span className="enrolled-text">Enrolled</span>
+                    </div>
+                  )}
                   <div className="user-dashboard__event-info">
                     <h4 className="user-dashboard__event-title">
                       {event.title}
                     </h4>
-                    <p className="user-dashboard__event-host">
-                      Hosted by {event.club}
-                    </p>
+                  
                     <p className="user-dashboard__event-desc">
-                      {event.description}
+                      Description: {event.description}
                     </p>
                     <div className="user-dashboard__event-meta">
-                      <span className="event-location">
-                        📍 {event.location}
-                      </span>
+                      <span className="event-location">📍Location: {event.location}<br></br></span>
                       <span className="event-date">
-                        📅 {formatEventDateTime(event.date, event.time)}
+                       Date: 📅 {event.formattedDate}
                       </span>
                     </div>
                     <div className="event-countdown">
-                      {renderCountdown(event.date, event.time)}
+                     CountDown: {renderCountdown(event.date, event.time)}
                     </div>
                   </div>
                   <div className="user-dashboard__event-actions">
@@ -296,15 +376,28 @@ const UserDashboard = () => {
                     >
                       View Details
                     </button>
-                    <button
-                      className="user-dashboard__enroll-btn"
-                      onClick={(e) => handleEnrollClick(event.id, e)}
-                    >
-                      Enroll Now
-                    </button>
+                    {!event.isEnrolled && (
+                      <button
+                        className="user-dashboard__enroll-btn"
+                        onClick={(e) => handleEnrollClick(event.id, e)}
+                      >
+                        Enroll Now
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
+            ) : searchQuery ? (
+              <div className="user-dashboard__no-results">
+                <span className="user-dashboard__no-results-icon">🔍</span>
+                No events found for "{searchQuery}"
+                <button
+                  className="user-dashboard__clear-search-btn"
+                  onClick={handleSearchClear}
+                >
+                  Clear search
+                </button>
+              </div>
             ) : (
               <div className="user-dashboard__no-events">
                 <span className="user-dashboard__no-events-icon">📅</span>

@@ -9,8 +9,10 @@ const MyEvents = () => {
   const userName = localStorage.getItem("username") || "User";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [enrollments, setEnrollments] = useState([]);
+  const [filteredEnrollments, setFilteredEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef();
 
   const fetchEnrollments = async () => {
@@ -48,6 +50,7 @@ const MyEvents = () => {
 
         if (enrollmentsData.length === 0) {
           setEnrollments([]);
+          setFilteredEnrollments([]);
           setError("No enrollments found");
           return;
         }
@@ -84,10 +87,12 @@ const MyEvents = () => {
             status: enrollment.status || "Status unknown",
             enrollmentDate: enrollment.enrollmentDate,
             formattedEnrollmentDate,
+            searchableText: `${enrollment.eventTitle} ${enrollment.status} ${formattedEnrollmentDate}`.toLowerCase()
           };
         });
 
         setEnrollments(formattedEnrollments);
+        setFilteredEnrollments(formattedEnrollments);
       } else {
         throw new Error(`Unexpected status code: ${response.status}`);
       }
@@ -105,6 +110,7 @@ const MyEvents = () => {
       } else if (err.response?.status === 404) {
         setError("No enrollments found");
         setEnrollments([]);
+        setFilteredEnrollments([]);
       } else {
         setError(err.response?.data?.message || err.message || "Failed to load enrollments");
       }
@@ -116,6 +122,19 @@ const MyEvents = () => {
   useEffect(() => {
     fetchEnrollments();
   }, [email, navigate]);
+
+  useEffect(() => {
+    // Filter enrollments based on search query
+    if (searchQuery.trim() === "") {
+      setFilteredEnrollments(enrollments);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = enrollments.filter(enrollment => 
+        enrollment.searchableText.includes(query)
+      );
+      setFilteredEnrollments(filtered);
+    }
+  }, [searchQuery, enrollments]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -136,6 +155,14 @@ const MyEvents = () => {
 
   const handleRetry = () => {
     fetchEnrollments();
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery("");
   };
 
   const getStatusBadgeClass = (status) => {
@@ -182,9 +209,21 @@ const MyEvents = () => {
           <div className="my-events__search">
             <input
               className="my-events__search-input"
-              placeholder="🔍 Search your enrollments..."
+              placeholder="🔍 Search by event, status, date..."
+              value={searchQuery}
+              onChange={handleSearchChange}
               disabled={loading}
             />
+            {searchQuery && (
+              <button 
+                className="my-events__search-clear"
+                onClick={handleSearchClear}
+                aria-label="Clear search"
+                disabled={loading}
+              >
+                ×
+              </button>
+            )}
           </div>
 
           <div className="my-events__profile" ref={dropdownRef}>
@@ -226,7 +265,14 @@ const MyEvents = () => {
         </header>
 
         <main className="my-events__content">
-          <h1 className="my-events__page-title">My Enrollments</h1>
+          <h1 className="my-events__page-title">
+            My Enrollments
+            {searchQuery && filteredEnrollments.length > 0 && (
+              <span className="my-events__search-results-count">
+                {filteredEnrollments.length} {filteredEnrollments.length === 1 ? 'match' : 'matches'} found
+              </span>
+            )}
+          </h1>
 
           {loading ? (
             <div className="my-events__loading">
@@ -250,9 +296,9 @@ const MyEvents = () => {
                 Try Again
               </button>
             </div>
-          ) : enrollments.length > 0 ? (
+          ) : filteredEnrollments.length > 0 ? (
             <div className="my-events__list">
-              {enrollments.map((enrollment) => (
+              {filteredEnrollments.map((enrollment) => (
                 <div key={enrollment.id} className="my-events__card">
                   <div className="my-events__card-header">
                     <h3 className="my-events__event-title">{enrollment.eventTitle}</h3>
@@ -264,45 +310,33 @@ const MyEvents = () => {
                   <div className="my-events__card-content">
                     <div className="my-events__enrollment-details">
                       <div className="my-events__detail-row">
-                        <span className="my-events__detail-label">Enrollment Date:</span>
+                        <span className="my-events__detail-label">Enrollment Date: </span>
                         <span>{enrollment.formattedEnrollmentDate}</span>
-                      </div>
-                      <div className="my-events__detail-row">
-                        <span className="my-events__detail-label">Student:</span>
-                        <span>{enrollment.fullName}</span>
-                      </div>
-                      <div className="my-events__detail-row">
-                        <span className="my-events__detail-label">Semester:</span>
-                        <span>{enrollment.semester}</span>
-                      </div>
-                      <div className="my-events__detail-row">
-                        <span className="my-events__detail-label">Department:</span>
-                        <span>{enrollment.department}</span>
-                      </div>
-                      <div className="my-events__detail-row">
-                        <span className="my-events__detail-label">Contact:</span>
-                        <span>{enrollment.contactNo}</span>
                       </div>
                     </div>
                   </div>
-                  
-                  <button
-                    className="my-events__action-btn"
-                    onClick={() => navigate(`/event/${enrollment.eventId}`)}
-                  >
-                    View Event Details
-                  </button>
                 </div>
               ))}
             </div>
+          ) : searchQuery ? (
+            <div className="my-events__no-results">
+              <span className="my-events__no-results-icon">🔍</span>
+              <h3>No enrollments found for "{searchQuery}"</h3>
+              <button
+                className="my-events__clear-search-btn"
+                onClick={handleSearchClear}
+              >
+                Clear search
+              </button>
+            </div>
           ) : (
             <div className="my-events__empty">
-              <span className="my-events__empty-icon">📅</span>
+              <span className="my-events__empty-icon"> 📅 </span>
               <h3>No Enrollments Found</h3>
               <p>You haven't enrolled in any events yet.</p>
               <button
                 className="my-events__browse-btn"
-                onClick={() => navigate("/events")}
+                onClick={() => navigate("/user-dashboard")}
               >
                 Browse Events
               </button>
