@@ -110,12 +110,7 @@ const ChatbotHelp = () => {
 
             {dropdownOpen && (
               <div className="chatbot-help__dropdown">
-                <Link to="/profile" className="chatbot-help__dropdown-item">
-                  View Profile
-                </Link>
-                <Link to="/settings" className="chatbot-help__dropdown-item">
-                  Settings
-                </Link>
+               
                 <Link
                   to="/"
                   className="chatbot-help__dropdown-item chatbot-help__dropdown-item--logout"

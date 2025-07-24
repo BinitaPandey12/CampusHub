@@ -239,20 +239,7 @@ const MyEvents = () => {
 
             {dropdownOpen && (
               <div className="my-events__dropdown">
-                <Link
-                  to="/profile"
-                  className="my-events__dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  View Profile
-                </Link>
-                <Link
-                  to="/settings"
-                  className="my-events__dropdown-item"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Settings
-                </Link>
+               
                 <button
                   className="my-events__dropdown-item my-events__dropdown-item--logout"
                   onClick={handleLogout}

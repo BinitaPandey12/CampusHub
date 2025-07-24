@@ -152,6 +152,7 @@
 }
 
 .my-events__dropdown-item--logout {
+  background-color: white;
   color: #ef4444;
 }
 

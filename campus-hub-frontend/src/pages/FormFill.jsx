@@ -167,19 +167,20 @@ const FormFill = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">
-              Email <span className="required">*</span>
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              autoComplete="email"
-              disabled={isSubmitting}
-            />
+          <label htmlFor="email">
+  Email <span className="required">*</span>
+</label>
+<input
+  id="email"
+  name="email"
+  type="email"
+  value={form.email}
+  onChange={handleChange}
+  placeholder="Enter your email"
+  autoComplete="email"
+  disabled={isSubmitting}
+  readOnly
+/>
           </div>
 
           <div className="form-group">
