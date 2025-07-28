@@ -11,6 +11,9 @@ import {
 } from "react-icons/fi";
 import axios from "axios";
 import "./Dashboard.css";
+import ntcLogo from "../assets/ntc-logo.jpg";
+import noskLogo from "../assets/nosk-logo.jpg";
+import ieeeLogo from "../assets/ieee-logo.jpg";
 
 const Dashboard = () => {
   // State management
@@ -30,8 +33,8 @@ const Dashboard = () => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get("/api/events/approved");
-        const eventsData = Array.isArray(response.data) 
-          ? response.data 
+        const eventsData = Array.isArray(response.data)
+          ? response.data
           : response.data?.events || [];
 
         const approvedEvents = eventsData.filter(
@@ -49,11 +52,11 @@ const Dashboard = () => {
               events: [],
             };
           }
-          
+
           const now = new Date();
           const startDate = new Date(event.startDate);
           const endDate = new Date(event.endDate);
-          
+
           let status;
           if (endDate < now) {
             status = "past";
@@ -111,7 +114,7 @@ const Dashboard = () => {
   // Handle enrollment button click
   const handleEnrollClick = (eventId) => {
     const isLoggedIn = localStorage.getItem("authToken"); // Simple auth check
-    
+
     if (isLoggedIn) {
       navigate(`/event/${eventId}/enroll`);
     } else {
@@ -129,7 +132,7 @@ const Dashboard = () => {
 
       if (selectedTab === "upcoming") return event.status === "upcoming";
       if (selectedTab === "running") return event.status === "running";
-      
+
       if (filter === "today") {
         return startDate.toDateString() === now.toDateString();
       }
@@ -189,27 +192,6 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      {/* Animated Background Elements */}
-      <div className="animated-background">
-        {[...Array(10)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="floating-shape"
-            initial={{ y: 0, x: Math.random() * 100 }}
-            animate={{
-              y: [0, -100, 0],
-              x: [Math.random() * 100, Math.random() * 100],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              duration: 15 + Math.random() * 15,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </div>
-
       {/* Floating Notification */}
       <AnimatePresence>
         {notificationVisible && (
@@ -294,190 +276,37 @@ const Dashboard = () => {
 
       {/* Hero Section */}
       <section className="hero">
+        <div className="hero-overlay" />
         <div className="hero-content">
           <motion.h1
             className="hero-title"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
           >
             Discover <span className="highlight">Campus Life</span>
           </motion.h1>
+
           <motion.p
             className="hero-subtitle"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
           >
-            Join clubs, attend events, and connect with your community
+            Join clubs, attend events, and connect with your community like
+            never before.
           </motion.p>
+
+          <motion.div
+            className="hero-actions"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6, ease: "easeOut" }}
+          >
+            <button className="btn-primary">Explore Events</button>
+          </motion.div>
         </div>
       </section>
-
-      {/* Main Content */}
-      <main className="dashboard-content">
-        {/* Tabs + Filter */}
-        <div className="content-controls">
-          <div className="tabs">
-            <motion.button
-              className={`tab ${selectedTab === "upcoming" ? "active" : ""}`}
-              onClick={() => setSelectedTab("upcoming")}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              Upcoming Events
-            </motion.button>
-            <motion.button
-              className={`tab ${selectedTab === "running" ? "active" : ""}`}
-              onClick={() => setSelectedTab("running")}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              Happening Now
-            </motion.button>
-          </div>
-
-          <div className="filter-container">
-            <motion.select
-              id="filter-select"
-              className="filter-select"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              whileHover={{ y: -2 }}
-            >
-              <option value="all">All Events</option>
-              <option value="today">Today</option>
-              <option value="thisWeek">This Week</option>
-              <option value="featured">Featured</option>
-            </motion.select>
-          </div>
-        </div>
-
-        {/* Clubs & Events Grid */}
-        {loading ? (
-          <div className="loading-spinner">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="spinner"
-            />
-            <p>Loading events...</p>
-          </div>
-        ) : (
-          <div className="clubs-grid">
-            {filteredClubs.map((club) => {
-              const filteredEvents = filterEvents(club.events);
-              if (!filteredEvents.length && searchQuery) return null;
-
-              return (
-                <motion.div
-                  key={club.id}
-                  className="club-card"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="club-header">
-                    {club.image && (
-                      <motion.div
-                        className="club-image"
-                        style={{ backgroundImage: `url(${club.image})` }}
-                        whileHover={{ scale: 1.05 }}
-                      />
-                    )}
-                    <h2 className="club-name">{club.name}</h2>
-                    <p className="club-description">{club.description}</p>
-                  </div>
-
-                  {filteredEvents.length > 0 && (
-                    <div className="events-container">
-                      <h3 className="events-title">
-                        {selectedTab === "upcoming" ? "Upcoming" : "Live"} Events
-                      </h3>
-
-                      <div className="events-list">
-                        {filteredEvents.map((event) => (
-                          <motion.div
-                            key={event.id}
-                            className={`event-card ${event.status}`}
-                            style={{ backgroundImage: `url(${event.image})` }}
-                            whileHover={{ scale: 1.02 }}
-                          >
-                            <div className="event-overlay"></div>
-                            <div className="event-content">
-                              {event.status === "running" && (
-                                <motion.span
-                                  className="live-badge"
-                                  animate={{ scale: [1, 1.05, 1] }}
-                                  transition={{ repeat: Infinity, duration: 2 }}
-                                >
-                                  <span className="pulse"></span> LIVE NOW
-                                  <span className="live-time">
-                                    {formatLiveTime(event.startDate)}
-                                  </span>
-                                </motion.span>
-                              )}
-                              <h4 className="event-name">{event.name}</h4>
-                              <div className="event-meta">
-                                <span className="event-date">
-                                  <FiCalendar /> {formatDate(event.startDate)}
-                                </span>
-                                <span className="event-location">
-                                  <FiMapPin /> {event.location}
-                                </span>
-                              </div>
-                              <div className="event-stats">
-                                <span className="event-time">
-                                  <FiClock /> {formatTime(event.startDate)}
-                                </span>
-                                <span className="event-attendees">
-                                  <FiUsers /> {event.attendees || 0} going
-                                </span>
-                              </div>
-                              
-                              {/* Enrollment Button */}
-                              <motion.button
-                                className="enroll-button"
-                                onClick={() => handleEnrollClick(event.id)}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                <FiLogIn /> Enroll Now
-                              </motion.button>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
-
-        {!loading && filteredClubs.length === 0 && (
-          <motion.div
-            className="no-results-message"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <p>No clubs or events found matching your search.</p>
-            <motion.button
-              className="primary-button"
-              onClick={() => {
-                setSearchQuery("");
-                setFilter("all");
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Reset Filters
-            </motion.button>
-          </motion.div>
-        )}
-      </main>
 
       {/* Featured Clubs Section */}
       <section className="featured-section">
@@ -502,19 +331,19 @@ const Dashboard = () => {
         <div className="featured-clubs">
           {[
             {
-              icon: "📡",
+              icon: ntcLogo,
               name: "NTC",
               members: "5.7k",
               fullName: "Nepal Telecom Club",
             },
             {
-              icon: "🛰️",
+              icon: noskLogo,
               name: "NOSK",
               members: "3.2k",
               fullName: "Nepal Optical Society",
             },
             {
-              icon: "⚡",
+              icon: ieeeLogo,
               name: "IEEE",
               members: "8.1k",
               fullName: "Institute of Electrical and Electronics Engineers",
@@ -527,7 +356,7 @@ const Dashboard = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
+              whileHover={{ scale: 1.03 }}
             >
               <motion.div
                 className="club-icon"
@@ -541,19 +370,15 @@ const Dashboard = () => {
                   ease: "easeInOut",
                 }}
               >
-                {club.icon}
+                <img
+                src={club.icon}
+                alt={club.name}
+                className="club-icon-img"
+                />
               </motion.div>
               <h3 className="club-title">{club.name}</h3>
               <p className="club-fullname">{club.fullName}</p>
               <p className="club-members">{club.members} members</p>
-              <motion.div whileHover={{ scale: 1.05 }}>
-                <Link
-                  to={`/club/${club.name.toLowerCase()}`}
-                  className="join-button"
-                >
-                  Join Club
-                </Link>
-              </motion.div>
             </motion.div>
           ))}
         </div>
