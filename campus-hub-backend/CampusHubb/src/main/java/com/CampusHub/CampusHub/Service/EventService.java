@@ -92,15 +92,18 @@ public class EventService {
 
         return mapToEventResponse(updatedEvent);
     }
-    public EventResponse rejectEvent(Long eventId) {
+    public EventResponse rejectEvent(Long eventId, String rejectionMessage) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
-
-        // Only system admins can approve events (handled in controller)
         event.setStatus(EventStatus.REJECT);
+        event.setRejectionMessage(rejectionMessage);
         Event updatedEvent = eventRepository.save(event);
-
         return mapToEventResponse(updatedEvent);
+    }
+    public List<EventResponse> getRejectedEvents() {
+        return eventRepository.findByStatus(EventStatus.REJECT).stream()
+                .map(this::mapToEventResponse)
+                .collect(Collectors.toList());
     }
 
 
@@ -113,6 +116,7 @@ public class EventService {
         response.setTime(event.getTime());
         response.setLocation(event.getLocation());
         response.setStatus(event.getStatus());
+        response.setRejectionMessage(event.getRejectionMessage());
 
 
         return response;

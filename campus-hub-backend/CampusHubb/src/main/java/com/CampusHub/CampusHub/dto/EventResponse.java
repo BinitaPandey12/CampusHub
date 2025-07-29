@@ -15,6 +15,15 @@ public class EventResponse {
     private LocalTime time;
     private String location;
     private EventStatus status;
+    private String rejectionMessage;
+
+    public String getRejectionMessage() {
+        return rejectionMessage;
+    }
+
+    public void setRejectionMessage(String rejectionMessage) {
+        this.rejectionMessage = rejectionMessage;
+    }
 
     public EventStatus getStatus() {
         return status;

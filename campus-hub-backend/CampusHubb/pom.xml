@@ -41,6 +41,8 @@
 			<version>2.0.1</version>
 		</dependency>
 
+
+
 		<!-- Spring Boot Mail Auto-Configuration -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

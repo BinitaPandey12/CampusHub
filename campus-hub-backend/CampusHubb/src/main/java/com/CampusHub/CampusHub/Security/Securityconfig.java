@@ -34,13 +34,20 @@ public class Securityconfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,CustomAccessDeniedHandler accessDeniedHandler)throws Exception {
         http
+//                .cors(Customizer.withDefaults())
+//                .csrf(csrf -> csrf.disable())
+//                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+
+                        .requestMatchers(HttpMethod.GET,"/api/events/users/{id}").hasAuthority("SYSTEMADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/events/club-admins/{id}").hasAuthority("SYSTEMADMIN")
                         .requestMatchers("/api/auth/**").permitAll() //for public access without any authentication.
                         .requestMatchers("/api/events/approved").hasAnyAuthority("CLUBADMIN","USER")
                         .requestMatchers(HttpMethod.GET,"/api/events/pending").hasAnyAuthority("SYSTEMADMIN","CLUBADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/auth/current-user").hasAuthority("USER")
                         .requestMatchers("/api/events").hasAuthority("CLUBADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/events/users").hasAnyAuthority("CLUBADMIN","SYSTEMADMIN","USER")
                         .requestMatchers("/api/enrollments/register").hasAnyAuthority("USER","CLUBADMIN")

@@ -1,3 +1,4 @@
+
 package com.CampusHub.CampusHub.Controller;
 
 
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -51,14 +53,45 @@ public class UserController {
     // UserController.java
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
 
-        // Return just the username (typically email)
+        Object principal = authentication.getPrincipal();
+        String username;
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            username = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+
         Map<String, Object> response = new HashMap<>();
-        response.put("username", userDetails.getUsername());
+        response.put("username", username);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<?> getCurrentfullName(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Unauthorized");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        }
+
+        Object principal = authentication.getPrincipal();
+        String Username;
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+            Username = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+        } else {
+            Username = principal.toString();
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", Username);
 
         return ResponseEntity.ok(response);
     }
@@ -124,7 +157,7 @@ public class UserController {
         }
 
     }
-    @CrossOrigin(origins = "http://localhost:5176")
+    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping("/verify-email")
     public ResponseEntity<String>  verifyEmail(@RequestParam("token") String token) {
         String decodedToken = URLDecoder.decode(token, StandardCharsets.UTF_8);
@@ -149,6 +182,4 @@ public class UserController {
         headers.setLocation(redirectUri);
         return ResponseEntity.status(302).headers(headers).build();
     }
-    }
-
-
+}

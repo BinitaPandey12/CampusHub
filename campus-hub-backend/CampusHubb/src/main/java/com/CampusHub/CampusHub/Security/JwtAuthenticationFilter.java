@@ -36,11 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {  //every req
             ServletException, IOException{
         String path = request.getRequestURI();
 
-        // ✅ Skip JWT check for public endpoints
-        if (path.startsWith("/api/auth/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+//        // ✅ Skip JWT check for public endpoints
+//        if (path.startsWith("/api/auth/")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
 
         final String authHeader=request.getHeader("Authorization");
         final String jwt;
