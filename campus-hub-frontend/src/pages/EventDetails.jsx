@@ -38,10 +38,10 @@ function EventDetails() {
         );
 
         // Fetch enrollments
-        const enrollmentsRes = await axios.get(
-          `http://localhost:8080/api/enrollments/event/${eventId}/enrollments`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        // const enrollmentsRes = await axios.get(
+        //   `http://localhost:8080/api/enrollments/event/${eventId}/enrollments`,
+        //   { headers: { Authorization: `Bearer ${token}` } }
+        // );
 
         setEvent(eventRes.data);
         setEnrollments(enrollmentsRes.data);

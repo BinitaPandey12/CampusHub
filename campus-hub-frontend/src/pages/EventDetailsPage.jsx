@@ -39,9 +39,9 @@ const EventDetailsPage = () => {
           axios.get(`http://localhost:8080/api/events/${eventId}`, {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          userId && axios.get(`http://localhost:8080/api/enrollments/check?eventId=${eventId}&userId=${userId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
+          // userId && axios.get(`http://localhost:8080/api/enrollments/check?eventId=${eventId}&userId=${userId}`, {
+          //   headers: { Authorization: `Bearer ${token}` }
+          // })
         ]);
 
         setEvent(eventResponse.data);

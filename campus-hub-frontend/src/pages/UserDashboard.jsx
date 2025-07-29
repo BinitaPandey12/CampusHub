@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./UserDashboard.css";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 const decodeToken = (token) => {
   try {
@@ -59,115 +60,127 @@ function calculateTimeRemaining(dateStr, timeStr) {
 
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem("email") || "";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState("User");
+  const [username, setUsername] = useState("User");
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Get email from localStorage and extract username
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    if (email) {
+      // Extract username from email (part before @)
+      // const extractedUsername = email.split('')[0];
+
+      setUsername(extractedUsername || "User");
+    }
+  }, []);
 
   const getFirstName = () => {
-    const fullName = localStorage.getItem("username") || "User";
-    return fullName.split(" ")[0];
+    return username;
   };
 
   const firstName = getFirstName();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("username");
     localStorage.removeItem("email");
     navigate("/login");
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token || !userEmail) {
-          navigate("/login");
-          return;
-        }
-
-        const [eventsResponse, enrollmentsResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/events/approved", {
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-            }
-          }),
-          fetch(`http://localhost:8080/api/enrollments/user/${userEmail}`, {
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-            }
-          })
-        ]);
-
-        if (!eventsResponse.ok) {
-          throw new Error(`Failed to load events: ${eventsResponse.status}`);
-        }
-
-        const eventsData = await eventsResponse.json();
-        let enrolledEventsData = [];
-
-        if (enrollmentsResponse.ok) {
-          enrolledEventsData = await enrollmentsResponse.json();
-        }
-
-        const now = new Date();
-        const processedEvents = eventsData
-          .map(event => ({
-            id: event.id,
-            title: event.title,
-            club: event.club?.name || "Unknown Club",
-            date: event.date,
-            time: event.time,
-            description: event.description || "No description available",
-            location: event.location || "Location not specified",
-            isEnrolled: enrolledEventsData.some(enrollment => enrollment.eventId === event.id),
-            formattedDate: formatEventDateTime(event.date, event.time),
-            timeRemaining: calculateTimeRemaining(event.date, event.time)
-          }))
-          .filter(event => {
-            try {
-              const cleanTime = event.time.includes('.') ? event.time.split('.')[0] : event.time;
-              const eventTime = new Date(event.date + "T" + cleanTime);
-              return !isNaN(eventTime.getTime()) && eventTime > now;
-            } catch (e) {
-              console.error("Error processing event:", e);
-              return false;
-            }
-          })
-          .sort((a, b) => {
-            try {
-              const timeA = new Date(a.date + "T" + (a.time.includes('.') ? a.time.split('.')[0] : a.time));
-              const timeB = new Date(b.date + "T" + (b.time.includes('.') ? b.time.split('.')[0] : b.time));
-              return timeA - timeB;
-            } catch (e) {
-              return 0;
-            }
-          });
-
-        setUpcomingEvents(processedEvents);
-        setFilteredEvents(processedEvents); // Initialize filtered events with all events
-      } catch (err) {
-        setError(err.message);
-        console.error("Error fetching data:", err);
-      } finally {
-        setLoading(false);
+  const fetchEventsAndEnrollments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const token = localStorage.getItem("token");
+      const email = localStorage.getItem("email");
+      
+      if (!token || !email) {
+        navigate("/login");
+        return;
       }
-    };
 
-    fetchData();
-  }, [navigate, userEmail]);
+      const [eventsResponse, enrollmentsResponse] = await Promise.all([
+        axios.get("http://localhost:8080/api/events/approved", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        }),
+        axios.get(`http://localhost:8080/api/enrollments/user/${email}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        })
+      ]);
+
+      const eventsData = eventsResponse.data;
+      const enrolledEventsData = enrollmentsResponse.data;
+
+      const now = new Date();
+      const processedEvents = eventsData
+        .map(event => ({
+          id: event.id,
+          title: event.title,
+          club: event.club?.name || "Unknown Club",
+          date: event.date,
+          time: event.time,
+          description: event.description || "No description available",
+          location: event.location || "Location not specified",
+          isEnrolled: Array.isArray(enrolledEventsData) 
+            ? enrolledEventsData.some(enrollment => enrollment.eventId === event.id)
+            : enrolledEventsData.eventId === event.id,
+          formattedDate: formatEventDateTime(event.date, event.time),
+          timeRemaining: calculateTimeRemaining(event.date, event.time)
+        }))
+        .filter(event => {
+          try {
+            const cleanTime = event.time.includes('.') ? event.time.split('.')[0] : event.time;
+            const eventTime = new Date(event.date + "T" + cleanTime);
+            return !isNaN(eventTime.getTime()) && eventTime > now;
+          } catch (e) {
+            console.error("Error processing event:", e);
+            return false;
+          }
+        })
+        .sort((a, b) => {
+          try {
+            const timeA = new Date(a.date + "T" + (a.time.includes('.') ? a.time.split('.')[0] : a.time));
+            const timeB = new Date(b.date + "T" + (b.time.includes('.') ? b.time.split('.')[0] : b.time));
+            return timeA - timeB;
+          } catch (e) {
+            return 0;
+          }
+        });
+
+      setUpcomingEvents(processedEvents);
+      setFilteredEvents(processedEvents);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      console.error("Error fetching data:", err);
+      
+      if (err.response?.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Filter events based on search query
+    fetchEventsAndEnrollments();
+  }, [navigate, refreshKey]);
+
+  useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredEvents(upcomingEvents);
     } else {
@@ -203,9 +216,20 @@ const UserDashboard = () => {
     navigate(`/event/${eventId}`);
   };
 
-  const handleEnrollClick = (eventId, e) => {
+  const handleEnrollClick = async (eventId, e) => {
     e.stopPropagation();
-    navigate(`/enroll/${eventId}`);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      navigate(`/enroll/${eventId}`);
+    } catch (err) {
+      console.error("Enroll click error:", err);
+      alert(err.response?.data?.message || err.message || "Failed to start enrollment");
+    }
   };
 
   const handleSearchChange = (e) => {
@@ -214,6 +238,10 @@ const UserDashboard = () => {
 
   const handleSearchClear = () => {
     setSearchQuery("");
+  };
+
+  const refreshEvents = () => {
+    setRefreshKey(prev => prev + 1);
   };
 
   const renderCountdown = (date, time) => {
@@ -284,7 +312,6 @@ const UserDashboard = () => {
 
             {dropdownOpen && (
               <div className="user-dashboard__dropdown">
-                
                 <button
                   className="user-dashboard__dropdown-item user-dashboard__dropdown-item--logout"
                   onClick={handleLogout}
@@ -317,7 +344,7 @@ const UserDashboard = () => {
                 Error loading events: {error}
                 <button
                   className="user-dashboard__retry-btn"
-                  onClick={() => window.location.reload()}
+                  onClick={fetchEventsAndEnrollments}
                 >
                   Retry
                 </button>
@@ -363,12 +390,22 @@ const UserDashboard = () => {
                     >
                       View Details
                     </button>
-                    {!event.isEnrolled && (
+                    {!event.isEnrolled ? (
                       <button
                         className="user-dashboard__enroll-btn"
                         onClick={(e) => handleEnrollClick(event.id, e)}
                       >
                         Enroll Now
+                      </button>
+                    ) : (
+                      <button
+                        className="user-dashboard__view-enrollment-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/myevents");
+                        }}
+                      >
+                        View Enrollment
                       </button>
                     )}
                   </div>

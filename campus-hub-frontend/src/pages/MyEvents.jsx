@@ -40,10 +40,7 @@ const MyEvents = () => {
         }
       );
 
-      console.log("API Response:", response.data); // Debug log
-
       if (response.status === 200) {
-        // Handle both array and single enrollment responses
         const enrollmentsData = Array.isArray(response.data) 
           ? response.data 
           : [response.data];
@@ -55,7 +52,6 @@ const MyEvents = () => {
           return;
         }
 
-        // Format enrollment date
         const formattedEnrollments = enrollmentsData.map(enrollment => {
           let formattedEnrollmentDate = "Date not available";
           try {
@@ -119,12 +115,46 @@ const MyEvents = () => {
     }
   };
 
+  const handleUnenroll = async (enrollmentId, eventId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const confirmUnenroll = window.confirm("Are you sure you want to unenroll from this event?");
+      if (!confirmUnenroll) return;
+
+      const response = await axios.delete(
+        `http://localhost:8080/api/enrollments/${enrollmentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Successfully unenrolled from the event");
+        // Refresh both enrollments list and dashboard
+        fetchEnrollments();
+        // You might want to trigger a refresh in the parent component
+        // This could be done through a callback or state management
+      } else {
+        throw new Error(`Unexpected status code: ${response.status}`);
+      }
+    } catch (err) {
+      console.error("Unenroll error:", err);
+      alert(err.response?.data?.message || err.message || "Failed to unenroll");
+    }
+  };
+
   useEffect(() => {
     fetchEnrollments();
   }, [email, navigate]);
 
   useEffect(() => {
-    // Filter enrollments based on search query
     if (searchQuery.trim() === "") {
       setFilteredEnrollments(enrollments);
     } else {
@@ -239,7 +269,6 @@ const MyEvents = () => {
 
             {dropdownOpen && (
               <div className="my-events__dropdown">
-               
                 <button
                   className="my-events__dropdown-item my-events__dropdown-item--logout"
                   onClick={handleLogout}
@@ -301,6 +330,23 @@ const MyEvents = () => {
                         <span>{enrollment.formattedEnrollmentDate}</span>
                       </div>
                     </div>
+                    {(enrollment.status === "APPROVED" || enrollment.status === "APPLIED") && (
+                      <div className="my-events__card-actions">
+                        <button
+                          className="my-events__unenroll-btn"
+                          onClick={() => handleUnenroll(enrollment.id, enrollment.eventId)}
+                          disabled={loading}
+                        >
+                          Unenroll
+                        </button>
+                        <button
+                          className="my-events__view-event-btn"
+                          onClick={() => navigate(`/event/${enrollment.eventId}`)}
+                        >
+                          View Event
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
