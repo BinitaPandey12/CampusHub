@@ -11,7 +11,6 @@ import EventDetailsPage from "./pages/EventDetailsPage";
 import FormFill from "./pages/FormFill";
 import MyEvents from "./pages/MyEvents";
 import ChatbotHelp from "./pages/ChatbotHelp";
-import ExploreEvents from "./pages/ExploreEvents";
 import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
@@ -28,7 +27,6 @@ function App() {
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/event/:eventId" element={<EventDetailsPage />} />{" "}
-          <Route path="/explore-events" element={<ExploreEvents />} />
           <Route path="/myevents" element={<MyEvents />} />
           <Route path="/enroll/:eventId" element={<FormFill />} />
           <Route path="/chatbot" element={<ChatbotHelp />} />
