@@ -1,11 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./ChatbotHelp.css";
 
 const ChatbotHelp = () => {
-  const userName = "User";
+  const navigate = useNavigate();
+  const email = localStorage.getItem("email");
+  const [userName, setUserName] = useState("User");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef();
+
+  // Format username from email
+  useEffect(() => {
+    if (email) {
+      const usernamePart = email.split('@')[0];
+      const nameBeforeDot = usernamePart.split('.')[0];
+      const formattedName = nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+      setUserName(formattedName || "User");
+    }
+  }, [email]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -21,8 +33,7 @@ const ChatbotHelp = () => {
     // Load Dialogflow script only once
     if (!window.dfMessengerScriptLoaded) {
       const script = document.createElement("script");
-      script.src =
-        "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
+      script.src = "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
       script.async = true;
       document.body.appendChild(script);
       window.dfMessengerScriptLoaded = true;
@@ -35,39 +46,35 @@ const ChatbotHelp = () => {
     }
 
     function addMessenger() {
-      const container = document.getElementById(
-        "dialogflow-messenger-container"
-      );
+      const container = document.getElementById("dialogflow-messenger-container");
       if (!container) return;
 
-      // Prevent adding messenger multiple times
       if (!container.querySelector("df-messenger")) {
         const messenger = document.createElement("df-messenger");
         messenger.setAttribute("chat-title", "CampusBot");
-        messenger.setAttribute(
-          "agent-id",
-          "0861736d-dbac-4fad-aa93-b0ab54ccf2d6"
-        );
+        messenger.setAttribute("agent-id", "0861736d-dbac-4fad-aa93-b0ab54ccf2d6");
         messenger.setAttribute("language-code", "en");
         messenger.setAttribute(
           "chat-icon",
           "https://cdn3d.iconscout.com/3d/premium/thumb/robot-say-hi-3d-icon-download-in-png-blend-fbx-gltf-file-formats--saying-hello-device-brain-activity-pack-science-technology-icons-7746773.png?f=webp"
         );
-        messenger.setAttribute("intent","Welcome");
+        messenger.setAttribute("intent", "Welcome");
 
-
-        // Remove floating styles to embed inline
         messenger.style.position = "relative";
         messenger.style.marginTop = "70px";
         messenger.style.width = "100%";
-        messenger.style.height = "600px"; // Adjust height as needed
+        messenger.style.height = "600px";
 
         container.appendChild(messenger);
       }
     }
-
-    // Do NOT remove the script or messenger on unmount
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    navigate("/login");
+  };
 
   return (
     <div className="chatbot-help">
@@ -97,26 +104,24 @@ const ChatbotHelp = () => {
 
       <div className="chatbot-help__main">
         <header className="chatbot-help__header">
-         
-
           <div className="chatbot-help__profile" ref={dropdownRef}>
             <span className="chatbot-help__welcome">Welcome, {userName}</span>
             <button
               className="chatbot-help__profile-btn"
               onClick={() => setDropdownOpen(!dropdownOpen)}
+              aria-label="User profile menu"
             >
               👤
             </button>
 
             {dropdownOpen && (
               <div className="chatbot-help__dropdown">
-               
-                <Link
-                  to="/"
+                <button
                   className="chatbot-help__dropdown-item chatbot-help__dropdown-item--logout"
+                  onClick={handleLogout}
                 >
                   Logout
-                </Link>
+                </button>
               </div>
             )}
           </div>

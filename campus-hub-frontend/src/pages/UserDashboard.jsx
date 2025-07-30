@@ -76,9 +76,15 @@ const UserDashboard = () => {
     const email = localStorage.getItem("email");
     if (email) {
       // Extract username from email (part before @)
-      // const extractedUsername = email.split('')[0];
-
-      setUsername(extractedUsername || "User");
+      const usernamePart = email.split('@')[0];
+      
+      // Remove everything after the dot (including the dot)
+      const nameBeforeDot = usernamePart.split('.')[0];
+      
+      // Capitalize first letter
+      const formattedName = nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+      
+      setUsername(formattedName || "User");
     }
   }, []);
 

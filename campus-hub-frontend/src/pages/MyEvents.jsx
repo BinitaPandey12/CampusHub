@@ -6,7 +6,7 @@ import "./MyEvents.css";
 const MyEvents = () => {
   const navigate = useNavigate();
   const email = localStorage.getItem("email");
-  const userName = localStorage.getItem("username") || "User";
+  const [userName, setUserName] = useState("User");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [enrollments, setEnrollments] = useState([]);
   const [filteredEnrollments, setFilteredEnrollments] = useState([]);
@@ -14,6 +14,16 @@ const MyEvents = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef();
+
+  // Format username from email
+  useEffect(() => {
+    if (email) {
+      const usernamePart = email.split('@')[0];
+      const nameBeforeDot = usernamePart.split('.')[0];
+      const formattedName = nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+      setUserName(formattedName || "User");
+    }
+  }, [email]);
 
   const fetchEnrollments = async () => {
     try {
@@ -137,10 +147,7 @@ const MyEvents = () => {
 
       if (response.status === 200) {
         alert("Successfully unenrolled from the event");
-        // Refresh both enrollments list and dashboard
         fetchEnrollments();
-        // You might want to trigger a refresh in the parent component
-        // This could be done through a callback or state management
       } else {
         throw new Error(`Unexpected status code: ${response.status}`);
       }
@@ -179,7 +186,6 @@ const MyEvents = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("email");
-    localStorage.removeItem("username");
     navigate("/login");
   };
 

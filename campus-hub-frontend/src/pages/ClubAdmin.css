@@ -435,3 +435,53 @@
     display: none;
   }
 }
+.ca-badge.ca-rejected {
+  background-color: #ff4444;
+}
+
+.ca-rejected-card {
+  border-left: 4px solid #ff4444;
+}
+
+.ca-event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.ca-event-author {
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.ca-event-details {
+  margin-top: 12px;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+}
+
+.ca-detail-row {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.ca-detail-label {
+  font-weight: 600;
+  min-width: 120px;
+  color: #555;
+}
+
+.ca-detail-value {
+  flex: 1;
+}
+
+.ca-rejection-reason {
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+  display: inline-block;
+}

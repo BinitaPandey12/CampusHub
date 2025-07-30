@@ -6,17 +6,22 @@ import {
   FiPlusCircle, 
   FiClock, 
   FiCheckCircle,
+  FiXCircle,
   FiLogOut,
   FiRefreshCw,
 } from "react-icons/fi";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import TimePicker from 'react-time-picker';
+import 'react-time-picker/dist/TimePicker.css';
+import 'react-clock/dist/Clock.css';
 
 const ClubAdmin = () => {
   // State management
   const [users, setUsers] = useState([]);
   const [pendingEvents, setPendingEvents] = useState([]);
   const [approvedEvents, setApprovedEvents] = useState([]);
+  const [rejectedEvents, setRejectedEvents] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showEventForm, setShowEventForm] = useState(false);
@@ -39,7 +44,7 @@ const ClubAdmin = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [usersResponse, pendingResponse, approvedResponse] = await Promise.all([
+      const [usersResponse, pendingResponse, approvedResponse, rejectedResponse] = await Promise.all([
         axios.get("http://localhost:8080/api/events/users", {
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -48,12 +53,16 @@ const ClubAdmin = () => {
         }),
         axios.get("http://localhost:8080/api/events/approved", {
           headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get("http://localhost:8080/api/events/rejected", {
+          headers: { Authorization: `Bearer ${token}` },
         })
       ]);
 
       setUsers(usersResponse.data);
       setPendingEvents(pendingResponse.data);
       setApprovedEvents(approvedResponse.data);
+      setRejectedEvents(rejectedResponse.data);
 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -103,6 +112,38 @@ const ClubAdmin = () => {
     navigate("/login");
   };
 
+  // Format time to AM/PM for display
+  const formatTimeToAMPM = (time24) => {
+    if (!time24) return "";
+    
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  const handleTimeChange = (time) => {
+    if (!time) {
+      setNewEvent({...newEvent, time: ""});
+      return;
+    }
+
+    // Convert to 24-hour format string
+    const timeString = time.toString();
+    const [hours, minutes] = timeString.split(':');
+    const hourNumber = parseInt(hours, 10);
+
+    // Check for invalid time (10 PM to 6 AM)
+    if (hourNumber >= 22 || hourNumber < 6) {
+      toast.error("Events cannot be scheduled between 10 PM and 6 AM");
+      return;
+    }
+
+    setNewEvent({...newEvent, time: timeString});
+  };
+
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -127,6 +168,16 @@ const ClubAdmin = () => {
       }
       if (!newEvent.location?.trim()) {
         toast.error("Event location is required");
+        return;
+      }
+
+      // Time validation
+      const [hours] = newEvent.time.split(':');
+      const hourNumber = parseInt(hours, 10);
+      
+      // Time restriction check (10 PM to 6 AM)
+      if (hourNumber >= 22 || hourNumber < 6) {
+        toast.error("Events cannot be scheduled between 10 PM and 6 AM");
         return;
       }
 
@@ -277,17 +328,21 @@ const ClubAdmin = () => {
                       <label htmlFor="event-date">Date *</label>
                     </div>
           
-                    <div className="ca-form-group ca-floating">
-                      <input
-                        type="time"
+                    <div className="ca-form-group">
+                      <label htmlFor="event-time">Time * (6:00 AM - 9:59 PM only)</label>
+                      <TimePicker
                         id="event-time"
+                        onChange={handleTimeChange}
                         value={newEvent.time}
-                        onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                        disableClock={true}
+                        clearIcon={null}
+                        format="h:mm a"
                         required
                         disabled={isSubmitting}
-                        className="ca-input"
+                        className="ca-time-picker"
+                        hourPlaceholder="hh"
+                        minutePlaceholder="mm"
                       />
-                      <label htmlFor="event-time">Time *</label>
                     </div>
                   </div>
           
@@ -333,6 +388,7 @@ const ClubAdmin = () => {
           </section>
         )}
 
+        {/* Pending Events Section */}
         <section className="ca-section">
           <div className="ca-section-header">
             <FiClock className="ca-section-icon" />
@@ -350,7 +406,7 @@ const ClubAdmin = () => {
                   </p>
                   <div className="ca-event-meta">
                     <span>{event.date ? new Date(event.date).toLocaleDateString() : 'No date'}</span>
-                    <span>{event.time || 'No time'}</span>
+                    <span>{event.time ? formatTimeToAMPM(event.time) : 'No time'}</span>
                     <span>{event.location || 'No location'}</span>
                   </div>
                 </article>
@@ -361,6 +417,7 @@ const ClubAdmin = () => {
           )}
         </section>
 
+        {/* Approved Events Section */}
         <section className="ca-section">
           <div className="ca-section-header">
             <FiCheckCircle className="ca-section-icon" />
@@ -380,7 +437,7 @@ const ClubAdmin = () => {
                     </p>
                     <div className="ca-event-meta">
                       <span>{eventDate}</span>
-                      <span>{event.time || "Time not set"}</span>
+                      <span>{event.time ? formatTimeToAMPM(event.time) : "Time not set"}</span>
                       <span>{event.location || "Location not specified"}</span>
                     </div>
                     <Link 
@@ -395,6 +452,56 @@ const ClubAdmin = () => {
             </div>
           ) : (
             <p className="ca-empty-state">No events have been approved yet.</p>
+          )}
+        </section>
+
+        {/* Rejected Events Section */}
+        <section className="ca-section">
+          <div className="ca-section-header">
+            <FiXCircle className="ca-section-icon" />
+            <h2 className="ca-section-title">Rejected Events</h2>
+            <span className="ca-badge ca-rejected">{rejectedEvents.length}</span>
+          </div>
+          
+          {rejectedEvents.length > 0 ? (
+            <div className="ca-events-grid">
+              {rejectedEvents.map(event => {
+                const eventDate = event.date ? new Date(event.date).toLocaleDateString() : "Date not set";
+                return (
+                  <article key={`rejected-${event.id}`} className="ca-event-card ca-rejected-card">
+                    <div className="ca-event-header">
+                      <h3 className="ca-event-title">{event.title || "Untitled Event"}</h3>
+                      <p className="ca-event-author">By: {event.createdBy?.name || "Club Admin"}</p>
+                    </div>
+                    <p className="ca-event-description">
+                      {(event.description || "No description provided").substring(0, 100)}...
+                    </p>
+                    <div className="ca-event-details">
+                      <div className="ca-detail-row">
+                        <span className="ca-detail-label">Date:</span>
+                        <span className="ca-detail-value">{eventDate}</span>
+                      </div>
+                      <div className="ca-detail-row">
+                        <span className="ca-detail-label">Time:</span>
+                        <span className="ca-detail-value">{event.time ? formatTimeToAMPM(event.time) : "Time not set"}</span>
+                      </div>
+                      <div className="ca-detail-row">
+                        <span className="ca-detail-label">Location:</span>
+                        <span className="ca-detail-value">{event.location || "Location not specified"}</span>
+                      </div>
+                      <div className="ca-detail-row">
+                        <span className="ca-detail-label">Rejection Reason:</span>
+                        <span className="ca-detail-value ca-rejection-reason">
+                          {event.rejectionReason || "No reason provided"}
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="ca-empty-state">No events have been rejected.</p>
           )}
         </section>
       </main>
