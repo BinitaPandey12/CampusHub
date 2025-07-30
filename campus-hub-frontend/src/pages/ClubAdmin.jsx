@@ -12,9 +12,6 @@ import {
 } from "react-icons/fi";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import TimePicker from 'react-time-picker';
-import 'react-time-picker/dist/TimePicker.css';
-import 'react-clock/dist/Clock.css';
 
 const ClubAdmin = () => {
   // State management
@@ -77,11 +74,11 @@ const ClubAdmin = () => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchData();
-    } else {
-      navigate("/login");
-    }
+    // if (token) {
+    //   fetchData();
+    // } else {
+    //   navigate("/login");
+    // }
   }, [token, navigate]);
 
   // Scroll effect
@@ -112,36 +109,15 @@ const ClubAdmin = () => {
     navigate("/login");
   };
 
-  // Format time to AM/PM for display
-  const formatTimeToAMPM = (time24) => {
-    if (!time24) return "";
+  // Validate time is between 6 AM and 10 PM
+  const validateTime = (time) => {
+    if (!time) return false;
     
-    const [hours, minutes] = time24.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour % 12 || 12;
+    const [hours, minutes] = time.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes;
     
-    return `${hour12}:${minutes} ${ampm}`;
-  };
-
-  const handleTimeChange = (time) => {
-    if (!time) {
-      setNewEvent({...newEvent, time: ""});
-      return;
-    }
-
-    // Convert to 24-hour format string
-    const timeString = time.toString();
-    const [hours, minutes] = timeString.split(':');
-    const hourNumber = parseInt(hours, 10);
-
-    // Check for invalid time (10 PM to 6 AM)
-    if (hourNumber >= 22 || hourNumber < 6) {
-      toast.error("Events cannot be scheduled between 10 PM and 6 AM");
-      return;
-    }
-
-    setNewEvent({...newEvent, time: timeString});
+    // 6 AM = 360 minutes, 10 PM = 1320 minutes
+    return totalMinutes >= 360 && totalMinutes <= 1320;
   };
 
   const handleCreateEvent = async (e) => {
@@ -171,13 +147,9 @@ const ClubAdmin = () => {
         return;
       }
 
-      // Time validation
-      const [hours] = newEvent.time.split(':');
-      const hourNumber = parseInt(hours, 10);
-      
-      // Time restriction check (10 PM to 6 AM)
-      if (hourNumber >= 22 || hourNumber < 6) {
-        toast.error("Events cannot be scheduled between 10 PM and 6 AM");
+      // Time validation (6 AM to 10 PM)
+      if (!validateTime(newEvent.time)) {
+        toast.error("Event time must be between 6 AM and 10 PM");
         return;
       }
 
@@ -328,21 +300,18 @@ const ClubAdmin = () => {
                       <label htmlFor="event-date">Date *</label>
                     </div>
           
-                    <div className="ca-form-group">
-                      <label htmlFor="event-time">Time * (6:00 AM - 9:59 PM only)</label>
-                      <TimePicker
+                    <div className="ca-form-group ca-floating">
+                      <input
+                        type="time"
                         id="event-time"
-                        onChange={handleTimeChange}
                         value={newEvent.time}
-                        disableClock={true}
-                        clearIcon={null}
-                        format="h:mm a"
+                        onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                        placeholder=" "
                         required
                         disabled={isSubmitting}
-                        className="ca-time-picker"
-                        hourPlaceholder="hh"
-                        minutePlaceholder="mm"
+                        className="ca-input"
                       />
+                      <label htmlFor="event-time">Time * (6 AM - 10 PM)</label>
                     </div>
                   </div>
           
@@ -406,7 +375,7 @@ const ClubAdmin = () => {
                   </p>
                   <div className="ca-event-meta">
                     <span>{event.date ? new Date(event.date).toLocaleDateString() : 'No date'}</span>
-                    <span>{event.time ? formatTimeToAMPM(event.time) : 'No time'}</span>
+                    <span>{event.time || 'No time'}</span>
                     <span>{event.location || 'No location'}</span>
                   </div>
                 </article>
@@ -437,7 +406,7 @@ const ClubAdmin = () => {
                     </p>
                     <div className="ca-event-meta">
                       <span>{eventDate}</span>
-                      <span>{event.time ? formatTimeToAMPM(event.time) : "Time not set"}</span>
+                      <span>{event.time || "Time not set"}</span>
                       <span>{event.location || "Location not specified"}</span>
                     </div>
                     <Link 
@@ -483,7 +452,7 @@ const ClubAdmin = () => {
                       </div>
                       <div className="ca-detail-row">
                         <span className="ca-detail-label">Time:</span>
-                        <span className="ca-detail-value">{event.time ? formatTimeToAMPM(event.time) : "Time not set"}</span>
+                        <span className="ca-detail-value">{event.time || "Time not set"}</span>
                       </div>
                       <div className="ca-detail-row">
                         <span className="ca-detail-label">Location:</span>

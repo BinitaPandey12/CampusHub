@@ -247,7 +247,7 @@ const Dashboard = () => {
           </Link>
 
           <nav className="main-nav">
-            <div className="search-container">
+            {/* <div className="search-container">
               <motion.input
                 type="text"
                 placeholder="🔍 Search clubs, events..."
@@ -256,7 +256,7 @@ const Dashboard = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 whileFocus={{ boxShadow: "0 0 0 2px var(--primary)" }}
               />
-            </div>
+            </div> */}
 
             <div className="nav-links">
               <motion.div whileHover={{ y: -2 }}>
