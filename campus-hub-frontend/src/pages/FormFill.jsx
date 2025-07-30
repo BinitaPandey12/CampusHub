@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import "./FormFill.css";
+import "../Styles/FormFill.css";
 
 const FormFill = () => {
   const { eventId } = useParams();
@@ -12,7 +12,7 @@ const FormFill = () => {
     department: "",
     contactNo: "",
     semester: "",
-    eventId: eventId || ""
+    eventId: eventId || "",
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,7 +24,7 @@ const FormFill = () => {
     "Electrical Engineering",
     "Mechanical Engineering",
     "Civil Engineering",
-    "Chemical Engineering"
+    "Chemical Engineering",
   ];
 
   // Enhanced validation function
@@ -32,10 +32,12 @@ const FormFill = () => {
     const errors = [];
     if (!form.fullName.trim()) errors.push("Full Name is required");
     if (!form.email.trim()) errors.push("Email is required");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.push("Invalid email format");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      errors.push("Invalid email format");
     if (!form.department) errors.push("Department is required");
     if (!form.contactNo) errors.push("Phone Number is required");
-    if (!/^\d{10}$/.test(form.contactNo)) errors.push("Phone must be 10 digits");
+    if (!/^\d{10}$/.test(form.contactNo))
+      errors.push("Phone must be 10 digits");
     if (!form.semester) errors.push("Semester is required");
     return errors;
   };
@@ -44,30 +46,37 @@ const FormFill = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
-  
+
     // Construct the complete API URL
-    const API_URL = `${window.location.origin.replace(/:\d+$/, ':8080')}/api/enrollments/register`;
-    
+    const API_URL = `${window.location.origin.replace(
+      /:\d+$/,
+      ":8080"
+    )}/api/enrollments/register`;
+
     try {
       console.log("Attempting to call:", API_URL); // Debugging
-      
-      const response = await axios.post(API_URL, {
-        fullName: form.fullName.trim(),
-        email: form.email.trim(),
-        department: form.department,
-        contactNo: form.contactNo,
-        semester: form.semester,
-        eventId: form.eventId
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+
+      const response = await axios.post(
+        API_URL,
+        {
+          fullName: form.fullName.trim(),
+          email: form.email.trim(),
+          department: form.department,
+          contactNo: form.contactNo,
+          semester: form.semester,
+          eventId: form.eventId,
         },
-        timeout: 10000
-      });
-  
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          timeout: 10000,
+        }
+      );
+
       console.log("API Response:", response); // Debugging
-  
+
       if (response.status === 201) {
         setSuccess("Enrollment successful!");
         setTimeout(() => navigate("/myevents"), 2000);
@@ -79,9 +88,9 @@ const FormFill = () => {
         message: err.message,
         response: err.response?.data,
         status: err.response?.status,
-        config: err.config
+        config: err.config,
       });
-  
+
       if (err.response) {
         switch (err.response.status) {
           case 400:
@@ -97,7 +106,7 @@ const FormFill = () => {
           default:
             setError(`Server error: ${err.response.status}`);
         }
-      } else if (err.code === 'ECONNABORTED') {
+      } else if (err.code === "ECONNABORTED") {
         setError("Request timeout - server is not responding");
       } else if (err.request) {
         setError("Network error - server is unreachable");
@@ -111,9 +120,9 @@ const FormFill = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -125,13 +134,13 @@ const FormFill = () => {
           {eventId && <p className="event-id-text">Event ID: {eventId}</p>}
           <p>Please fill out all required fields</p>
         </div>
-        
+
         {error && (
           <div className="error-message">
             <svg className="error-icon" viewBox="0 0 20 20">
-              <path d="M10,0C4.5,0,0,4.5,0,10s4.5,10,10,10s10-4.5,10-10S15.5,0,10,0z M10,18c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8S14.4,18,10,18z"/>
-              <path d="M10,5c-0.6,0-1,0.4-1,1v5c0,0.6,0.4,1,1,1s1-0.4,1-1V6C11,5.4,10.6,5,10,5z"/>
-              <path d="M10,14c0.6,0,1-0.4,1-1s-0.4-1-1-1s-1,0.4-1,1S9.4,14,10,14z"/>
+              <path d="M10,0C4.5,0,0,4.5,0,10s4.5,10,10,10s10-4.5,10-10S15.5,0,10,0z M10,18c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8S14.4,18,10,18z" />
+              <path d="M10,5c-0.6,0-1,0.4-1,1v5c0,0.6,0.4,1,1,1s1-0.4,1-1V6C11,5.4,10.6,5,10,5z" />
+              <path d="M10,14c0.6,0,1-0.4,1-1s-0.4-1-1-1s-1,0.4-1,1S9.4,14,10,14z" />
             </svg>
             {error}
             <button onClick={() => setError("")} className="dismiss-btn">
@@ -143,7 +152,7 @@ const FormFill = () => {
         {success && (
           <div className="success-message">
             <svg className="success-icon" viewBox="0 0 20 20">
-              <path d="M7.629,14.566c0.125,0.125,0.291,0.188,0.456,0.188c0.164,0,0.329-0.062,0.456-0.188l8.219-8.221c0.252-0.252,0.252-0.659,0-0.911c-0.252-0.252-0.659-0.252-0.911,0l-7.764,7.763L4.152,9.267c-0.252-0.251-0.66-0.251-0.911,0c-0.252,0.252-0.252,0.66,0,0.911L7.629,14.566z"/>
+              <path d="M7.629,14.566c0.125,0.125,0.291,0.188,0.456,0.188c0.164,0,0.329-0.062,0.456-0.188l8.219-8.221c0.252-0.252,0.252-0.659,0-0.911c-0.252-0.252-0.659-0.252-0.911,0l-7.764,7.763L4.152,9.267c-0.252-0.251-0.66-0.251-0.911,0c-0.252,0.252-0.252,0.66,0,0.911L7.629,14.566z" />
             </svg>
             Enrollment submitted successfully! Redirecting...
           </div>
@@ -167,20 +176,20 @@ const FormFill = () => {
           </div>
 
           <div className="form-group">
-          <label htmlFor="email">
-  Email <span className="required">*</span>
-</label>
-<input
-  id="email"
-  name="email"
-  type="email"
-  value={form.email}
-  onChange={handleChange}
-  placeholder="Enter your email"
-  autoComplete="email"
-  disabled={isSubmitting}
-  readOnly
-/>
+            <label htmlFor="email">
+              Email <span className="required">*</span>
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              autoComplete="email"
+              disabled={isSubmitting}
+              readOnly
+            />
           </div>
 
           <div className="form-group">
@@ -195,8 +204,10 @@ const FormFill = () => {
               disabled={isSubmitting}
             >
               <option value="">Select your department</option>
-              {departments.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
               ))}
             </select>
           </div>
@@ -230,23 +241,25 @@ const FormFill = () => {
               disabled={isSubmitting}
             >
               <option value="">Select semester</option>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                <option key={num} value={num}>Semester {num}</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                <option key={num} value={num}>
+                  Semester {num}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="form-actions">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="cancel-btn"
               onClick={() => navigate(-1)}
               disabled={isSubmitting}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="submit-btn"
               disabled={isSubmitting}
             >

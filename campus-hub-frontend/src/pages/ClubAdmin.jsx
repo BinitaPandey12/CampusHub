@@ -1,17 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./ClubAdmin.css";
+import "../Styles/ClubAdmin.css";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { 
-  FiPlusCircle, 
-  FiClock, 
+import {
+  FiPlusCircle,
+  FiClock,
   FiCheckCircle,
   FiXCircle,
   FiLogOut,
   FiRefreshCw,
 } from "react-icons/fi";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ClubAdmin = () => {
   // State management
@@ -27,7 +27,7 @@ const ClubAdmin = () => {
     description: "",
     date: "",
     time: "",
-    location: ""
+    location: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +41,12 @@ const ClubAdmin = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [usersResponse, pendingResponse, approvedResponse, rejectedResponse] = await Promise.all([
+      const [
+        usersResponse,
+        pendingResponse,
+        approvedResponse,
+        rejectedResponse,
+      ] = await Promise.all([
         axios.get("http://localhost:8080/api/events/users", {
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -53,14 +58,13 @@ const ClubAdmin = () => {
         }),
         axios.get("http://localhost:8080/api/events/rejected", {
           headers: { Authorization: `Bearer ${token}` },
-        })
+        }),
       ]);
 
       setUsers(usersResponse.data);
       setPendingEvents(pendingResponse.data);
       setApprovedEvents(approvedResponse.data);
       setRejectedEvents(rejectedResponse.data);
-
     } catch (error) {
       console.error("Error fetching data:", error);
       if (error.response?.status === 401) {
@@ -86,8 +90,8 @@ const ClubAdmin = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Click outside dropdown
@@ -97,25 +101,25 @@ const ClubAdmin = () => {
         setDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleRefresh = () => fetchData();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem("email");
     navigate("/login");
   };
 
   // Validate time is between 6 AM and 10 PM
   const validateTime = (time) => {
     if (!time) return false;
-    
-    const [hours, minutes] = time.split(':').map(Number);
+
+    const [hours, minutes] = time.split(":").map(Number);
     const totalMinutes = hours * 60 + minutes;
-    
+
     // 6 AM = 360 minutes, 10 PM = 1320 minutes
     return totalMinutes >= 360 && totalMinutes <= 1320;
   };
@@ -123,7 +127,7 @@ const ClubAdmin = () => {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       // Validation
       if (!newEvent.title?.trim()) {
@@ -169,30 +173,29 @@ const ClubAdmin = () => {
           date: newEvent.date,
           time: newEvent.time,
           location: newEvent.location.trim(),
-          status: "PENDING"
+          status: "PENDING",
         },
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-      
+
       // Update state
-      setPendingEvents(prev => [response.data, ...prev]);
-      
+      setPendingEvents((prev) => [response.data, ...prev]);
+
       // Reset form
       setNewEvent({
         title: "",
         description: "",
         date: "",
         time: "",
-        location: ""
+        location: "",
       });
       setShowEventForm(false);
       toast.success("Event created successfully!");
-      
     } catch (error) {
       console.error("Error creating event:", error);
       toast.error(error.response?.data?.message || "Failed to create event");
@@ -234,7 +237,7 @@ const ClubAdmin = () => {
         </section>
 
         <div className="ca-actions">
-          <button 
+          <button
             className="ca-action-btn ca-primary"
             onClick={() => setShowEventForm(!showEventForm)}
             disabled={isSubmitting}
@@ -242,7 +245,7 @@ const ClubAdmin = () => {
             <FiPlusCircle className="ca-action-icon" />
             {showEventForm ? "Cancel" : "Add New Event"}
           </button>
-          <button 
+          <button
             className="ca-action-btn"
             onClick={handleRefresh}
             disabled={isLoading}
@@ -263,7 +266,9 @@ const ClubAdmin = () => {
                       type="text"
                       id="event-title"
                       value={newEvent.title}
-                      onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+                      onChange={(e) =>
+                        setNewEvent({ ...newEvent, title: e.target.value })
+                      }
                       placeholder=" "
                       required
                       disabled={isSubmitting}
@@ -271,12 +276,17 @@ const ClubAdmin = () => {
                     />
                     <label htmlFor="event-title">Event Title *</label>
                   </div>
-          
+
                   <div className="ca-form-group ca-floating">
                     <textarea
                       id="event-description"
                       value={newEvent.description}
-                      onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
+                      onChange={(e) =>
+                        setNewEvent({
+                          ...newEvent,
+                          description: e.target.value,
+                        })
+                      }
                       placeholder=" "
                       required
                       disabled={isSubmitting}
@@ -284,28 +294,32 @@ const ClubAdmin = () => {
                     />
                     <label htmlFor="event-description">Description *</label>
                   </div>
-          
+
                   <div className="ca-form-row">
                     <div className="ca-form-group ca-floating">
                       <input
                         type="date"
                         id="event-date"
                         value={newEvent.date}
-                        onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
-                        min={new Date().toISOString().split('T')[0]}
+                        onChange={(e) =>
+                          setNewEvent({ ...newEvent, date: e.target.value })
+                        }
+                        min={new Date().toISOString().split("T")[0]}
                         required
                         disabled={isSubmitting}
                         className="ca-input"
                       />
                       <label htmlFor="event-date">Date *</label>
                     </div>
-          
+
                     <div className="ca-form-group ca-floating">
                       <input
                         type="time"
                         id="event-time"
                         value={newEvent.time}
-                        onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
+                        onChange={(e) =>
+                          setNewEvent({ ...newEvent, time: e.target.value })
+                        }
                         placeholder=" "
                         required
                         disabled={isSubmitting}
@@ -314,13 +328,15 @@ const ClubAdmin = () => {
                       <label htmlFor="event-time">Time * (6 AM - 10 PM)</label>
                     </div>
                   </div>
-          
+
                   <div className="ca-form-group ca-floating">
                     <input
                       type="text"
                       id="event-location"
                       value={newEvent.location}
-                      onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
+                      onChange={(e) =>
+                        setNewEvent({ ...newEvent, location: e.target.value })
+                      }
                       placeholder=" "
                       required
                       disabled={isSubmitting}
@@ -329,9 +345,9 @@ const ClubAdmin = () => {
                     <label htmlFor="event-location">Room No *</label>
                   </div>
                 </div>
-          
+
                 <div className="ca-form-actions">
-                  <button 
+                  <button
                     type="button"
                     className="ca-btn ca-secondary"
                     onClick={() => setShowEventForm(false)}
@@ -339,7 +355,7 @@ const ClubAdmin = () => {
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     className="ca-btn ca-primary"
                     disabled={isSubmitting}
@@ -349,7 +365,9 @@ const ClubAdmin = () => {
                         <span className="ca-spinner"></span>
                         Creating...
                       </>
-                    ) : "Create Event"}
+                    ) : (
+                      "Create Event"
+                    )}
                   </button>
                 </div>
               </form>
@@ -364,25 +382,31 @@ const ClubAdmin = () => {
             <h2 className="ca-section-title">Pending Approval</h2>
             <span className="ca-badge">{pendingEvents.length}</span>
           </div>
-          
+
           {pendingEvents.length > 0 ? (
             <div className="ca-events-grid">
-              {pendingEvents.map(event => (
+              {pendingEvents.map((event) => (
                 <article key={`pending-${event.id}`} className="ca-event-card">
                   <h3 className="ca-event-title">{event.title}</h3>
                   <p className="ca-event-description">
                     {event.description?.substring(0, 100)}...
                   </p>
                   <div className="ca-event-meta">
-                    <span>{event.date ? new Date(event.date).toLocaleDateString() : 'No date'}</span>
-                    <span>{event.time || 'No time'}</span>
-                    <span>{event.location || 'No location'}</span>
+                    <span>
+                      {event.date
+                        ? new Date(event.date).toLocaleDateString()
+                        : "No date"}
+                    </span>
+                    <span>{event.time || "No time"}</span>
+                    <span>{event.location || "No location"}</span>
                   </div>
                 </article>
               ))}
             </div>
           ) : (
-            <p className="ca-empty-state">No pending events awaiting approval.</p>
+            <p className="ca-empty-state">
+              No pending events awaiting approval.
+            </p>
           )}
         </section>
 
@@ -391,28 +415,37 @@ const ClubAdmin = () => {
           <div className="ca-section-header">
             <FiCheckCircle className="ca-section-icon" />
             <h2 className="ca-section-title">Approved Events</h2>
-            <span className="ca-badge ca-approved">{approvedEvents.length}</span>
+            <span className="ca-badge ca-approved">
+              {approvedEvents.length}
+            </span>
           </div>
-          
+
           {approvedEvents.length > 0 ? (
             <div className="ca-events-grid">
-              {approvedEvents.map(event => {
-                const eventDate = event.date ? new Date(event.date).toLocaleDateString() : "Date not set";
+              {approvedEvents.map((event) => {
+                const eventDate = event.date
+                  ? new Date(event.date).toLocaleDateString()
+                  : "Date not set";
                 return (
-                  <article key={`approved-${event.id}`} className="ca-event-card">
-                    <h3 className="ca-event-title">{event.title || "Untitled Event"}</h3>
+                  <article
+                    key={`approved-${event.id}`}
+                    className="ca-event-card"
+                  >
+                    <h3 className="ca-event-title">
+                      {event.title || "Untitled Event"}
+                    </h3>
                     <p className="ca-event-description">
-                      {(event.description || "No description provided").substring(0, 100)}...
+                      {(
+                        event.description || "No description provided"
+                      ).substring(0, 100)}
+                      ...
                     </p>
                     <div className="ca-event-meta">
                       <span>{eventDate}</span>
                       <span>{event.time || "Time not set"}</span>
                       <span>{event.location || "Location not specified"}</span>
                     </div>
-                    <Link 
-                      to={`/events/${event.id}`}
-                      className="ca-view-btn"
-                    >
+                    <Link to={`/events/${event.id}`} className="ca-view-btn">
                       View Details
                     </Link>
                   </article>
@@ -429,21 +462,35 @@ const ClubAdmin = () => {
           <div className="ca-section-header">
             <FiXCircle className="ca-section-icon" />
             <h2 className="ca-section-title">Rejected Events</h2>
-            <span className="ca-badge ca-rejected">{rejectedEvents.length}</span>
+            <span className="ca-badge ca-rejected">
+              {rejectedEvents.length}
+            </span>
           </div>
-          
+
           {rejectedEvents.length > 0 ? (
             <div className="ca-events-grid">
-              {rejectedEvents.map(event => {
-                const eventDate = event.date ? new Date(event.date).toLocaleDateString() : "Date not set";
+              {rejectedEvents.map((event) => {
+                const eventDate = event.date
+                  ? new Date(event.date).toLocaleDateString()
+                  : "Date not set";
                 return (
-                  <article key={`rejected-${event.id}`} className="ca-event-card ca-rejected-card">
+                  <article
+                    key={`rejected-${event.id}`}
+                    className="ca-event-card ca-rejected-card"
+                  >
                     <div className="ca-event-header">
-                      <h3 className="ca-event-title">{event.title || "Untitled Event"}</h3>
-                      <p className="ca-event-author">By: {event.createdBy?.name || "Club Admin"}</p>
+                      <h3 className="ca-event-title">
+                        {event.title || "Untitled Event"}
+                      </h3>
+                      <p className="ca-event-author">
+                        By: {event.createdBy?.name || "Club Admin"}
+                      </p>
                     </div>
                     <p className="ca-event-description">
-                      {(event.description || "No description provided").substring(0, 100)}...
+                      {(
+                        event.description || "No description provided"
+                      ).substring(0, 100)}
+                      ...
                     </p>
                     <div className="ca-event-details">
                       <div className="ca-detail-row">
@@ -452,14 +499,20 @@ const ClubAdmin = () => {
                       </div>
                       <div className="ca-detail-row">
                         <span className="ca-detail-label">Time:</span>
-                        <span className="ca-detail-value">{event.time || "Time not set"}</span>
+                        <span className="ca-detail-value">
+                          {event.time || "Time not set"}
+                        </span>
                       </div>
                       <div className="ca-detail-row">
                         <span className="ca-detail-label">Location:</span>
-                        <span className="ca-detail-value">{event.location || "Location not specified"}</span>
+                        <span className="ca-detail-value">
+                          {event.location || "Location not specified"}
+                        </span>
                       </div>
                       <div className="ca-detail-row">
-                        <span className="ca-detail-label">Rejection Reason:</span>
+                        <span className="ca-detail-label">
+                          Rejection Reason:
+                        </span>
                         <span className="ca-detail-value ca-rejection-reason">
                           {event.rejectionReason || "No reason provided"}
                         </span>

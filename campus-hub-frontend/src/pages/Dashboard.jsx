@@ -10,7 +10,7 @@ import {
   FiLogIn,
 } from "react-icons/fi";
 import axios from "axios";
-import "./Dashboard.css";
+import "../Styles/Dashboard.css";
 import ntcLogo from "../assets/ntc-logo.jpg";
 import noskLogo from "../assets/nosk-logo.jpg";
 import ieeeLogo from "../assets/ieee-logo.jpg";
@@ -297,7 +297,7 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6, ease: "easeOut" }}
           >
-            <button 
+            <button
               className="btn-primary"
               onClick={handleExploreEvents}
               whileHover={{ scale: 1.05 }}

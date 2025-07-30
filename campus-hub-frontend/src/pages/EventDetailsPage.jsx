@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import './EventDetailsPage.css';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "../Styles/EventDetailsPage.css";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   FiArrowLeft,
   FiCalendar,
@@ -11,8 +11,8 @@ import {
   FiMapPin,
   FiUsers,
   FiTag,
-  FiInfo
-} from 'react-icons/fi';
+  FiInfo,
+} from "react-icons/fi";
 
 const EventDetailsPage = () => {
   const { eventId } = useParams();
@@ -22,13 +22,13 @@ const EventDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [isEnrolled, setIsEnrolled] = useState(false);
 
-  const token = localStorage.getItem('token');
-  const userId = localStorage.getItem('userId');
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchEventDetails = async () => {
       if (!token) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
@@ -37,7 +37,7 @@ const EventDetailsPage = () => {
 
         const [eventResponse, enrollmentResponse] = await Promise.all([
           axios.get(`http://localhost:8080/api/events/${eventId}`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }),
           // userId && axios.get(`http://localhost:8080/api/enrollments/check?eventId=${eventId}&userId=${userId}`, {
           //   headers: { Authorization: `Bearer ${token}` }
@@ -52,7 +52,7 @@ const EventDetailsPage = () => {
         console.error("Error fetching event:", err);
         toast.error(err.response?.data?.message || "Failed to load event");
         if (err.response?.status === 401) {
-          navigate('/login');
+          navigate("/login");
         }
       } finally {
         setLoading(false);
@@ -65,11 +65,11 @@ const EventDetailsPage = () => {
   const handleEnroll = async () => {
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/enrollments',
+        "http://localhost:8080/api/enrollments",
         { eventId, userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       setIsEnrolled(true);
       toast.success("Successfully enrolled in the event!");
     } catch (err) {
@@ -79,15 +79,17 @@ const EventDetailsPage = () => {
   };
 
   const formatDateTime = (dateStr, timeStr) => {
-    if (!dateStr) return 'Date not specified';
-    const dateTime = new Date(`${dateStr}T${timeStr?.split('.')[0] || '00:00'}`);
-    return dateTime.toLocaleString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    if (!dateStr) return "Date not specified";
+    const dateTime = new Date(
+      `${dateStr}T${timeStr?.split(".")[0] || "00:00"}`
+    );
+    return dateTime.toLocaleString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -123,7 +125,9 @@ const EventDetailsPage = () => {
         <div className="event-title-wrapper">
           <h1 className="event-title">{event.title}</h1>
           <div className="event-meta">
-            <span className="event-category">{event.category || 'General'}</span>
+            <span className="event-category">
+              {event.category || "General"}
+            </span>
             {/* <span className="event-host">Hosted by {event.club?.name || 'Campus Hub'}</span> */}
           </div>
         </div>
@@ -147,7 +151,9 @@ const EventDetailsPage = () => {
               <FiInfo className="section-icon" />
               <h3>About This Event</h3>
             </div>
-            <p className="event-description">{event.description || 'No description available.'}</p>
+            <p className="event-description">
+              {event.description || "No description available."}
+            </p>
           </div>
 
           <div className="detail-section">
@@ -160,28 +166,36 @@ const EventDetailsPage = () => {
                 <FiCalendar className="detail-icon" />
                 <div>
                   <span className="detail-label">Date & Time</span>
-                  <span className="detail-value">{formatDateTime(event.date, event.time)}</span>
+                  <span className="detail-value">
+                    {formatDateTime(event.date, event.time)}
+                  </span>
                 </div>
               </div>
               <div className="detail-item">
                 <FiMapPin className="detail-icon" />
                 <div>
                   <span className="detail-label">Location</span>
-                  <span className="detail-value">{event.location || 'Not specified'}</span>
+                  <span className="detail-value">
+                    {event.location || "Not specified"}
+                  </span>
                 </div>
               </div>
               <div className="detail-item">
                 <FiUsers className="detail-icon" />
                 <div>
                   <span className="detail-label">Capacity</span>
-                  <span className="detail-value">{event.capacity || 'Unlimited'} spots</span>
+                  <span className="detail-value">
+                    {event.capacity || "Unlimited"} spots
+                  </span>
                 </div>
               </div>
               <div className="detail-item">
                 <FiTag className="detail-icon" />
                 <div>
                   <span className="detail-label">Category</span>
-                  <span className="detail-value">{event.category || 'General'}</span>
+                  <span className="detail-value">
+                    {event.category || "General"}
+                  </span>
                 </div>
               </div>
             </div>

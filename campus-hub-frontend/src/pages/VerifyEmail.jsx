@@ -30,32 +30,3 @@ function VerifyEmail() {
 }
 
 export default VerifyEmail;
-
-
-//     if (!token) {
-//       setMessage("Invalid verification link.");
-//       return;
-//     }
-
-//     axios
-//       .get(`http://localhost:8080/api/auth/verify-email?token=${token}`)
-//       .then(() => {
-//         setMessage("Email verified! Redirecting to login...");
-//         setTimeout(() => {
-//           navigate("/login?verified=true");
-//         }, 2000);
-//       })
-//       .catch((err) => {
-//         console.error("Verification error:", err);
-//         setMessage("Verification failed. Invalid or expired token.");
-//       });
-//   }, [navigate]);
-
-//   return (
-//     <div className="verify-container">
-//       <h2>{message}</h2>
-//     </div>
-//   );
-// }
-
-// export default VerifyEmail;

@@ -5,7 +5,7 @@ import * as jwtDecode from "jwt-decode";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-import "./Login.css";
+import "../Styles/Login.css";
 // import jwtDecode from "jwt-decode";
 
 function decodeJwt(token) {

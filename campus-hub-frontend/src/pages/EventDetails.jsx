@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./EventDetails.css";
+import "../Styles/EventDetails.css";
 import {
   FiCalendar,
   FiMapPin,
@@ -10,10 +10,10 @@ import {
   FiBook,
   FiPhone,
   FiClock,
-  FiArrowLeft
+  FiArrowLeft,
 } from "react-icons/fi";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function EventDetails() {
   const { eventId } = useParams();
@@ -22,7 +22,7 @@ function EventDetails() {
   const [event, setEvent] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useState("table");
 
   const token = localStorage.getItem("token");
 
@@ -30,7 +30,7 @@ function EventDetails() {
     const fetchEventData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch event details
         const eventRes = await axios.get(
           `http://localhost:8080/api/events/${eventId}`,
@@ -48,7 +48,9 @@ function EventDetails() {
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch data", err);
-        toast.error(err.response?.data?.message || "Failed to load event details");
+        toast.error(
+          err.response?.data?.message || "Failed to load event details"
+        );
         setLoading(false);
         if (err.response?.status === 401) {
           navigate("/login");
@@ -66,22 +68,22 @@ function EventDetails() {
   const formatDate = (dateString) => {
     if (!dateString) return "Not specified";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) return "Not specified";
     const date = new Date(dateTimeString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -115,7 +117,9 @@ function EventDetails() {
         <div className="clubevent-header">
           <div className="clubevent-meta">
             <span className="clubevent-id">Event ID: {event.id}</span>
-            <span className={`clubevent-status clubevent-status-${event.status.toLowerCase()}`}>
+            <span
+              className={`clubevent-status clubevent-status-${event.status.toLowerCase()}`}
+            >
               {event.status}
             </span>
           </div>
@@ -137,15 +141,15 @@ function EventDetails() {
                 <p>{formatDate(event.date)}</p>
               </div>
             </div>
-            
+
             <div className="clubevent-detail-item">
               <FiClock className="clubevent-detail-icon" />
               <div>
                 <h4>Time</h4>
-                <p>{event.time || 'Not specified'}</p>
+                <p>{event.time || "Not specified"}</p>
               </div>
             </div>
-            
+
             <div className="clubevent-detail-item">
               <FiMapPin className="clubevent-detail-icon" />
               <div>
@@ -162,23 +166,27 @@ function EventDetails() {
               Registered Users ({enrollments.length})
             </h3>
             <div className="clubevent-view-toggle">
-              <button 
-                className={`clubevent-toggle-btn ${viewMode === 'table' ? 'clubevent-active' : ''}`}
-                onClick={() => setViewMode('table')}
+              <button
+                className={`clubevent-toggle-btn ${
+                  viewMode === "table" ? "clubevent-active" : ""
+                }`}
+                onClick={() => setViewMode("table")}
               >
                 Table View
               </button>
-              <button 
-                className={`clubevent-toggle-btn ${viewMode === 'cards' ? 'clubevent-active' : ''}`}
-                onClick={() => setViewMode('cards')}
+              <button
+                className={`clubevent-toggle-btn ${
+                  viewMode === "cards" ? "clubevent-active" : ""
+                }`}
+                onClick={() => setViewMode("cards")}
               >
                 Card View
               </button>
             </div>
           </div>
-          
+
           {enrollments.length > 0 ? (
-            viewMode === 'table' ? (
+            viewMode === "table" ? (
               <div className="clubevent-table-container">
                 <table className="clubevent-enrollments-table">
                   <thead>
@@ -223,7 +231,7 @@ function EventDetails() {
                       <FiUser className="clubevent-enrollment-icon" />
                       <h4>{enrollment.fullName}</h4>
                     </div>
-                    
+
                     <div className="clubevent-enrollment-details">
                       <div className="clubevent-enrollment-detail">
                         <FiMail className="clubevent-detail-icon" />
@@ -242,7 +250,10 @@ function EventDetails() {
                       </div>
                       <div className="clubevent-enrollment-detail">
                         <FiClock className="clubevent-detail-icon" />
-                        <span>Registered on: {formatDateTime(enrollment.enrollmentDate)}</span>
+                        <span>
+                          Registered on:{" "}
+                          {formatDateTime(enrollment.enrollmentDate)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -250,7 +261,9 @@ function EventDetails() {
               </div>
             )
           ) : (
-            <p className="clubevent-empty-state">No users have registered for this event yet</p>
+            <p className="clubevent-empty-state">
+              No users have registered for this event yet
+            </p>
           )}
         </div>
       </div>

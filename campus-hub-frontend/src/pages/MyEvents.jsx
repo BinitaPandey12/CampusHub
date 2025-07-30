@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./MyEvents.css";
+import "../Styles/MyEvents.css";
 
 const MyEvents = () => {
   const navigate = useNavigate();
@@ -18,9 +18,10 @@ const MyEvents = () => {
   // Format username from email
   useEffect(() => {
     if (email) {
-      const usernamePart = email.split('@')[0];
-      const nameBeforeDot = usernamePart.split('.')[0];
-      const formattedName = nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+      const usernamePart = email.split("@")[0];
+      const nameBeforeDot = usernamePart.split(".")[0];
+      const formattedName =
+        nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
       setUserName(formattedName || "User");
     }
   }, [email]);
@@ -29,7 +30,7 @@ const MyEvents = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const token = localStorage.getItem("token");
       if (!token) {
         navigate("/login");
@@ -46,13 +47,13 @@ const MyEvents = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          timeout: 10000
+          timeout: 10000,
         }
       );
 
       if (response.status === 200) {
-        const enrollmentsData = Array.isArray(response.data) 
-          ? response.data 
+        const enrollmentsData = Array.isArray(response.data)
+          ? response.data
           : [response.data];
 
         if (enrollmentsData.length === 0) {
@@ -62,19 +63,22 @@ const MyEvents = () => {
           return;
         }
 
-        const formattedEnrollments = enrollmentsData.map(enrollment => {
+        const formattedEnrollments = enrollmentsData.map((enrollment) => {
           let formattedEnrollmentDate = "Date not available";
           try {
             if (enrollment.enrollmentDate) {
               const dateObj = new Date(enrollment.enrollmentDate);
               if (!isNaN(dateObj.getTime())) {
-                formattedEnrollmentDate = dateObj.toLocaleDateString(undefined, { 
-                  year: "numeric", 
-                  month: "long", 
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit"
-                });
+                formattedEnrollmentDate = dateObj.toLocaleDateString(
+                  undefined,
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }
+                );
               }
             }
           } catch (e) {
@@ -93,7 +97,8 @@ const MyEvents = () => {
             status: enrollment.status || "Status unknown",
             enrollmentDate: enrollment.enrollmentDate,
             formattedEnrollmentDate,
-            searchableText: `${enrollment.eventTitle} ${enrollment.status} ${formattedEnrollmentDate}`.toLowerCase()
+            searchableText:
+              `${enrollment.eventTitle} ${enrollment.status} ${formattedEnrollmentDate}`.toLowerCase(),
           };
         });
 
@@ -106,9 +111,9 @@ const MyEvents = () => {
       console.error("Fetch error:", {
         message: err.message,
         response: err.response?.data,
-        status: err.response?.status
+        status: err.response?.status,
       });
-      
+
       if (err.response?.status === 401) {
         setError("Session expired. Please login again.");
         localStorage.removeItem("token");
@@ -118,7 +123,11 @@ const MyEvents = () => {
         setEnrollments([]);
         setFilteredEnrollments([]);
       } else {
-        setError(err.response?.data?.message || err.message || "Failed to load enrollments");
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to load enrollments"
+        );
       }
     } finally {
       setLoading(false);
@@ -133,7 +142,9 @@ const MyEvents = () => {
         return;
       }
 
-      const confirmUnenroll = window.confirm("Are you sure you want to unenroll from this event?");
+      const confirmUnenroll = window.confirm(
+        "Are you sure you want to unenroll from this event?"
+      );
       if (!confirmUnenroll) return;
 
       const response = await axios.delete(
@@ -166,7 +177,7 @@ const MyEvents = () => {
       setFilteredEnrollments(enrollments);
     } else {
       const query = searchQuery.toLowerCase();
-      const filtered = enrollments.filter(enrollment => 
+      const filtered = enrollments.filter((enrollment) =>
         enrollment.searchableText.includes(query)
       );
       setFilteredEnrollments(filtered);
@@ -251,7 +262,7 @@ const MyEvents = () => {
               disabled={loading}
             />
             {searchQuery && (
-              <button 
+              <button
                 className="my-events__search-clear"
                 onClick={handleSearchClear}
                 aria-label="Clear search"
@@ -291,7 +302,8 @@ const MyEvents = () => {
             My Enrollments
             {searchQuery && filteredEnrollments.length > 0 && (
               <span className="my-events__search-results-count">
-                {filteredEnrollments.length} {filteredEnrollments.length === 1 ? 'match' : 'matches'} found
+                {filteredEnrollments.length}{" "}
+                {filteredEnrollments.length === 1 ? "match" : "matches"} found
               </span>
             )}
           </h1>
@@ -305,7 +317,7 @@ const MyEvents = () => {
             <div className="my-events__error">
               <div className="error-header">
                 <svg className="error-icon" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                 </svg>
                 <h3>Error Loading Enrollments</h3>
               </div>
@@ -323,31 +335,44 @@ const MyEvents = () => {
               {filteredEnrollments.map((enrollment) => (
                 <div key={enrollment.id} className="my-events__card">
                   <div className="my-events__card-header">
-                    <h3 className="my-events__event-title">{enrollment.eventTitle}</h3>
-                    <span className={`status-badge ${getStatusBadgeClass(enrollment.status)}`}>
+                    <h3 className="my-events__event-title">
+                      {enrollment.eventTitle}
+                    </h3>
+                    <span
+                      className={`status-badge ${getStatusBadgeClass(
+                        enrollment.status
+                      )}`}
+                    >
                       {enrollment.status}
                     </span>
                   </div>
-                  
+
                   <div className="my-events__card-content">
                     <div className="my-events__enrollment-details">
                       <div className="my-events__detail-row">
-                        <span className="my-events__detail-label">Enrollment Date: </span>
+                        <span className="my-events__detail-label">
+                          Enrollment Date:{" "}
+                        </span>
                         <span>{enrollment.formattedEnrollmentDate}</span>
                       </div>
                     </div>
-                    {(enrollment.status === "APPROVED" || enrollment.status === "APPLIED") && (
+                    {(enrollment.status === "APPROVED" ||
+                      enrollment.status === "APPLIED") && (
                       <div className="my-events__card-actions">
                         <button
                           className="my-events__unenroll-btn"
-                          onClick={() => handleUnenroll(enrollment.id, enrollment.eventId)}
+                          onClick={() =>
+                            handleUnenroll(enrollment.id, enrollment.eventId)
+                          }
                           disabled={loading}
                         >
                           Unenroll
                         </button>
                         <button
                           className="my-events__view-event-btn"
-                          onClick={() => navigate(`/event/${enrollment.eventId}`)}
+                          onClick={() =>
+                            navigate(`/event/${enrollment.eventId}`)
+                          }
                         >
                           View Event
                         </button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./UserDashboard.css";
+import "../Styles/UserDashboard.css";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
@@ -15,20 +15,20 @@ const decodeToken = (token) => {
 
 function formatEventDateTime(dateStr, timeStr) {
   try {
-    const cleanTime = timeStr.includes('.') ? timeStr.split('.')[0] : timeStr;
+    const cleanTime = timeStr.includes(".") ? timeStr.split(".")[0] : timeStr;
     const dateTime = new Date(dateStr + "T" + cleanTime);
-    
+
     if (isNaN(dateTime.getTime())) {
       return "Invalid date/time";
     }
 
-    return dateTime.toLocaleString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+    return dateTime.toLocaleString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   } catch (error) {
     console.error("Error formatting date:", error);
@@ -38,7 +38,7 @@ function formatEventDateTime(dateStr, timeStr) {
 
 function calculateTimeRemaining(dateStr, timeStr) {
   try {
-    const cleanTime = timeStr.includes('.') ? timeStr.split('.')[0] : timeStr;
+    const cleanTime = timeStr.includes(".") ? timeStr.split(".")[0] : timeStr;
     const eventTime = new Date(dateStr + "T" + cleanTime);
     const now = new Date();
 
@@ -76,14 +76,15 @@ const UserDashboard = () => {
     const email = localStorage.getItem("email");
     if (email) {
       // Extract username from email (part before @)
-      const usernamePart = email.split('@')[0];
-      
+      const usernamePart = email.split("@")[0];
+
       // Remove everything after the dot (including the dot)
-      const nameBeforeDot = usernamePart.split('.')[0];
-      
+      const nameBeforeDot = usernamePart.split(".")[0];
+
       // Capitalize first letter
-      const formattedName = nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
-      
+      const formattedName =
+        nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+
       setUsername(formattedName || "User");
     }
   }, []);
@@ -104,10 +105,10 @@ const UserDashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("email");
-      
+
       if (!token || !email) {
         navigate("/login");
         return;
@@ -116,16 +117,16 @@ const UserDashboard = () => {
       const [eventsResponse, enrollmentsResponse] = await Promise.all([
         axios.get("http://localhost:8080/api/events/approved", {
           headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }),
         axios.get(`http://localhost:8080/api/enrollments/user/${email}`, {
           headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        })
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }),
       ]);
 
       const eventsData = eventsResponse.data;
@@ -133,7 +134,7 @@ const UserDashboard = () => {
 
       const now = new Date();
       const processedEvents = eventsData
-        .map(event => ({
+        .map((event) => ({
           id: event.id,
           title: event.title,
           club: event.club?.name || "Unknown Club",
@@ -141,15 +142,19 @@ const UserDashboard = () => {
           time: event.time,
           description: event.description || "No description available",
           location: event.location || "Location not specified",
-          isEnrolled: Array.isArray(enrolledEventsData) 
-            ? enrolledEventsData.some(enrollment => enrollment.eventId === event.id)
+          isEnrolled: Array.isArray(enrolledEventsData)
+            ? enrolledEventsData.some(
+                (enrollment) => enrollment.eventId === event.id
+              )
             : enrolledEventsData.eventId === event.id,
           formattedDate: formatEventDateTime(event.date, event.time),
-          timeRemaining: calculateTimeRemaining(event.date, event.time)
+          timeRemaining: calculateTimeRemaining(event.date, event.time),
         }))
-        .filter(event => {
+        .filter((event) => {
           try {
-            const cleanTime = event.time.includes('.') ? event.time.split('.')[0] : event.time;
+            const cleanTime = event.time.includes(".")
+              ? event.time.split(".")[0]
+              : event.time;
             const eventTime = new Date(event.date + "T" + cleanTime);
             return !isNaN(eventTime.getTime()) && eventTime > now;
           } catch (e) {
@@ -159,8 +164,16 @@ const UserDashboard = () => {
         })
         .sort((a, b) => {
           try {
-            const timeA = new Date(a.date + "T" + (a.time.includes('.') ? a.time.split('.')[0] : a.time));
-            const timeB = new Date(b.date + "T" + (b.time.includes('.') ? b.time.split('.')[0] : b.time));
+            const timeA = new Date(
+              a.date +
+                "T" +
+                (a.time.includes(".") ? a.time.split(".")[0] : a.time)
+            );
+            const timeB = new Date(
+              b.date +
+                "T" +
+                (b.time.includes(".") ? b.time.split(".")[0] : b.time)
+            );
             return timeA - timeB;
           } catch (e) {
             return 0;
@@ -172,7 +185,7 @@ const UserDashboard = () => {
     } catch (err) {
       setError(err.response?.data?.message || err.message);
       console.error("Error fetching data:", err);
-      
+
       if (err.response?.status === 401) {
         localStorage.removeItem("token");
         navigate("/login");
@@ -191,11 +204,12 @@ const UserDashboard = () => {
       setFilteredEvents(upcomingEvents);
     } else {
       const query = searchQuery.toLowerCase();
-      const filtered = upcomingEvents.filter(event => 
-        event.title.toLowerCase().includes(query) ||
-        event.club.toLowerCase().includes(query) ||
-        event.description.toLowerCase().includes(query) ||
-        event.location.toLowerCase().includes(query)
+      const filtered = upcomingEvents.filter(
+        (event) =>
+          event.title.toLowerCase().includes(query) ||
+          event.club.toLowerCase().includes(query) ||
+          event.description.toLowerCase().includes(query) ||
+          event.location.toLowerCase().includes(query)
       );
       setFilteredEvents(filtered);
     }
@@ -234,7 +248,11 @@ const UserDashboard = () => {
       navigate(`/enroll/${eventId}`);
     } catch (err) {
       console.error("Enroll click error:", err);
-      alert(err.response?.data?.message || err.message || "Failed to start enrollment");
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to start enrollment"
+      );
     }
   };
 
@@ -247,19 +265,31 @@ const UserDashboard = () => {
   };
 
   const refreshEvents = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   const renderCountdown = (date, time) => {
-    const { days, hours, minutes, isPast, error } = calculateTimeRemaining(date, time);
-    
+    const { days, hours, minutes, isPast, error } = calculateTimeRemaining(
+      date,
+      time
+    );
+
     if (error) return <span className="event-countdown error">⏰ {error}</span>;
-    if (isPast) return <span className="event-countdown now">🎉 Happening now!</span>;
-    
+    if (isPast)
+      return <span className="event-countdown now">🎉 Happening now!</span>;
+
     if (days > 0) {
-      return <span className="event-countdown">⏰ {days}d {hours}h {minutes}m remaining</span>;
+      return (
+        <span className="event-countdown">
+          ⏰ {days}d {hours}h {minutes}m remaining
+        </span>
+      );
     }
-    return <span className="event-countdown">⏰ {hours}h {minutes}m remaining</span>;
+    return (
+      <span className="event-countdown">
+        ⏰ {hours}h {minutes}m remaining
+      </span>
+    );
   };
 
   return (
@@ -271,7 +301,10 @@ const UserDashboard = () => {
         </div>
 
         <nav className="user-dashboard__nav">
-          <Link to="/user-dashboard" className="user-dashboard__nav-link active">
+          <Link
+            to="/user-dashboard"
+            className="user-dashboard__nav-link active"
+          >
             <span className="user-dashboard__nav-icon">🏠</span>
             <span className="user-dashboard__nav-text">Dashboard</span>
           </Link>
@@ -287,7 +320,9 @@ const UserDashboard = () => {
       </aside>
 
       <div className="user-dashboard__main">
-        <header className={`user-dashboard__header ${scrolled ? "scrolled" : ""}`}>
+        <header
+          className={`user-dashboard__header ${scrolled ? "scrolled" : ""}`}
+        >
           <div className="user-dashboard__search">
             <input
               className="user-dashboard__search-input"
@@ -296,7 +331,7 @@ const UserDashboard = () => {
               onChange={handleSearchChange}
             />
             {searchQuery && (
-              <button 
+              <button
                 className="user-dashboard__search-clear"
                 onClick={handleSearchClear}
                 aria-label="Clear search"
@@ -307,7 +342,9 @@ const UserDashboard = () => {
           </div>
 
           <div className="user-dashboard__profile" ref={dropdownRef}>
-            <span className="user-dashboard__welcome">Welcome, {firstName}</span>
+            <span className="user-dashboard__welcome">
+              Welcome, {firstName}
+            </span>
             <button
               className="user-dashboard__profile-btn"
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -334,7 +371,8 @@ const UserDashboard = () => {
             Upcoming Events
             {searchQuery && filteredEvents.length > 0 && (
               <span className="user-dashboard__search-results-count">
-                {filteredEvents.length} {filteredEvents.length === 1 ? 'result' : 'results'} found
+                {filteredEvents.length}{" "}
+                {filteredEvents.length === 1 ? "result" : "results"} found
               </span>
             )}
           </h2>
@@ -359,7 +397,9 @@ const UserDashboard = () => {
               filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className={`user-dashboard__event-card ${event.isEnrolled ? "enrolled" : ""}`}
+                  className={`user-dashboard__event-card ${
+                    event.isEnrolled ? "enrolled" : ""
+                  }`}
                   onClick={() => handleEventClick(event.id)}
                 >
                   {event.isEnrolled && (
@@ -372,18 +412,21 @@ const UserDashboard = () => {
                     <h4 className="user-dashboard__event-title">
                       {event.title}
                     </h4>
-                  
+
                     <p className="user-dashboard__event-desc">
                       Description: {event.description}
                     </p>
                     <div className="user-dashboard__event-meta">
-                      <span className="event-location">📍Location: {event.location}<br></br></span>
+                      <span className="event-location">
+                        📍Location: {event.location}
+                        <br></br>
+                      </span>
                       <span className="event-date">
-                       Date: 📅 {event.formattedDate}
+                        Date: 📅 {event.formattedDate}
                       </span>
                     </div>
                     <div className="event-countdown">
-                     CountDown: {renderCountdown(event.date, event.time)}
+                      CountDown: {renderCountdown(event.date, event.time)}
                     </div>
                   </div>
                   <div className="user-dashboard__event-actions">

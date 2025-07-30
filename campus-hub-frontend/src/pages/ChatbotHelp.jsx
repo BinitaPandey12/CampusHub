@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./ChatbotHelp.css";
+import "../Styles/ChatbotHelp.css";
 
 const ChatbotHelp = () => {
   const navigate = useNavigate();
@@ -12,9 +12,10 @@ const ChatbotHelp = () => {
   // Format username from email
   useEffect(() => {
     if (email) {
-      const usernamePart = email.split('@')[0];
-      const nameBeforeDot = usernamePart.split('.')[0];
-      const formattedName = nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+      const usernamePart = email.split("@")[0];
+      const nameBeforeDot = usernamePart.split(".")[0];
+      const formattedName =
+        nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
       setUserName(formattedName || "User");
     }
   }, [email]);
@@ -29,11 +30,13 @@ const ChatbotHelp = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  
   useEffect(() => {
     // Load Dialogflow script only once
     if (!window.dfMessengerScriptLoaded) {
       const script = document.createElement("script");
-      script.src = "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
+      script.src =
+        "https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1";
       script.async = true;
       document.body.appendChild(script);
       window.dfMessengerScriptLoaded = true;
@@ -46,13 +49,18 @@ const ChatbotHelp = () => {
     }
 
     function addMessenger() {
-      const container = document.getElementById("dialogflow-messenger-container");
+      const container = document.getElementById(
+        "dialogflow-messenger-container"
+      );
       if (!container) return;
 
       if (!container.querySelector("df-messenger")) {
         const messenger = document.createElement("df-messenger");
         messenger.setAttribute("chat-title", "CampusBot");
-        messenger.setAttribute("agent-id", "0861736d-dbac-4fad-aa93-b0ab54ccf2d6");
+        messenger.setAttribute(
+          "agent-id",
+          "0861736d-dbac-4fad-aa93-b0ab54ccf2d6"
+        );
         messenger.setAttribute("language-code", "en");
         messenger.setAttribute(
           "chat-icon",

@@ -6,11 +6,9 @@ import EventDetails from "./pages/EventDetails";
 import SystemAdmin from "./pages/SystemAdmin";
 import ClubAdmin from "./pages/ClubAdmin";
 import UserDashboard from "./pages/UserDashboard";
-import Settings from "./pages/Settings";
 import ForgotPassword from "./pages/ForgotPassword";
 import EventDetailsPage from "./pages/EventDetailsPage";
 import FormFill from "./pages/FormFill";
-import Profile from "./pages/Profile";
 import MyEvents from "./pages/MyEvents";
 import ChatbotHelp from "./pages/ChatbotHelp";
 import ExploreEvents from "./pages/ExploreEvents";
@@ -23,15 +21,13 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/events/:eventId" element={<EventDetails />} />
-          <Route path="/settings" element={<Settings />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/system-admin" element={<SystemAdmin />} />
           <Route path="/club-admin" element={<ClubAdmin />} />
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/event/:eventId" element={<EventDetailsPage />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/event/:eventId" element={<EventDetailsPage />} />{" "}
           <Route path="/explore-events" element={<ExploreEvents />} />
           <Route path="/myevents" element={<MyEvents />} />
           <Route path="/enroll/:eventId" element={<FormFill />} />

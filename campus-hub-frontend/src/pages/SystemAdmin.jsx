@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./SystemAdmin.css";
+import "../Styles/SystemAdmin.css";
 import { useNavigate } from "react-router-dom";
 import {
   FiUser,

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./ForgotPassword.css";
+import "../Styles/ForgotPassword.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -55,16 +55,14 @@ const ForgotPassword = () => {
             required
           />
 
-          <button
-            type="submit"
-            className="forgot-button"
-            disabled={loading}
-          >
+          <button type="submit" className="forgot-button" disabled={loading}>
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
 
           <div className="forgot-footer">
-            <Link to="/login" className="forgot-link">← Back to Login</Link>
+            <Link to="/login" className="forgot-link">
+              ← Back to Login
+            </Link>
           </div>
         </form>
       </div>
