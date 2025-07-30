@@ -123,6 +123,11 @@ const Dashboard = () => {
     }
   };
 
+  // Handle Explore Events button click
+  const handleExploreEvents = () => {
+    navigate("/login");
+  };
+
   // Filter events based on selected tab and current time
   const filterEvents = (events = []) => {
     const now = new Date();
@@ -247,17 +252,6 @@ const Dashboard = () => {
           </Link>
 
           <nav className="main-nav">
-            {/* <div className="search-container">
-              <motion.input
-                type="text"
-                placeholder="🔍 Search clubs, events..."
-                className="search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                whileFocus={{ boxShadow: "0 0 0 2px var(--primary)" }}
-              />
-            </div> */}
-
             <div className="nav-links">
               <motion.div whileHover={{ y: -2 }}>
                 <Link to="/login" className="nav-link">
@@ -303,7 +297,14 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6, ease: "easeOut" }}
           >
-            <button className="btn-primary">Explore Events</button>
+            <button 
+              className="btn-primary"
+              onClick={handleExploreEvents}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Explore Events
+            </button>
           </motion.div>
         </div>
       </section>
@@ -371,9 +372,9 @@ const Dashboard = () => {
                 }}
               >
                 <img
-                src={club.icon}
-                alt={club.name}
-                className="club-icon-img"
+                  src={club.icon}
+                  alt={club.name}
+                  className="club-icon-img"
                 />
               </motion.div>
               <h3 className="club-title">{club.name}</h3>

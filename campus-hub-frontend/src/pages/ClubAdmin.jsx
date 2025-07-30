@@ -74,11 +74,11 @@ const ClubAdmin = () => {
   };
 
   useEffect(() => {
-    // if (token) {
-    //   fetchData();
-    // } else {
-    //   navigate("/login");
-    // }
+    if (token) {
+      fetchData();
+    } else {
+      navigate("/login");
+    }
   }, [token, navigate]);
 
   // Scroll effect

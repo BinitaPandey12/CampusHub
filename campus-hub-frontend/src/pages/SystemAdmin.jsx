@@ -1,14 +1,21 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./SystemAdmin.css";
 import { useNavigate } from "react-router-dom";
-import { 
-  FiUser, FiPlus, FiTrash2, FiLogOut,
-  FiCheckCircle, FiClock, FiXCircle,
-  FiAlertCircle, FiSearch, FiAlertTriangle,
-  FiMessageSquare
+import {
+  FiUser,
+  FiPlus,
+  FiTrash2,
+  FiLogOut,
+  FiCheckCircle,
+  FiClock,
+  FiXCircle,
+  FiAlertCircle,
+  FiSearch,
+  FiAlertTriangle,
+  FiMessageSquare,
 } from "react-icons/fi";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const API_BASE_URL = "http://localhost:8080/api";
 
@@ -41,35 +48,46 @@ function SystemAdmin() {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
-        const [adminsRes, usersRes, pendingRes, rejectedRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/admins`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`${API_BASE_URL}/users`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`${API_BASE_URL}/events/pending`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`${API_BASE_URL}/events/rejected`, { headers: { Authorization: `Bearer ${token}` } })
-        ]);
+        const [adminsRes, usersRes, pendingRes, rejectedRes] =
+          await Promise.all([
+            fetch(`${API_BASE_URL}/admins`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(`${API_BASE_URL}/users`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(`${API_BASE_URL}/events/pending`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(`${API_BASE_URL}/events/rejected`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
 
         if (!adminsRes.ok) throw new Error("Failed to fetch admins");
         if (!usersRes.ok) throw new Error("Failed to fetch users");
         if (!pendingRes.ok) throw new Error("Failed to fetch pending events");
         if (!rejectedRes.ok) throw new Error("Failed to fetch rejected events");
 
-        const [adminsData, usersData, pendingData, rejectedData] = await Promise.all([
-          adminsRes.json(),
-          usersRes.json(),
-          pendingRes.json(),
-          rejectedRes.json()
-        ]);
+        const [adminsData, usersData, pendingData, rejectedData] =
+          await Promise.all([
+            adminsRes.json(),
+            usersRes.json(),
+            pendingRes.json(),
+            rejectedRes.json(),
+          ]);
 
         // Process rejected events to ensure consistent data structure
-        const processedRejectedEvents = rejectedData.map(event => ({
+        const processedRejectedEvents = rejectedData.map((event) => ({
           ...event,
-          rejectionMessage: event.rejectionMessage?.trim() || "No reason provided",
+          rejectionMessage:
+            event.rejectionMessage?.trim() || "No reason provided",
           status: event.status || "REJECTED",
           creatorName: event.creator?.name || "Unknown",
           date: event.date || new Date().toISOString(),
-          location: event.location || "Not specified"
+          location: event.location || "Not specified",
         }));
 
         setAdmins(adminsData);
@@ -110,6 +128,7 @@ function SystemAdmin() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("email");
     navigate("/login");
   };
 
@@ -118,30 +137,31 @@ function SystemAdmin() {
   const showConfirmation = (type, id, eventId, decision) => {
     if (decision === "rejected") {
       setShowRejectModal(true);
-      setModalData({ 
-        type, 
-        id, 
-        eventId, 
-        decision, 
-        message: "Please provide a reason for rejecting this event:" 
+      setModalData({
+        type,
+        id,
+        eventId,
+        decision,
+        message: "Please provide a reason for rejecting this event:",
       });
     } else {
       setShowConfirmModal(true);
-      setModalData({ 
-        type, 
-        id, 
-        eventId, 
-        decision, 
-        message: type === "event" 
-          ? "Are you sure you want to approve this event?"
-          : `Are you sure you want to delete this ${type}?`
+      setModalData({
+        type,
+        id,
+        eventId,
+        decision,
+        message:
+          type === "event"
+            ? "Are you sure you want to approve this event?"
+            : `Are you sure you want to delete this ${type}?`,
       });
     }
   };
 
   const handleConfirmAction = async () => {
     setShowConfirmModal(false);
-    
+
     try {
       if (modalData.type === "event") {
         await handleEventDecision(modalData.eventId, modalData.decision);
@@ -162,17 +182,20 @@ function SystemAdmin() {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/events/${modalData.eventId}/reject`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ 
-          rejectionMessage: rejectReason.trim(),
-          status: "REJECTED"
-        })
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/events/${modalData.eventId}/reject`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            rejectionMessage: rejectReason.trim(),
+            status: "REJECTED",
+          }),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -180,26 +203,29 @@ function SystemAdmin() {
       }
 
       const updatedEvent = await res.json();
-      
+
       // Process the updated event with proper rejection data
       const processedEvent = {
         ...updatedEvent,
-        rejectionMessage: updatedEvent.rejectionMessage?.trim() || "No reason provided",
+        rejectionMessage:
+          updatedEvent.rejectionMessage?.trim() || "No reason provided",
         status: updatedEvent.status || "REJECTED",
         creatorName: updatedEvent.creator?.name || "Unknown",
         date: updatedEvent.date || new Date().toISOString(),
-        location: updatedEvent.location || "Not specified"
+        location: updatedEvent.location || "Not specified",
       };
 
       // Update state
-      setPendingEvents(prev => prev.filter(e => e.id !== modalData.eventId));
-      setRejectedEvents(prev => [processedEvent, ...prev]);
-      
+      setPendingEvents((prev) =>
+        prev.filter((e) => e.id !== modalData.eventId)
+      );
+      setRejectedEvents((prev) => [processedEvent, ...prev]);
+
       // Reset modal and form
       setShowRejectModal(false);
       setRejectReason("");
       setError(null);
-      
+
       // Show success feedback
       toast.success("Event rejected successfully");
     } catch (error) {
@@ -222,7 +248,7 @@ function SystemAdmin() {
 
       const res = await fetch(endpoint, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
@@ -232,13 +258,12 @@ function SystemAdmin() {
 
       // Update state based on what was deleted
       if (type === "admin") {
-        setAdmins(prevAdmins => prevAdmins.filter(a => a.id !== id));
+        setAdmins((prevAdmins) => prevAdmins.filter((a) => a.id !== id));
         toast.success("Admin deleted successfully");
       } else {
-        setUsers(prevUsers => prevUsers.filter(u => u.id !== id));
+        setUsers((prevUsers) => prevUsers.filter((u) => u.id !== id));
         toast.success("User deleted successfully");
       }
-
     } catch (error) {
       console.error("Delete error:", error);
       setError(error.message);
@@ -248,19 +273,21 @@ function SystemAdmin() {
 
   const handleEventDecision = async (eventId, decision) => {
     try {
-      const endpoint = decision === "approved" 
-        ? `${API_BASE_URL}/events/${eventId}/approve`
-        : `${API_BASE_URL}/events/${eventId}/reject`;
+      const endpoint =
+        decision === "approved"
+          ? `${API_BASE_URL}/events/${eventId}/approve`
+          : `${API_BASE_URL}/events/${eventId}/reject`;
 
       const res = await fetch(endpoint, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: decision === "rejected" 
-          ? JSON.stringify({ rejectionMessage: "Rejected by admin" })
-          : undefined
+        body:
+          decision === "rejected"
+            ? JSON.stringify({ rejectionMessage: "Rejected by admin" })
+            : undefined,
       });
 
       if (!res.ok) throw new Error(`Failed to ${decision} event`);
@@ -268,17 +295,20 @@ function SystemAdmin() {
       const updatedEvent = await res.json();
 
       if (decision === "approved") {
-        setPendingEvents(prevEvents => prevEvents.filter(e => e.id !== eventId));
+        setPendingEvents((prevEvents) =>
+          prevEvents.filter((e) => e.id !== eventId)
+        );
         toast.success("Event approved successfully");
       } else {
         const processedEvent = {
           ...updatedEvent,
-          rejectionMessage: updatedEvent.rejectionMessage?.trim() || "No reason provided",
+          rejectionMessage:
+            updatedEvent.rejectionMessage?.trim() || "No reason provided",
           status: "REJECTED",
-          creatorName: updatedEvent.creator?.name || "Unknown"
+          creatorName: updatedEvent.creator?.name || "Unknown",
         };
-        setPendingEvents(prev => prev.filter(e => e.id !== eventId));
-        setRejectedEvents(prev => [processedEvent, ...prev]);
+        setPendingEvents((prev) => prev.filter((e) => e.id !== eventId));
+        setRejectedEvents((prev) => [processedEvent, ...prev]);
         toast.success("Event rejected successfully");
       }
     } catch (error) {
@@ -288,27 +318,35 @@ function SystemAdmin() {
     }
   };
 
-  const filteredAdmins = admins.filter(admin => 
-    admin.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    admin.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    admin.id?.toString().includes(searchQuery)
+  const filteredAdmins = admins.filter(
+    (admin) =>
+      admin.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      admin.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      admin.id?.toString().includes(searchQuery)
   );
 
-  const filteredUsers = users.filter(user => 
-    user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.id?.toString().includes(searchQuery)
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.id?.toString().includes(searchQuery)
   );
 
   const renderEventCard = (event, isRejected = false) => {
     const isActuallyRejected = isRejected || event.status === "REJECTED";
-    const rejectionMessage = event.rejectionMessage?.trim() || "No reason provided";
+    const rejectionMessage =
+      event.rejectionMessage?.trim() || "No reason provided";
 
     return (
-      <div key={event.id} className={`event-card ${isActuallyRejected ? "rejected" : ""}`}>
+      <div
+        key={event.id}
+        className={`event-card ${isActuallyRejected ? "rejected" : ""}`}
+      >
         <div className="event-card-header">
           <h3>{event.title || "Untitled Event"}</h3>
-          <span className="event-creator">By: {event.creatorName || "Club Admin"}</span>
+          <span className="event-creator">
+            By: {event.creatorName || "Club Admin"}
+          </span>
           {isActuallyRejected && (
             <span className="rejected-badge">
               <FiXCircle /> Rejected
@@ -316,12 +354,18 @@ function SystemAdmin() {
           )}
         </div>
         <p className="event-description">
-          {event.description ? `${event.description.substring(0, 120)}...` : "No description provided"}
+          {event.description
+            ? `${event.description.substring(0, 120)}...`
+            : "No description provided"}
         </p>
         <div className="event-meta">
           <div className="event-detail">
             <span className="detail-label">Date:</span>
-            <span>{event.date ? new Date(event.date).toLocaleDateString() : "Not specified"}</span>
+            <span>
+              {event.date
+                ? new Date(event.date).toLocaleDateString()
+                : "Not specified"}
+            </span>
           </div>
           <div className="event-detail">
             <span className="detail-label">Location:</span>
@@ -338,13 +382,17 @@ function SystemAdmin() {
           <div className="event-actions">
             <button
               className="sysadmin-btn approve"
-              onClick={() => showConfirmation("event", null, event.id, "approved")}
+              onClick={() =>
+                showConfirmation("event", null, event.id, "approved")
+              }
             >
               <FiCheckCircle className="btn-icon" /> Approve
             </button>
             <button
               className="sysadmin-btn reject"
-              onClick={() => showConfirmation("event", null, event.id, "rejected")}
+              onClick={() =>
+                showConfirmation("event", null, event.id, "rejected")
+              }
             >
               <FiXCircle className="btn-icon" /> Reject
             </button>
@@ -368,7 +416,9 @@ function SystemAdmin() {
       <div className="error-container">
         <FiAlertCircle className="error-icon" />
         <p>{error}</p>
-        <button className="retry-btn" onClick={() => window.location.reload()}>Retry</button>
+        <button className="retry-btn" onClick={() => window.location.reload()}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -394,18 +444,22 @@ function SystemAdmin() {
               </div>
               <p className="modal-message">{modalData.message}</p>
               <div className="modal-actions">
-                <button 
+                <button
                   className="modal-btn cancel"
                   onClick={() => setShowConfirmModal(false)}
                 >
                   Cancel
                 </button>
-                <button 
-                  className={`modal-btn ${modalData.decision === "rejected" ? "reject" : "confirm"}`}
+                <button
+                  className={`modal-btn ${
+                    modalData.decision === "rejected" ? "reject" : "confirm"
+                  }`}
                   onClick={handleConfirmAction}
                 >
-                  {modalData.type === "event" 
-                    ? modalData.decision === "approved" ? "Approve" : "Reject"
+                  {modalData.type === "event"
+                    ? modalData.decision === "approved"
+                      ? "Approve"
+                      : "Reject"
                     : "Delete"}
                 </button>
               </div>
@@ -433,7 +487,7 @@ function SystemAdmin() {
               />
               {error && <p className="modal-error">{error}</p>}
               <div className="modal-actions">
-                <button 
+                <button
                   className="modal-btn cancel"
                   onClick={() => {
                     setShowRejectModal(false);
@@ -443,7 +497,7 @@ function SystemAdmin() {
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   className="modal-btn reject"
                   onClick={handleRejectSubmit}
                 >
@@ -527,7 +581,9 @@ function SystemAdmin() {
                   <FiClock className="section-icon pending" />
                   <h2>Pending Event Approvals</h2>
                   {pendingEvents.length > 0 && (
-                    <span className="pending-count">{pendingEvents.length}</span>
+                    <span className="pending-count">
+                      {pendingEvents.length}
+                    </span>
                   )}
                 </>
               ) : (
@@ -535,17 +591,19 @@ function SystemAdmin() {
                   <FiXCircle className="section-icon rejected" />
                   <h2>Rejected Events</h2>
                   {rejectedEvents.length > 0 && (
-                    <span className="rejected-count">{rejectedEvents.length}</span>
+                    <span className="rejected-count">
+                      {rejectedEvents.length}
+                    </span>
                   )}
                 </>
               )}
             </div>
           </div>
-          
+
           {activeTab === "pending" ? (
             pendingEvents.length > 0 ? (
               <div className="event-grid">
-                {pendingEvents.map(event => renderEventCard(event))}
+                {pendingEvents.map((event) => renderEventCard(event))}
               </div>
             ) : (
               <div className="no-events">
@@ -553,17 +611,15 @@ function SystemAdmin() {
                 <p>No pending events awaiting approval</p>
               </div>
             )
+          ) : rejectedEvents.length > 0 ? (
+            <div className="event-grid">
+              {rejectedEvents.map((event) => renderEventCard(event, true))}
+            </div>
           ) : (
-            rejectedEvents.length > 0 ? (
-              <div className="event-grid">
-                {rejectedEvents.map(event => renderEventCard(event, true))}
-              </div>
-            ) : (
-              <div className="no-events">
-                <FiAlertCircle className="empty-icon" />
-                <p>No rejected events</p>
-              </div>
-            )
+            <div className="no-events">
+              <FiAlertCircle className="empty-icon" />
+              <p>No rejected events</p>
+            </div>
           )}
         </section>
 
@@ -575,7 +631,7 @@ function SystemAdmin() {
               <FiPlus className="btn-icon" /> Add Admin
             </button>
           </div>
-          
+
           <div className="sysadmin-table-container">
             <table className="sysadmin-table">
               <thead>
@@ -588,11 +644,15 @@ function SystemAdmin() {
               </thead>
               <tbody>
                 {filteredAdmins.length > 0 ? (
-                  filteredAdmins.map(admin => (
+                  filteredAdmins.map((admin) => (
                     <tr key={admin.id}>
                       <td className="id-cell">{admin.id}</td>
-                      <td className="name-cell">{admin.name || 'Unnamed Admin'}</td>
-                      <td className="email-cell">{admin.email || 'No email'}</td>
+                      <td className="name-cell">
+                        {admin.name || "Unnamed Admin"}
+                      </td>
+                      <td className="email-cell">
+                        {admin.email || "No email"}
+                      </td>
                       <td className="action-cell">
                         <button
                           className="sysadmin-btn danger"
@@ -620,7 +680,7 @@ function SystemAdmin() {
           <div className="sysadmin-section-header">
             <h2>Registered Users</h2>
           </div>
-          
+
           <div className="sysadmin-table-container">
             <table className="sysadmin-table">
               <thead>
@@ -633,11 +693,13 @@ function SystemAdmin() {
               </thead>
               <tbody>
                 {filteredUsers.length > 0 ? (
-                  filteredUsers.map(user => (
+                  filteredUsers.map((user) => (
                     <tr key={user.id}>
                       <td className="id-cell">{user.id}</td>
-                      <td className="name-cell">{user.name || 'Unnamed User'}</td>
-                      <td className="email-cell">{user.email || 'No email'}</td>
+                      <td className="name-cell">
+                        {user.name || "Unnamed User"}
+                      </td>
+                      <td className="email-cell">{user.email || "No email"}</td>
                       <td className="action-cell">
                         <button
                           className="sysadmin-btn danger"
