@@ -83,7 +83,7 @@ function SystemAdmin() {
         const processedRejectedEvents = rejectedData.map((event) => ({
           ...event,
           rejectionMessage:
-            event.rejectionMessage?.trim() || "No reason provided",
+            event.rejectionMessage || "No reason provided",
           status: event.status || "REJECTED",
           creatorName: event.creator?.name || "Unknown",
           date: event.date || new Date().toISOString(),
@@ -191,8 +191,7 @@ function SystemAdmin() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            rejectionMessage: rejectReason.trim(),
-            status: "REJECTED",
+            message: rejectReason.trim()  // This is the crucial change - using 'message' as the key
           }),
         }
       );
@@ -207,9 +206,8 @@ function SystemAdmin() {
       // Process the updated event with proper rejection data
       const processedEvent = {
         ...updatedEvent,
-        rejectionMessage:
-          updatedEvent.rejectionMessage?.trim() || "No reason provided",
-        status: updatedEvent.status || "REJECTED",
+        rejectionMessage: updatedEvent.rejectionMessage || "No reason provided",
+        status: "REJECTED",
         creatorName: updatedEvent.creator?.name || "Unknown",
         date: updatedEvent.date || new Date().toISOString(),
         location: updatedEvent.location || "Not specified",
@@ -279,14 +277,14 @@ function SystemAdmin() {
           : `${API_BASE_URL}/events/${eventId}/reject`;
 
       const res = await fetch(endpoint, {
-        method: "PATCH",
+        method: decision === "approved" ? "PATCH" : "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body:
           decision === "rejected"
-            ? JSON.stringify({ rejectionMessage: "Rejected by admin" })
+            ? JSON.stringify({ message: "Rejected by admin" })
             : undefined,
       });
 
@@ -303,7 +301,7 @@ function SystemAdmin() {
         const processedEvent = {
           ...updatedEvent,
           rejectionMessage:
-            updatedEvent.rejectionMessage?.trim() || "No reason provided",
+            updatedEvent.rejectionMessage || "No reason provided",
           status: "REJECTED",
           creatorName: updatedEvent.creator?.name || "Unknown",
         };
@@ -334,8 +332,7 @@ function SystemAdmin() {
 
   const renderEventCard = (event, isRejected = false) => {
     const isActuallyRejected = isRejected || event.status === "REJECTED";
-    const rejectionMessage =
-      event.rejectionMessage?.trim() || "No reason provided";
+    const rejectionMessage = event.rejectionMessage || "No reason provided";
 
     return (
       <div

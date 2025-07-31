@@ -64,7 +64,15 @@ const ClubAdmin = () => {
       setUsers(usersResponse.data);
       setPendingEvents(pendingResponse.data);
       setApprovedEvents(approvedResponse.data);
-      setRejectedEvents(rejectedResponse.data);
+      
+      // Process rejected events to ensure consistent data structure
+      const processedRejectedEvents = rejectedResponse.data.map(event => ({
+        ...event,
+        rejectionMessage: event.rejectionMessage || "No reason provided",
+        creatorName: event.createdBy?.name || "Club Admin"
+      }));
+      
+      setRejectedEvents(processedRejectedEvents);
     } catch (error) {
       console.error("Error fetching data:", error);
       if (error.response?.status === 401) {
@@ -110,17 +118,16 @@ const ClubAdmin = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("email");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
-  // Validate time is between 6 AM and 10 PM
   const validateTime = (time) => {
     if (!time) return false;
 
     const [hours, minutes] = time.split(":").map(Number);
     const totalMinutes = hours * 60 + minutes;
 
-    // 6 AM = 360 minutes, 10 PM = 1320 minutes
     return totalMinutes >= 360 && totalMinutes <= 1320;
   };
 
@@ -151,20 +158,17 @@ const ClubAdmin = () => {
         return;
       }
 
-      // Time validation (6 AM to 10 PM)
       if (!validateTime(newEvent.time)) {
         toast.error("Event time must be between 6 AM and 10 PM");
         return;
       }
 
-      // Date validation
       const eventDateTime = new Date(`${newEvent.date}T${newEvent.time}`);
       if (eventDateTime < new Date()) {
         toast.error("Event date and time must be in the future");
         return;
       }
 
-      // API call
       const response = await axios.post(
         "http://localhost:8080/api/events",
         {
@@ -183,10 +187,7 @@ const ClubAdmin = () => {
         }
       );
 
-      // Update state
       setPendingEvents((prev) => [response.data, ...prev]);
-
-      // Reset form
       setNewEvent({
         title: "",
         description: "",
@@ -483,7 +484,7 @@ const ClubAdmin = () => {
                         {event.title || "Untitled Event"}
                       </h3>
                       <p className="ca-event-author">
-                        By: {event.createdBy?.name || "Club Admin"}
+                        By: {event.creatorName}
                       </p>
                     </div>
                     <p className="ca-event-description">
@@ -514,7 +515,7 @@ const ClubAdmin = () => {
                           Rejection Reason:
                         </span>
                         <span className="ca-detail-value ca-rejection-reason">
-                          {event.rejectionReason || "No reason provided"}
+                          {event.rejectionMessage}
                         </span>
                       </div>
                     </div>
