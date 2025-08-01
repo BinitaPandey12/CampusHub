@@ -26,7 +26,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background:  rgb(21, 61, 93);
+  background:  #415A77;
   z-index: -1;
   animation: rotateGradient 20s linear infinite;
 }
@@ -43,9 +43,9 @@
 
 /* Header Styles with Floating Effect */
 .event-header {
-  margin-bottom: 3rem;
+  margin-bottom: 0rem;
   position: relative;
-  padding-bottom: 2rem;
+  padding-bottom: 0rem;
 }
 
 .event-header::after {
@@ -66,8 +66,9 @@
 .event-title {
   font-size: 3rem;
   font-weight: 800;
-  margin: 0;
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  margin-left: 600px;
+  padding-bottom: 0px;
+  background: #c8d8e4;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.2;

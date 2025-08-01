@@ -19,72 +19,11 @@ const Dashboard = () => {
   // State management
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("upcoming");
-  const [filter, setFilter] = useState("all");
   const [scrolled, setScrolled] = useState(false);
-  const [notificationVisible, setNotificationVisible] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
-
-  // Fetch events from backend
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get("/api/events/approved");
-        const eventsData = Array.isArray(response.data)
-          ? response.data
-          : response.data?.events || [];
-
-        const approvedEvents = eventsData.filter(
-          (event) => event.status === "approved"
-        );
-
-        // Organize events by club with proper status calculation
-        const clubsMap = approvedEvents.reduce((acc, event) => {
-          if (!acc[event.clubId]) {
-            acc[event.clubId] = {
-              id: event.clubId,
-              name: event.clubName,
-              description: event.clubDescription,
-              image: event.clubImage,
-              events: [],
-            };
-          }
-
-          const now = new Date();
-          const startDate = new Date(event.startDate);
-          const endDate = new Date(event.endDate);
-
-          let status;
-          if (endDate < now) {
-            status = "past";
-          } else if (startDate <= now && endDate >= now) {
-            status = "running";
-          } else {
-            status = "upcoming";
-          }
-
-          acc[event.clubId].events.push({
-            ...event,
-            status: status,
-          });
-          return acc;
-        }, {});
-
-        setClubs(Object.values(clubsMap));
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
-    const interval = setInterval(fetchEvents, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Handle scroll for header effect
   useEffect(() => {
@@ -111,122 +50,35 @@ const Dashboard = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle enrollment button click
-  const handleEnrollClick = (eventId) => {
-    const isLoggedIn = localStorage.getItem("authToken"); // Simple auth check
-
-    if (isLoggedIn) {
-      navigate(`/event/${eventId}/enroll`);
-    } else {
-      // Redirect to login with return URL
-      navigate(`/login?returnUrl=/event/${eventId}/enroll`);
-    }
-  };
-
   // Handle Explore Events button click
   const handleExploreEvents = () => {
     navigate("/login");
   };
 
   // Filter events based on selected tab and current time
-  const filterEvents = (events = []) => {
-    const now = new Date();
-    return events.filter((event) => {
-      const startDate = new Date(event.startDate);
-      const endDate = new Date(event.endDate);
+  // const filterEvents = (events = []) => {
+  //   const now = new Date();
+  //   return events.filter((event) => {
+  //     const startDate = new Date(event.startDate);
+  //     const endDate = new Date(event.endDate);
 
-      if (selectedTab === "upcoming") return event.status === "upcoming";
-      if (selectedTab === "running") return event.status === "running";
+  //     if (selectedTab === "upcoming") return event.status === "upcoming";
+  //     if (selectedTab === "running") return event.status === "running";
 
-      if (filter === "today") {
-        return startDate.toDateString() === now.toDateString();
-      }
-      if (filter === "thisWeek") {
-        const weekEnd = new Date();
-        weekEnd.setDate(now.getDate() + 7);
-        return startDate >= now && startDate <= weekEnd;
-      }
-      return true;
-    });
-  };
-
-  // Helper functions
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const formatTime = (dateString) => {
-    return new Date(dateString).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const formatLiveTime = (startDate) => {
-    const start = new Date(startDate);
-    const now = new Date();
-    const diffMs = now - start;
-    const diffMins = Math.floor(diffMs / 60000);
-
-    if (diffMins < 60) return `${diffMins}m ago`;
-    const diffHrs = Math.floor(diffMins / 60);
-    return `${diffHrs}h ${diffMins % 60}m ago`;
-  };
-
-  const closeNotification = () => {
-    setNotificationVisible(false);
-  };
-
-  const filteredClubs = clubs.filter((club) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      club.name.toLowerCase().includes(query) ||
-      club.description.toLowerCase().includes(query) ||
-      club.events.some(
-        (event) =>
-          event.name.toLowerCase().includes(query) ||
-          event.location.toLowerCase().includes(query)
-      )
-    );
-  });
+  //     if (filter === "today") {
+  //       return startDate.toDateString() === now.toDateString();
+  //     }
+  //     if (filter === "thisWeek") {
+  //       const weekEnd = new Date();
+  //       weekEnd.setDate(now.getDate() + 7);
+  //       return startDate >= now && startDate <= weekEnd;
+  //     }
+  //     return true;
+  //   });
+  // };
 
   return (
     <div className="dashboard">
-      {/* Floating Notification */}
-      <AnimatePresence>
-        {notificationVisible && (
-          <motion.div
-            className="floating-notification"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ type: "spring", damping: 25 }}
-          >
-            <motion.span
-              className="notification-badge"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              New
-            </motion.span>
-            <p>New events added recently!</p>
-            <motion.button
-              className="notification-close"
-              onClick={closeNotification}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              ×
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Header */}
       <motion.header
         className={`dashboard-header ${scrolled ? "scrolled" : ""}`}
@@ -393,12 +245,16 @@ const Dashboard = () => {
             <p className="footer-text">
               Connecting students with campus activities and organizations.
             </p>
+            <p className="footer-text">Contact No: 01-5186354</p>
+            <p className="footer-text">Email: info@ncitedu.np</p>
+            <p className="footer-text">Website: www.ncitedu.np</p>
+            <p className="footer-text">Address: Balkumari, Lalitpur, Nepal</p>
           </div>
         </div>
 
         <div className="footer-bottom">
           <p className="copyright">
-            © {new Date().getFullYear()} CampusHub. All rights reserved.
+            ©️ {new Date().getFullYear()} CampusHub. All rights reserved.
           </p>
         </div>
       </footer>

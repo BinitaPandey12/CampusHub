@@ -10,7 +10,7 @@
 /* Sidebar - Modern Gradient */
 .my-events__sidebar {
   width: 250px;
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  background: #415A77;
   color: white;
   padding: 2rem 1rem;
   display: flex;
@@ -110,8 +110,8 @@
 .my-events__search-input {
   padding: 0.75rem 1.5rem;
   color: #1f2937;
-  background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: #c8d8e4;
+  border: 1px solid #e15118;
   border-radius: 2rem;
   width: 320px;
   font-size: 0.95rem;
@@ -247,7 +247,7 @@
 }
 
 .my-events__card {
-  background: white;
+  background: #c8d8e4;
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
@@ -255,7 +255,7 @@
   flex-direction: column;
   gap: 1.75rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(226, 232, 240, 0.5);
+  border: 1px solid rgba(13, 241, 226, 0.965);
   position: relative;
   overflow: hidden;
 }

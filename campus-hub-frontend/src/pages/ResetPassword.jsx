@@ -98,7 +98,6 @@ function ResetPassword() {
         
         <form onSubmit={handleSubmit} className="reset-password-form">
           <div className="input-group">
-            <label htmlFor="newPassword">New Password</label>
             <div className="password-input-wrapper">
               <input
                 id="newPassword"
@@ -120,8 +119,7 @@ function ResetPassword() {
           </div>
 
           <div className="input-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <div className="password-input-wrapper">
+           <div className="password-input-wrapper">
               <input
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}

@@ -135,6 +135,7 @@ const ClubAdmin = () => {
     const [hours, minutes] = time.split(":").map(Number);
     const totalMinutes = hours * 60 + minutes;
 
+    // Check if time is between 6:00 AM (360 minutes) and 10:00 PM (1320 minutes)
     return totalMinutes >= 360 && totalMinutes <= 1320;
   };
 
@@ -165,6 +166,7 @@ const ClubAdmin = () => {
         return;
       }
 
+      // Time validation (6 AM to 10 PM)
       if (!validateTime(newEvent.time)) {
         toast.error("Event time must be between 6 AM and 10 PM");
         return;

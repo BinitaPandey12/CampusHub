@@ -387,7 +387,7 @@ function SystemAdmin() {
           )}
         </div>
         <p className="event-description">
-          {event.description
+         Description: {event.description
             ? `${event.description.substring(0, 120)}...`
             : "No description provided"}
         </p>

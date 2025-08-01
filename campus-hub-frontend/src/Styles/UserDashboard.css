@@ -9,7 +9,7 @@
 /* Sidebar */
 .user-dashboard__sidebar {
   width: 250px;
-  background: linear-gradient(180deg, #1f2937, #111827);
+  background: #415A77;
   color: white;
   padding: 2rem 1rem;
   display: flex;
@@ -57,7 +57,7 @@
 /* Main Content */
 .user-dashboard__main {
   flex: 1;
-  background: #f8fafc;
+  background: #f8fbfc;
   display: flex;
   flex-direction: column;
 }
@@ -68,8 +68,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.2rem 2rem;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
+  background: #eef1f4;
+  border: blue;
+
   position: sticky;
   top: 0;
   z-index: 10;
@@ -78,8 +79,8 @@
 .user-dashboard__search-input {
   padding: 0.7rem 1.2rem;
     color: black;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: #c8d8e4;
+  border: 1px solid #e15118;
   border-radius: 2rem;
   width: 300px;
   font-size: 1rem;
@@ -176,7 +177,7 @@
   background: white;
   border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px rgb(255, 0, 0);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
@@ -238,14 +239,24 @@
 }
 
 .user-dashboard__event-card {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.25rem 1.5rem;
+  background: #c8d8e4;
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(13, 199, 241, 0.965);
+  cursor: pointer;
 }
+
+.user-dashboard__event-card:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  transform: translateY(-4px);
+}
+
+
 
 .user-dashboard__event-info {
   flex: 1;
@@ -399,7 +410,7 @@
 
 .enrolled-status {
   position: absolute;
-  top: 15px;
+  top: 50px;
   right: 15px;
   background-color: #4CAF50;
   color: white;
@@ -418,6 +429,7 @@
 .user-dashboard__event-actions {
   display: flex;
   gap: 10px;
+  margin-right: 80px;
 }
 
 .user-dashboard__enroll-btn {
