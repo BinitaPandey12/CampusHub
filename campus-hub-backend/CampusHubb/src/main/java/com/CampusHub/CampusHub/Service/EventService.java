@@ -36,10 +36,10 @@ public class EventService {
 
 
     public EventResponse createEvent(EventRequest eventRequest) {
-        // Get the currently authenticated user
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        // Get the currently authenticated user (club admin)
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            .orElseThrow(() -> new com.CampusHub.CampusHub.exception.ResourceNotFoundException("User not found"));
 
         // Create and save the event
         Event event = new Event();
@@ -48,12 +48,46 @@ public class EventService {
         event.setDate(eventRequest.getDate());
         event.setTime(eventRequest.getTime());
         event.setLocation(eventRequest.getLocation());
-        event.setStatus(EventStatus.PENDING); // Default status
+        event.setStatus(com.CampusHub.CampusHub.entities.EventStatus.PENDING); // Default status
 
+        // Set the creator
+        event.setCreatedBy(user);
 
         Event savedEvent = eventRepository.save(event);
 
         return mapToEventResponse(savedEvent);
+    }
+    public List<EventResponse> getMyPendingEvents() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return eventRepository.findByCreatedByAndStatus(user, EventStatus.PENDING)
+                .stream()
+                .map(this::mapToEventResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<EventResponse> getMyApprovedEvents() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return eventRepository.findByCreatedByAndStatus(user, EventStatus.APPROVED)
+                .stream()
+                .map(this::mapToEventResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<EventResponse> getMyRejectedEvents() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return eventRepository.findByCreatedByAndStatus(user, EventStatus.REJECT)
+                .stream()
+                .map(this::mapToEventResponse)
+                .collect(Collectors.toList());
     }
 
     public List<EventResponse> getAllEvents() {
@@ -117,8 +151,10 @@ public class EventService {
         response.setLocation(event.getLocation());
         response.setStatus(event.getStatus());
         response.setRejectionMessage(event.getRejectionMessage());
-
-
+        response.setCreatedByEmail(event.getCreatedBy() != null ? event.getCreatedBy().getEmail() : null);
+        response.setCreatedByFullName(
+                event.getCreatedBy() != null ? event.getCreatedBy().getFullName() : null
+        );
         return response;
     }
 }

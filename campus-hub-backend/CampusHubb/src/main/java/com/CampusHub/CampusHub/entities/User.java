@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,18 @@ public class User {
 
     @Column(name = "reset_token")  //stores unique token used for password reset.
     private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;   //yo
+
+    public LocalDateTime getResetTokenExpiry() {    //yo
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {    //yo
+        this.resetTokenExpiry = resetTokenExpiry;
+    }
+
 
     private String fullName;
 

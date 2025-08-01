@@ -15,6 +15,18 @@ public class Event {
     private Long id;
 
 
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
     @Column(nullable = false)
     private String title;
 

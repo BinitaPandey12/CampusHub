@@ -42,6 +42,27 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/my-pending")
+    @PreAuthorize("hasAuthority('CLUBADMIN')")
+    public ResponseEntity<List<EventResponse>> getMyPendingEvents() {
+        List<EventResponse> responses = eventService.getMyPendingEvents();
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/my-approved")
+    @PreAuthorize("hasAuthority('CLUBADMIN')")
+    public ResponseEntity<List<EventResponse>> getMyApprovedEvents() {
+        List<EventResponse> responses = eventService.getMyApprovedEvents();
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/my-rejected")
+    @PreAuthorize("hasAuthority('CLUBADMIN')")
+    public ResponseEntity<List<EventResponse>> getMyRejectedEvents() {
+        List<EventResponse> responses = eventService.getMyRejectedEvents();
+        return ResponseEntity.ok(responses);
+    }
+
     @GetMapping
     public ResponseEntity<List<EventResponse>> getAllEvents() {
         List<EventResponse> responses = eventService.getAllEvents();
@@ -100,7 +121,7 @@ public class EventController {
     @PreAuthorize("hasAnyAuthority('CLUBADMIN', 'SYSTEMADMIN', 'USER')")
     public ResponseEntity<List<UserBasicDTO>> getAllRegularUsers() {
         List<UserBasicDTO> users = userRepository.findByRole(Role.USER).stream()
-                .map(user -> new UserBasicDTO(user.getId(), user.getEmail()))
+                .map(user -> new UserBasicDTO(user.getId(), user.getEmail(), user.getFullName()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(users);
     }

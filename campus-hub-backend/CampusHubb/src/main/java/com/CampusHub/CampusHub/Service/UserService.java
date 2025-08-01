@@ -1,12 +1,13 @@
 package com.CampusHub.CampusHub.Service;
 
+import com.CampusHub.CampusHub.dto.CreateClubAdmin;
 import com.CampusHub.CampusHub.entities.User;
 import com.CampusHub.CampusHub.Controller.UserController;
 import com.CampusHub.CampusHub.entities.Role;
 import com.CampusHub.CampusHub.Security.JwtUtil;
 
 
-
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +34,8 @@ public class UserService {
 
     @Autowired
     private EmailService emailService;
+
+
 
     public User registerUser(UserController.UserSignUpRequest userSignUpRequest) {
         String emailLower = userSignUpRequest.getEmail().toLowerCase();
@@ -70,6 +73,67 @@ public class UserService {
 
 
         return user;
+    }
+
+    //yo
+
+    public void initiatePasswordReset(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        // Generate reset token
+        String resetToken = UUID.randomUUID().toString();
+        LocalDateTime expiry = LocalDateTime.now().plusHours(1); // 1 hour expiry
+
+        // Save token to user
+        user.setResetToken(resetToken);
+        user.setResetTokenExpiry(expiry);
+        userRepository.save(user);
+
+        // Send email
+        emailService.sendPasswordResetEmail(email, resetToken);
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired reset token"));
+
+        // Check if token is expired
+        if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset token has expired");
+        }
+
+        // Update password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
+    }
+
+
+
+
+
+
+
+
+    public User createClubAdmin(com.CampusHub.CampusHub.dto.CreateClubAdminRequest request) {
+        String emailLower = request.getEmail().toLowerCase();
+        if (!emailLower.endsWith("@ncit.edu.np")) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Club admin registration allowed only with @ncit.edu.np email addresses.");
+        }
+        java.util.Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+        if (existingUser.isPresent()) {
+            throw new RuntimeException("Email already exists: " + request.getEmail());
+        }
+        User clubAdmin = new User();
+        clubAdmin.setEmail(request.getEmail());
+        clubAdmin.setPassword(passwordEncoder.encode(request.getPassword()));
+        clubAdmin.setRole(com.CampusHub.CampusHub.entities.Role.CLUBADMIN);
+        clubAdmin.setFullName(request.getFullName());
+        clubAdmin.setVerified(true); // Club admins are auto-verified
+        User savedClubAdmin = userRepository.save(clubAdmin);
+        return savedClubAdmin;
     }
 
     public Map<String, Object> loginUser(String email, String password) {

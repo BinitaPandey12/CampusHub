@@ -3,6 +3,8 @@ package com.CampusHub.CampusHub.Controller;
 
 
 import com.CampusHub.CampusHub.Service.UserService;
+import com.CampusHub.CampusHub.dto.ForgotPasswordRequest;
+import com.CampusHub.CampusHub.dto.ResetPasswordRequest;
 import com.CampusHub.CampusHub.entities.User;
 import com.CampusHub.CampusHub.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +97,41 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+
+    //yo
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        try {
+            userService.initiatePasswordReset(request.getEmail());
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Password reset link sent to your email");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        try {
+            userService.resetPassword(request.getToken(), request.getNewPassword());
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Password reset successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+
+
 
 
 

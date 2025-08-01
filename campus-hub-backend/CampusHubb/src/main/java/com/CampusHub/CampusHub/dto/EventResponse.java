@@ -16,6 +16,22 @@ public class EventResponse {
     private String location;
     private EventStatus status;
     private String rejectionMessage;
+    private String createdByEmail;
+    private String createdByFullName;
+
+    public String getCreatedByFullName() {
+        return createdByFullName;
+    }
+    public void setCreatedByFullName(String createdByFullName) {
+        this.createdByFullName = createdByFullName;
+    }
+
+    public String getCreatedByEmail() {
+        return createdByEmail;
+    }
+    public void setCreatedByEmail(String createdByEmail) {
+        this.createdByEmail = createdByEmail;
+    }
 
     public String getRejectionMessage() {
         return rejectionMessage;

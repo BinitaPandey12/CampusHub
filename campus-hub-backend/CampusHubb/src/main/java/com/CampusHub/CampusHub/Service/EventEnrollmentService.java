@@ -97,6 +97,13 @@ public class EventEnrollmentService {
         return convertToResponse(enrollment);
     }
 
+    public List<EventEnrollmentUserInfoResponse> getAppliedEnrollmentsByEventIdUserInfo(Long eventId) {
+        List<EventEnrollment> enrollments = eventEnrollmentRepository.findByEventIdAndStatus(eventId, EnrollmentStatus.APPLIED);
+        return enrollments.stream()
+                .map(this::convertToUserInfoResponse)
+                .collect(Collectors.toList());
+    }
+
     public EventEnrollmentResponse updateEnrollmentStatus(Long enrollmentId, EnrollmentStatus status) {
         EventEnrollment enrollment = eventEnrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found with id: " + enrollmentId));

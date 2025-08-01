@@ -44,15 +44,25 @@ public class EventEnrollmentController {
         }
     }
 
-@GetMapping("/event/{eventId}/enrollments")
-public ResponseEntity<List<EventEnrollmentUserInfoResponse>> getEnrollmentsByEventId(@PathVariable Long eventId) {
-    try {
-        List<EventEnrollmentUserInfoResponse> enrollments = eventEnrollmentService.getEnrollmentsByEventIdUserInfo(eventId);
-        return ResponseEntity.ok(enrollments);
-    } catch (Exception e) {
-        return ResponseEntity.notFound().build();
+//@GetMapping("/event/{eventId}/enrollments")
+//public ResponseEntity<List<EventEnrollmentUserInfoResponse>> getEnrollmentsByEventId(@PathVariable Long eventId) {
+//    try {
+//        List<EventEnrollmentUserInfoResponse> enrollments = eventEnrollmentService.getEnrollmentsByEventIdUserInfo(eventId);
+//        return ResponseEntity.ok(enrollments);
+//    } catch (Exception e) {
+//        return ResponseEntity.notFound().build();
+//    }
+//}
+
+    @GetMapping("/event/{eventId}/enrollments")
+    public ResponseEntity<List<EventEnrollmentUserInfoResponse>> getEnrollmentsByEventId(@PathVariable Long eventId) {
+        try {
+            List<EventEnrollmentUserInfoResponse> enrollments = eventEnrollmentService.getAppliedEnrollmentsByEventIdUserInfo(eventId);
+            return ResponseEntity.ok(enrollments);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
-}
 
 
     @GetMapping("/user/{email}/status/{status}")

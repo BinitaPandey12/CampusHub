@@ -35,5 +35,33 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    //yo
+
+    public void sendPasswordResetEmail(String toEmail, String resetToken) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom("pbinita398@gmail.com");
+            helper.setTo(toEmail);
+            helper.setSubject("Reset your password for CampusHub");
+
+            // URL to your frontend reset password page with token param
+            String resetUrl = "http://localhost:5173/reset-password?token=" + resetToken;
+
+            String content = "<p>You requested a password reset.</p>"
+                    + "<p>Please click the link below to reset your password:</p>"
+                    + "<a href=\"" + resetUrl + "\">RESET PASSWORD</a>"
+                    + "<p>This link will expire in 1 hour.</p>"
+                    + "<p>If you didn't request this, please ignore this email.</p>";
+
+            helper.setText(content, true);
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 

@@ -27,5 +27,5 @@ public interface EventEnrollmentRepository extends JpaRepository<EventEnrollment
 
     // Find all enrollments by status
     List<EventEnrollment> findByStatusOrderByEnrollmentDateDesc(EnrollmentStatus status);
-
+    List<EventEnrollment> findByEventIdAndStatus(Long eventId, EnrollmentStatus status);
 }
