@@ -38,6 +38,25 @@ function SystemAdmin() {
   const dropdownRef = useRef(null);
   const token = localStorage.getItem("token");
 
+  // Function to format username from email
+  const formatUsernameFromEmail = (email) => {
+    if (!email) return "Club Admin";
+    
+    try {
+      // Extract username from email (part before @)
+      const usernamePart = email.split("@")[0];
+
+      // Remove everything after the dot (including the dot)
+      const nameBeforeDot = usernamePart.split(".")[0];
+
+      // Capitalize first letter
+      return nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+    } catch (error) {
+      console.error("Error formatting username:", error);
+      return "Club Admin";
+    }
+  };
+
   // Fetch all data on component mount
   useEffect(() => {
     if (!token) {
@@ -50,50 +69,61 @@ function SystemAdmin() {
       setError(null);
 
       try {
-        const [adminsRes, usersRes, pendingRes, rejectedRes] =
-          await Promise.all([
-            fetch(`${API_BASE_URL}/admins`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch(`${API_BASE_URL}/users`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch(`${API_BASE_URL}/events/pending`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch(`${API_BASE_URL}/events/rejected`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-          ]);
+        // First fetch all users to have name mapping
+        const usersResponse = await fetch(`${API_BASE_URL}/events/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        if (!usersResponse.ok) throw new Error("Failed to fetch users");
+        const usersData = await usersResponse.json();
+        
+        // Create a mapping of user emails to their formatted names
+        const userMap = {};
+        usersData.forEach(user => {
+          userMap[user.email] = formatUsernameFromEmail(user.email);
+        });
+
+        // Then fetch other data in parallel
+        const [adminsRes, pendingRes, rejectedRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/admins`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_BASE_URL}/events/pending`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_BASE_URL}/events/rejected`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
         if (!adminsRes.ok) throw new Error("Failed to fetch admins");
-        if (!usersRes.ok) throw new Error("Failed to fetch users");
         if (!pendingRes.ok) throw new Error("Failed to fetch pending events");
         if (!rejectedRes.ok) throw new Error("Failed to fetch rejected events");
 
-        const [adminsData, usersData, pendingData, rejectedData] =
-          await Promise.all([
-            adminsRes.json(),
-            usersRes.json(),
-            pendingRes.json(),
-            rejectedRes.json(),
-          ]);
+        const [adminsData, pendingData, rejectedData] = await Promise.all([
+          adminsRes.json(),
+          pendingRes.json(),
+          rejectedRes.json(),
+        ]);
 
-        // Process rejected events to ensure consistent data structure
-        const processedRejectedEvents = rejectedData.map((event) => ({
-          ...event,
-          rejectionMessage:
-            event.rejectionMessage || "No reason provided",
-          status: event.status || "REJECTED",
-          creatorName: event.creator?.name || "Unknown",
-          date: event.date || new Date().toISOString(),
-          location: event.location || "Not specified",
-        }));
+      
+        const processEvents = (events) => {
+          return events.map((event) => ({
+            ...event,
+            creatorName: event.createdByEmail 
+              ? formatUsernameFromEmail(event.createdByEmail)
+              : "Club Admin",
+            rejectionMessage: event.rejectionMessage || "No reason provided",
+            status: event.status || "REJECTED",
+            date: event.date || new Date().toISOString(),
+            location: event.location || "Not specified",
+          }));
+        };
 
-        setAdmins(adminsData);
         setUsers(usersData);
-        setPendingEvents(pendingData);
-        setRejectedEvents(processedRejectedEvents);
+        setAdmins(adminsData);
+        setPendingEvents(processEvents(pendingData));
+        setRejectedEvents(processEvents(rejectedData));
       } catch (error) {
         console.error("Fetch error:", error);
         setError(error.message);
@@ -191,7 +221,7 @@ function SystemAdmin() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            message: rejectReason.trim()  // This is the crucial change - using 'message' as the key
+            message: rejectReason.trim()
           }),
         }
       );
@@ -203,28 +233,29 @@ function SystemAdmin() {
 
       const updatedEvent = await res.json();
 
-      // Process the updated event with proper rejection data
+      // Format the creator's name from their email
+      const creatorName = updatedEvent.createdBy?.email 
+        ? formatUsernameFromEmail(updatedEvent.createdBy.email)
+        : "Club Admin";
+      
       const processedEvent = {
         ...updatedEvent,
         rejectionMessage: updatedEvent.rejectionMessage || "No reason provided",
         status: "REJECTED",
-        creatorName: updatedEvent.creator?.name || "Unknown",
+        creatorName,
         date: updatedEvent.date || new Date().toISOString(),
         location: updatedEvent.location || "Not specified",
       };
 
-      // Update state
       setPendingEvents((prev) =>
         prev.filter((e) => e.id !== modalData.eventId)
       );
       setRejectedEvents((prev) => [processedEvent, ...prev]);
 
-      // Reset modal and form
       setShowRejectModal(false);
       setRejectReason("");
       setError(null);
 
-      // Show success feedback
       toast.success("Event rejected successfully");
     } catch (error) {
       console.error("Rejection error:", error);
@@ -254,7 +285,6 @@ function SystemAdmin() {
         throw new Error(errorData.message || "Failed to delete");
       }
 
-      // Update state based on what was deleted
       if (type === "admin") {
         setAdmins((prevAdmins) => prevAdmins.filter((a) => a.id !== id));
         toast.success("Admin deleted successfully");
@@ -284,13 +314,18 @@ function SystemAdmin() {
         },
         body:
           decision === "rejected"
-            ? JSON.stringify({ message: "Rejected by admin" })
+            ? JSON.stringify({ message: rejectReason || "Rejected by admin" })
             : undefined,
       });
 
       if (!res.ok) throw new Error(`Failed to ${decision} event`);
 
       const updatedEvent = await res.json();
+      
+      // Format the creator's name from their email
+      const creatorName = updatedEvent.createdBy?.email 
+        ? formatUsernameFromEmail(updatedEvent.createdBy.email)
+        : "Club Admin";
 
       if (decision === "approved") {
         setPendingEvents((prevEvents) =>
@@ -300,10 +335,11 @@ function SystemAdmin() {
       } else {
         const processedEvent = {
           ...updatedEvent,
-          rejectionMessage:
-            updatedEvent.rejectionMessage || "No reason provided",
+          rejectionMessage: updatedEvent.rejectionMessage || "No reason provided",
           status: "REJECTED",
-          creatorName: updatedEvent.creator?.name || "Unknown",
+          creatorName,
+          date: updatedEvent.date || new Date().toISOString(),
+          location: updatedEvent.location || "Not specified",
         };
         setPendingEvents((prev) => prev.filter((e) => e.id !== eventId));
         setRejectedEvents((prev) => [processedEvent, ...prev]);
@@ -318,14 +354,14 @@ function SystemAdmin() {
 
   const filteredAdmins = admins.filter(
     (admin) =>
-      admin.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      admin.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       admin.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       admin.id?.toString().includes(searchQuery)
   );
 
   const filteredUsers = users.filter(
     (user) =>
-      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.id?.toString().includes(searchQuery)
   );
@@ -645,7 +681,7 @@ function SystemAdmin() {
                     <tr key={admin.id}>
                       <td className="id-cell">{admin.id}</td>
                       <td className="name-cell">
-                        {admin.name || "Unnamed Admin"}
+                        {admin.fullName || "Unnamed Admin"}
                       </td>
                       <td className="email-cell">
                         {admin.email || "No email"}
@@ -694,7 +730,7 @@ function SystemAdmin() {
                     <tr key={user.id}>
                       <td className="id-cell">{user.id}</td>
                       <td className="name-cell">
-                        {user.name || "Unnamed User"}
+                        {user.fullName || "Unnamed User"}
                       </td>
                       <td className="email-cell">{user.email || "No email"}</td>
                       <td className="action-cell">

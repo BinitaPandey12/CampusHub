@@ -29,6 +29,24 @@ function Register() {
     setPasswordStrength(Math.min(strength, 100));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Clear previous messages
+    setSuccessMessage("");
+    setErrorMessage("");
+  
+    try {
+      const res = await axios.post("/api/register", formData);
+      setSuccessMessage("Registration successful. Please check your email.");
+    } catch (err) {
+      if (err.response) {
+        setErrorMessage(err.response.data.message || "Registration failed.");
+      } else {
+        setErrorMessage("An unexpected error occurred.");
+      }
+    }
+  };
   const getStrengthColor = () => {
     if (passwordStrength < 40) return "#ef4444";
     if (passwordStrength < 70) return "#f59e0b";

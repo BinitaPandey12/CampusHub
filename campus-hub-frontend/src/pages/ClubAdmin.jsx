@@ -15,7 +15,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 const ClubAdmin = () => {
   // State management
-  const [users, setUsers] = useState([]);
   const [pendingEvents, setPendingEvents] = useState([]);
   const [approvedEvents, setApprovedEvents] = useState([]);
   const [rejectedEvents, setRejectedEvents] = useState([]);
@@ -31,37 +30,45 @@ const ClubAdmin = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [username, setUsername] = useState("Club Admin");
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const userData = JSON.parse(localStorage.getItem("user"));
-  const userName = userData?.name || "Club Admin";
 
-  // Fetch all data
+  // Extract username from email
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    if (email) {
+      // Extract username from email (part before @)
+      const usernamePart = email.split("@")[0];
+
+      // Remove everything after the dot (including the dot)
+      const nameBeforeDot = usernamePart.split(".")[0];
+
+      // Capitalize first letter
+      const formattedName =
+        nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+
+      setUsername(formattedName || "Club Admin");
+    }
+  }, []);
+
+  // Fetch all data specific to the logged-in club admin
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [
-        usersResponse,
-        pendingResponse,
-        approvedResponse,
-        rejectedResponse,
-      ] = await Promise.all([
-        axios.get("http://localhost:8080/api/events/users", {
+      const [pendingResponse, approvedResponse, rejectedResponse] = await Promise.all([
+        axios.get("http://localhost:8080/api/events/my-pending", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get("http://localhost:8080/api/events/pending", {
+        axios.get("http://localhost:8080/api/events/my-approved", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get("http://localhost:8080/api/events/approved", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get("http://localhost:8080/api/events/rejected", {
+        axios.get("http://localhost:8080/api/events/my-rejected", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
 
-      setUsers(usersResponse.data);
       setPendingEvents(pendingResponse.data);
       setApprovedEvents(approvedResponse.data);
       
@@ -69,7 +76,7 @@ const ClubAdmin = () => {
       const processedRejectedEvents = rejectedResponse.data.map(event => ({
         ...event,
         rejectionMessage: event.rejectionMessage || "No reason provided",
-        creatorName: event.createdBy?.name || "Club Admin"
+        creatorName: event.createdBy?.name || username // Use the logged-in admin's name
       }));
       
       setRejectedEvents(processedRejectedEvents);
@@ -196,7 +203,7 @@ const ClubAdmin = () => {
         location: "",
       });
       setShowEventForm(false);
-      toast.success("Event created successfully!");
+      toast.success("Event created successfully! Waiting for approval.");
     } catch (error) {
       console.error("Error creating event:", error);
       toast.error(error.response?.data?.message || "Failed to create event");
@@ -209,7 +216,7 @@ const ClubAdmin = () => {
     <div className="ca-container">
       <header className={`ca-header ${scrolled ? "ca-scrolled" : ""}`}>
         <div className="ca-profile" ref={dropdownRef}>
-          <span className="ca-welcome">Welcome, {userName}</span>
+          <span className="ca-welcome">Welcome, {username}</span>
           <button
             className="ca-profile-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -234,7 +241,7 @@ const ClubAdmin = () => {
       <main className="ca-main-content">
         <section className="ca-hero">
           <h1 className="ca-title">Club Admin Dashboard</h1>
-          <p className="ca-subtitle">Manage your club users and events</p>
+          <p className="ca-subtitle">Manage your club events</p>
         </section>
 
         <div className="ca-actions">
@@ -394,12 +401,15 @@ const ClubAdmin = () => {
                   </p>
                   <div className="ca-event-meta">
                     <span>
-                      {event.date
+                      Date: {event.date
                         ? new Date(event.date).toLocaleDateString()
                         : "No date"}
                     </span>
-                    <span>{event.time || "No time"}</span>
-                    <span>{event.location || "No location"}</span>
+                    <span>Time: {event.time || "No time"}</span>
+                    <span>Room No: {event.location || "No location"}</span>
+                  </div>
+                  <div className="ca-event-status">
+                    <span className="ca-status-pending">Pending Approval</span>
                   </div>
                 </article>
               ))}
@@ -430,21 +440,25 @@ const ClubAdmin = () => {
                 return (
                   <article
                     key={`approved-${event.id}`}
-                    className="ca-event-card"
+                    className="ca-event-card ca-approved-card"
                   >
                     <h3 className="ca-event-title">
-                      {event.title || "Untitled Event"}
+                      Event Name: {event.title || "Untitled Event"}
                     </h3>
                     <p className="ca-event-description">
-                      {(
+                      Description: {(
                         event.description || "No description provided"
                       ).substring(0, 100)}
                       ...
                     </p>
                     <div className="ca-event-meta">
-                      <span>{eventDate}</span>
-                      <span>{event.time || "Time not set"}</span>
-                      <span>{event.location || "Location not specified"}</span>
+                      <span>Date: {eventDate}</span>
+                      
+                      <span>Time: {event.time || "Time not set"}</span>
+                      <span>Room No: {event.location || "Location not specified"}</span>
+                    </div>
+                    <div className="ca-event-status">
+                      <span className="ca-status-approved">Approved</span>
                     </div>
                     <Link to={`/events/${event.id}`} className="ca-view-btn">
                       View Details
@@ -483,9 +497,6 @@ const ClubAdmin = () => {
                       <h3 className="ca-event-title">
                         {event.title || "Untitled Event"}
                       </h3>
-                      <p className="ca-event-author">
-                        By: {event.creatorName}
-                      </p>
                     </div>
                     <p className="ca-event-description">
                       {(
@@ -518,6 +529,9 @@ const ClubAdmin = () => {
                           {event.rejectionMessage}
                         </span>
                       </div>
+                    </div>
+                    <div className="ca-event-status">
+                      <span className="ca-status-rejected">Rejected</span>
                     </div>
                   </article>
                 );

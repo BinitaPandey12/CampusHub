@@ -7,7 +7,7 @@ const FormFill = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    fullName: localStorage.getItem("username") || "",
+    fullName: "",
     email: localStorage.getItem("email") || "",
     department: "",
     contactNo: "",
@@ -17,7 +17,7 @@ const FormFill = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [eventDetails, setEventDetails] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
   const departments = [
     "Computer Science",
@@ -27,23 +27,63 @@ const FormFill = () => {
     "Chemical Engineering",
   ];
 
+  // Fetch username from localStorage on component mount
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    if (email) {
+      // Extract username from email (part before @)
+      const usernamePart = email.split("@")[0];
+      // Remove everything after the dot (including the dot)
+      const nameBeforeDot = usernamePart.split(".")[0];
+      // Capitalize first letter
+      const formattedName = nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
+      setForm(prev => ({ ...prev, fullName: formattedName }));
+    }
+  }, []);
+
   // Enhanced validation function
   const validateForm = () => {
-    const errors = [];
-    if (!form.fullName.trim()) errors.push("Full Name is required");
-    if (!form.email.trim()) errors.push("Email is required");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      errors.push("Invalid email format");
-    if (!form.department) errors.push("Department is required");
-    if (!form.contactNo) errors.push("Phone Number is required");
-    if (!/^\d{10}$/.test(form.contactNo))
-      errors.push("Phone must be 10 digits");
-    if (!form.semester) errors.push("Semester is required");
-    return errors;
+    const errors = {};
+    let isValid = true;
+
+    if (!form.fullName.trim()) {
+      errors.fullName = "Full Name is required";
+      isValid = false;
+    }
+    if (!form.email.trim()) {
+      errors.email = "Email is required";
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      errors.email = "Invalid email format";
+      isValid = false;
+    }
+    if (!form.department) {
+      errors.department = "Department is required";
+      isValid = false;
+    }
+    if (!form.contactNo) {
+      errors.contactNo = "Phone Number is required";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(form.contactNo)) {
+      errors.contactNo = "Phone must be 10 digits";
+      isValid = false;
+    }
+    if (!form.semester) {
+      errors.semester = "Semester is required";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
     setError("");
 
@@ -54,8 +94,6 @@ const FormFill = () => {
     )}/api/enrollments/register`;
 
     try {
-      console.log("Attempting to call:", API_URL); // Debugging
-
       const response = await axios.post(
         API_URL,
         {
@@ -74,8 +112,6 @@ const FormFill = () => {
           timeout: 10000,
         }
       );
-
-      console.log("API Response:", response); // Debugging
 
       if (response.status === 201) {
         setSuccess("Enrollment successful!");
@@ -124,6 +160,11 @@ const FormFill = () => {
       ...prev,
       [name]: value,
     }));
+    
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   return (
@@ -169,10 +210,14 @@ const FormFill = () => {
               type="text"
               value={form.fullName}
               onChange={handleChange}
-              placeholder="Enter your full name"
+              placeholder="Your full name"
               autoComplete="name"
-              disabled={isSubmitting}
+              disabled={true}
+              className={formErrors.fullName ? "error-input" : ""}
             />
+            {formErrors.fullName && (
+              <span className="field-error">{formErrors.fullName}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -185,11 +230,15 @@ const FormFill = () => {
               type="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="Enter your email"
+              placeholder="Your email"
               autoComplete="email"
               disabled={isSubmitting}
               readOnly
+              className={formErrors.email ? "error-input" : ""}
             />
+            {formErrors.email && (
+              <span className="field-error">{formErrors.email}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -202,6 +251,7 @@ const FormFill = () => {
               value={form.department}
               onChange={handleChange}
               disabled={isSubmitting}
+              className={formErrors.department ? "error-input" : ""}
             >
               <option value="">Select your department</option>
               {departments.map((dept) => (
@@ -210,6 +260,9 @@ const FormFill = () => {
                 </option>
               ))}
             </select>
+            {formErrors.department && (
+              <span className="field-error">{formErrors.department}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -226,7 +279,11 @@ const FormFill = () => {
               pattern="[0-9]{10}"
               maxLength="10"
               disabled={isSubmitting}
+              className={formErrors.contactNo ? "error-input" : ""}
             />
+            {formErrors.contactNo && (
+              <span className="field-error">{formErrors.contactNo}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -239,6 +296,7 @@ const FormFill = () => {
               value={form.semester}
               onChange={handleChange}
               disabled={isSubmitting}
+              className={formErrors.semester ? "error-input" : ""}
             >
               <option value="">Select semester</option>
               {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
@@ -247,6 +305,9 @@ const FormFill = () => {
                 </option>
               ))}
             </select>
+            {formErrors.semester && (
+              <span className="field-error">{formErrors.semester}</span>
+            )}
           </div>
 
           <div className="form-actions">

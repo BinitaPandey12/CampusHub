@@ -413,21 +413,17 @@ const UserDashboard = () => {
                       {event.title}
                     </h4>
 
-                    <p className="user-dashboard__event-desc">
-                      Description: {event.description}
-                    </p>
+                    
                     <div className="user-dashboard__event-meta">
                       <span className="event-location">
-                        📍Location: {event.location}
+                        📍Room No: {event.location}
                         <br></br>
                       </span>
                       <span className="event-date">
                         Date: 📅 {event.formattedDate}
                       </span>
                     </div>
-                    <div className="event-countdown">
-                      CountDown: {renderCountdown(event.date, event.time)}
-                    </div>
+                    
                   </div>
                   <div className="user-dashboard__event-actions">
                     <button

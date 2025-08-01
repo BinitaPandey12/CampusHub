@@ -1,0 +1,221 @@
+/* Unique CSS classes prefixed with clubadmin- to prevent conflicts */
+
+.clubadmin-container {
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+  
+  .clubadmin-form {
+    width: 100%;
+    max-width: 500px;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transform: translateY(0);
+    transition: all 0.3s ease;
+    animation: clubadmin-fadeInUp 0.6s ease-out;
+  }
+  
+  .clubadmin-form:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  .clubadmin-title {
+    color: #2d3748;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .clubadmin-title:after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981, #3b82f6);
+    border-radius: 2px;
+  }
+  
+  .clubadmin-form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .clubadmin-form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+    font-weight: 500;
+  }
+  
+  .clubadmin-input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 1rem;
+    color: #2d3748;
+    transition: all 0.3s ease;
+    background-color: rgba(247, 250, 252, 0.7);
+  }
+  
+  .clubadmin-input:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    background-color: white;
+  }
+  
+  .clubadmin-password-wrapper {
+    position: relative;
+  }
+  
+  .clubadmin-password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #718096;
+    font-size: 1.2rem;
+  }
+  
+  .clubadmin-password-strength {
+    height: 4px;
+    width: 100%;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .clubadmin-password-strength-fill {
+    height: 100%;
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+  
+  .clubadmin-password-strength-text {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-top: 0.25rem;
+    text-align: right;
+  }
+  
+  .clubadmin-error {
+    color: #e53e3e;
+    background-color: #fff5f5;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    border: 1px solid #fed7d7;
+  }
+  
+  .clubadmin-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .clubadmin-form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+  }
+  
+  .clubadmin-submit-btn {
+    flex: 1;
+    padding: 1rem;
+    background: linear-gradient(90deg, #10b981, #3b82f6);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);
+  }
+  
+  .clubadmin-submit-btn:hover {
+    background: linear-gradient(90deg, #0d9b70, #2563eb);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.15);
+  }
+  
+  .clubadmin-submit-btn:disabled {
+    background: #cbd5e0;
+    transform: none;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  
+  .clubadmin-cancel-btn {
+    flex: 1;
+    padding: 1rem;
+    background: #e2e8f0;
+    color: #4a5568;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .clubadmin-cancel-btn:hover {
+    background: #cbd5e0;
+    transform: translateY(-2px);
+  }
+  
+  @keyframes clubadmin-fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .clubadmin-form {
+      padding: 1.5rem;
+      margin: 1rem;
+    }
+  
+    .clubadmin-title {
+      font-size: 1.5rem;
+    }
+  
+    .clubadmin-form-actions {
+      flex-direction: column;
+    }
+  
+    .clubadmin-submit-btn,
+    .clubadmin-cancel-btn {
+      width: 100%;
+    }
+  }
