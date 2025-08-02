@@ -120,55 +120,55 @@ const EventDetailsPage = () => {
     );
   };
 
-//   // Fetch event details and creator info
-//   useEffect(() => {
-//     const fetchEventDetails = async () => {
-//       if (!token) {
-//         navigate("/login");
-//         return;
-//       }
+  // Fetch event details and creator info
+  useEffect(() => {
+    const fetchEventDetails = async () => {
+      if (!token) {
+        navigate("/login");
+        return;
+      }
 
-//       try {
-//         setLoading(true);
-//         // Fetch event details
-//         const eventResponse = await axios.get(
-//           `http://localhost:8080/api/events/${eventId}`,
-//           {
-//             headers: { Authorization: `Bearer ${token}` },
-//           }
-//         );
-//         setEvent(eventResponse.data);
+      try {
+        setLoading(true);
+        // Fetch event details
+        const eventResponse = await axios.get(
+          `http://localhost:8080/api/events/${eventId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setEvent(eventResponse.data);
 
-//         // Fetch approved events to get creator info
-//         const approvedEventsResponse = await axios.get(
-//           "http://localhost:8080/api/events/approved",
-//           {
-//             headers: { Authorization: `Bearer ${token}` },
-//           }
-//         );
+        // Fetch approved events to get creator info
+        const approvedEventsResponse = await axios.get(
+          "http://localhost:8080/api/events/approved",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         
-// const processedEvents = processEvents(approvedEventsResponse.data);
+const processedEvents = processEvents(approvedEventsResponse.data);
 
-// // Find the current event in the processed list
-// const currentEvent = processedEvents.find((e) => e.id.toString() === eventId);
-// if (currentEvent && currentEvent.creatorName) {
-//   setCreatorName(currentEvent.creatorName);
-// }
+// Find the current event in the processed list
+const currentEvent = processedEvents.find((e) => e.id.toString() === eventId);
+if (currentEvent && currentEvent.creatorName) {
+  setCreatorName(currentEvent.creatorName);
+}
 
-//       } catch (err) {
-//         console.error("Error fetching event:", err);
-//         toast.error(err.response?.data?.message || "Failed to load event");
-//         if (err.response?.status === 401) {
-//           navigate("/login");
-//         }
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
+      } catch (err) {
+        console.error("Error fetching event:", err);
+        toast.error(err.response?.data?.message || "Failed to load event");
+        if (err.response?.status === 401) {
+          navigate("/login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//     fetchEventDetails();
-//   }, [eventId, token, navigate]);
+    fetchEventDetails();
+  }, [eventId, token, navigate]);
 
 // Fetch event details and creator info
 useEffect(() => {

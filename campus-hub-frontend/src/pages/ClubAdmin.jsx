@@ -10,7 +10,7 @@ import {
   FiLogOut,
   FiRefreshCw,
 } from "react-icons/fi";
-import { toast } from "react-toastify";
+import { toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ClubAdmin = () => {
@@ -39,16 +39,10 @@ const ClubAdmin = () => {
   useEffect(() => {
     const email = localStorage.getItem("email");
     if (email) {
-      // Extract username from email (part before @)
       const usernamePart = email.split("@")[0];
-
-      // Remove everything after the dot (including the dot)
       const nameBeforeDot = usernamePart.split(".")[0];
-
-      // Capitalize first letter
       const formattedName =
         nameBeforeDot.charAt(0).toUpperCase() + nameBeforeDot.slice(1);
-
       setUsername(formattedName || "Club Admin");
     }
   }, []);
@@ -72,11 +66,10 @@ const ClubAdmin = () => {
       setPendingEvents(pendingResponse.data);
       setApprovedEvents(approvedResponse.data);
       
-      // Process rejected events to ensure consistent data structure
       const processedRejectedEvents = rejectedResponse.data.map(event => ({
         ...event,
         rejectionMessage: event.rejectionMessage || "No reason provided",
-        creatorName: event.createdBy?.name || username // Use the logged-in admin's name
+        creatorName: event.createdBy?.name || username
       }));
       
       setRejectedEvents(processedRejectedEvents);
@@ -135,8 +128,18 @@ const ClubAdmin = () => {
     const [hours, minutes] = time.split(":").map(Number);
     const totalMinutes = hours * 60 + minutes;
 
-    // Check if time is between 6:00 AM (360 minutes) and 10:00 PM (1320 minutes)
+    // Check if time is between 6:00 (360 minutes) and 22:00 (1320 minutes)
     return totalMinutes >= 360 && totalMinutes <= 1320;
+  };
+
+  const formatTimeForDisplay = (timeString) => {
+    if (!timeString) return "No time";
+    
+    const [hours, minutes] = timeString.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
+    const displayHours = hours % 12 || 12;
+    
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
   const handleCreateEvent = async (e) => {
@@ -166,9 +169,9 @@ const ClubAdmin = () => {
         return;
       }
 
-      // Time validation (6 AM to 10 PM)
+      // Time validation (6:00 to 22:00)
       if (!validateTime(newEvent.time)) {
-        toast.error("Event time must be between 6 AM and 10 PM");
+        toast.error("Event time must be between 6:00 and 22:00");
         return;
       }
 
@@ -184,7 +187,7 @@ const ClubAdmin = () => {
           title: newEvent.title.trim(),
           description: newEvent.description.trim(),
           date: newEvent.date,
-          time: newEvent.time,
+          time: newEvent.time, // Already in 24-hour format from input
           location: newEvent.location.trim(),
           status: "PENDING",
         },
@@ -216,6 +219,7 @@ const ClubAdmin = () => {
 
   return (
     <div className="ca-container">
+      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} closeOnClick pauseOnHover draggable pauseOnFocusLoss />
       <header className={`ca-header ${scrolled ? "ca-scrolled" : ""}`}>
         <div className="ca-profile" ref={dropdownRef}>
           <span className="ca-welcome">Welcome, {username}</span>
@@ -335,7 +339,7 @@ const ClubAdmin = () => {
                         disabled={isSubmitting}
                         className="ca-input"
                       />
-                      <label htmlFor="event-time">Time * (6 AM - 10 PM)</label>
+                      <label htmlFor="event-time">Time * (06:00 - 22:00)</label>
                     </div>
                   </div>
 
@@ -407,7 +411,7 @@ const ClubAdmin = () => {
                         ? new Date(event.date).toLocaleDateString()
                         : "No date"}
                     </span>
-                    <span>Time: {event.time || "No time"}</span>
+                    <span>Time: {formatTimeForDisplay(event.time)}</span>
                     <span>Room No: {event.location || "No location"}</span>
                   </div>
                   <div className="ca-event-status">
@@ -455,8 +459,7 @@ const ClubAdmin = () => {
                     </p>
                     <div className="ca-event-meta">
                       <span>Date: {eventDate}</span>
-                      
-                      <span>Time: {event.time || "Time not set"}</span>
+                      <span>Time: {formatTimeForDisplay(event.time)}</span>
                       <span>Room No: {event.location || "Location not specified"}</span>
                     </div>
                     <div className="ca-event-status">
@@ -514,7 +517,7 @@ const ClubAdmin = () => {
                       <div className="ca-detail-row">
                         <span className="ca-detail-label">Time:</span>
                         <span className="ca-detail-value">
-                          {event.time || "Time not set"}
+                          {formatTimeForDisplay(event.time)}
                         </span>
                       </div>
                       <div className="ca-detail-row">

@@ -246,7 +246,7 @@ function EventDetails() {
                         <span>{enrollment.contactNo}</span>
                       </div>
                       <div className="clubevent-enrollment-detail">
-                        <span>Semester: {enrollment.semester}</span>
+                        <span>Semester: {enrollment.semester}th</span>
                       </div>
                       <div className="clubevent-enrollment-detail">
                         <FiClock className="clubevent-detail-icon" />

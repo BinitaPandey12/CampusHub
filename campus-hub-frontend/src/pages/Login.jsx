@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import * as jwtDecode from "jwt-decode";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 import "../Styles/Login.css";
 // import jwtDecode from "jwt-decode";
@@ -125,7 +126,7 @@ function Login() {
             onClick={() => setShowPassword((prev) => !prev)}
             style={{ cursor: "pointer" }}
           >
-            {showPassword ? "🙊" : "🙈"}
+            {showPassword ? <FiEyeOff /> : <FiEye />}
           </span>
         </div>
 

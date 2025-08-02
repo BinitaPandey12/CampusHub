@@ -186,21 +186,23 @@ const Dashboard = () => {
             {
               icon: ntcLogo,
               name: "NTC",
-              members: "5.7k",
-              fullName: "Nepal Telecom Club",
+              description: "Nepal Tek Community (NTC) is a technology-focused group that connects developers, designers, and IT professionals across Nepal. It hosts events and discussions on emerging tech trends to foster professional growth.",
+              fullName: "Nepal Tek Community",
             },
             {
               icon: noskLogo,
               name: "NOSK",
-              members: "3.2k",
-              fullName: "Nepal Optical Society",
+              description:
+                "Nepal Open Source Klub (NOSK) is a student-led community that promotes the use and development of open-source technologies. It organizes workshops, projects, and events to encourage collaboration and learning among tech enthusiasts.",
+              fullName: "Nepal Open Source Klub",
             },
             {
               icon: ieeeLogo,
-              name: "IEEE",
-              members: "8.1k",
-              fullName: "Institute of Electrical and Electronics Engineers",
+              name: "IEEE NCIT",
+              description: "IEEE NCIT Student Branch is a part of the global IEEE network established at Nepal College of Information Technology. It supports students through technical events, competitions, and research-based activities in engineering and technology.",
+              fullName: "Institute of Electrical and Electronics Engineers NCIT",
             },
+            
           ].map((club, index) => (
             <motion.div
               key={index}
@@ -231,7 +233,7 @@ const Dashboard = () => {
               </motion.div>
               <h3 className="club-title">{club.name}</h3>
               <p className="club-fullname">{club.fullName}</p>
-              <p className="club-members">{club.members} members</p>
+              <p className="club-description">{club.description}</p>
             </motion.div>
           ))}
         </div>

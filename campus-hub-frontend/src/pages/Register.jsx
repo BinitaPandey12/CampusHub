@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../Styles/Register.css";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -160,7 +161,7 @@ function Register() {
             className="password-toggle"
             onClick={() => setShowPassword((prev) => !prev)}
           >
-            {showPassword ? "🙊" : "🙈"}
+            {showPassword ? <FiEyeOff /> : <FiEye />}
           </span>
         </div>
 
@@ -177,7 +178,7 @@ function Register() {
             className="password-toggle"
             onClick={() => setShowConfirmPassword((prev) => !prev)}
           >
-            {showConfirmPassword ? "🙊" : "🙈"}
+            {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
           </span>
         </div>
 

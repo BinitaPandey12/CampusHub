@@ -292,20 +292,17 @@ img {
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: var(--primary-color);
+  color: black;
 }
 
 .club-fullname {
-  font-size: 1rem;
-  color: var(--gray-color);
-  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+  color: #0b5cff;
 }
 
-.club-members {
-  font-size: 0.9rem;
-  color: var(--gray-color);
-  font-weight: 600;
-}
+
 
 /* Footer */
 .dashboard-footer {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../Styles/ResetPassword.css';
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -112,7 +113,7 @@ function ResetPassword() {
                 className="password-toggle"
                 onClick={() => setShowPassword((prev) => !prev)}
               >
-                {showPassword ? "🙊" : "🙈"}
+                {showPassword ? <FiEyeOff /> : <FiEye />}
               </span>
             </div>
             
@@ -132,7 +133,7 @@ function ResetPassword() {
                 className="password-toggle"
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
               >
-                {showConfirmPassword ? "🙊" : "🙈"}
+                {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
               </span>
             </div>
           </div>
